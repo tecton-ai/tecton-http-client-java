@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+}
+
+group 'com.tecton.http-client'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.0.1-jre'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+test {
+    useJUnit()
+    testLogging {
+        showStandardStreams = true
+        events("skipped", "failed")
+
+    }
+}
