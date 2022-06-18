@@ -3,6 +3,7 @@ package com.tecton.client.transport;
 import com.tecton.client.TectonClientOptions;
 import com.tecton.client.exceptions.TectonServiceException;
 import okhttp3.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -80,7 +81,7 @@ public class TectonHttpClient {
     for (Map.Entry<String, String> header : defaultHeaders.entrySet()) {
       requestBuilder.header(header.getKey(), header.getValue());
     }
-    String apiKeyHeader = API_KEY_PREFIX + httpRequest.getApiKey();
+    String apiKeyHeader = StringUtils.join(API_KEY_PREFIX + httpRequest.getApiKey());
     requestBuilder.header(HttpHeader.AUTHORIZATION.getName(), apiKeyHeader);
 
     // Add request body

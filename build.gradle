@@ -10,8 +10,11 @@ repositories {
 }
 
 dependencies {
+    //OkHttp Client
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
-    implementation group: 'com.google.guava', name: 'guava', version: '31.0.1-jre'
+    //StringUtils and Validation checks
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    //JUnit tests
     testImplementation 'junit:junit:4.13.2'
 }
 

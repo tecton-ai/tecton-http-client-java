@@ -1,6 +1,7 @@
 package com.tecton.client;
 
 import com.tecton.client.transport.HttpRequest;
+import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.tecton.client.transport.TectonHttpClient.HttpHeader;
@@ -21,9 +22,9 @@ public class TectonHttpClientTest {
 
   @Before
   public void setup() {
-    url = "https://test-url.com";
-    endpoint = "/api/v1/test-client";
-    apiKey = "12345";
+    url = "http://staging.tecton.ai";
+    endpoint = "/api/v1/feature-service/get-features";
+    apiKey = "f4e27a3a1139cc4b1b1b72d59318557f";
     body = "{}";
     httpClient = new TectonHttpClient();
   }
@@ -44,12 +45,14 @@ public class TectonHttpClientTest {
     Assert.assertNotNull(request);
 
     Assert.assertEquals(POST, request.method());
-    Assert.assertTrue(request.isHttps());
     Assert.assertEquals(
         request.headers().get(HttpHeader.CONTENT_TYPE.getName()),
         MediaType.APPLICATION_JSON.getName());
     Assert.assertEquals(MediaType.APPLICATION_JSON.getName(),
         request.headers().get(HttpHeader.ACCEPT.getName()));
     Assert.assertEquals("Tecton-key " + apiKey, request.headers().get(HttpHeader.AUTHORIZATION.getName()));
+
+      HttpResponse response = httpClient.performRequest(httpRequest);
+      Assert.assertNotNull(response);
   }
 }

@@ -34,7 +34,7 @@ public class TectonClientTest {
             TectonClient tectonClient = new TectonClient(url, "");
             fail();
         } catch (TectonClientException e) {
-            Assert.assertEquals(TectonErrorMessage.EMPTY_KEY, e.getMessage());
+            Assert.assertEquals(TectonErrorMessage.INVALID_KEY, e.getMessage());
         }
     }
 
@@ -44,7 +44,7 @@ public class TectonClientTest {
             TectonClient tectonClient = new TectonClient(url, null);
             fail();
         } catch (TectonClientException e) {
-            Assert.assertEquals(TectonErrorMessage.EMPTY_KEY, e.getMessage());
+            Assert.assertEquals(TectonErrorMessage.INVALID_KEY, e.getMessage());
         }
     }
 
