@@ -1,6 +1,5 @@
 package com.tecton.client.request;
 
-import com.squareup.moshi.Json;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 
 public abstract class AbstractTectonRequest {
@@ -8,10 +7,8 @@ public abstract class AbstractTectonRequest {
   private final transient String endpoint;
   private final transient HttpMethod method;
 
-  @Json(name = "workspace_name")
   private String workspaceName;
 
-  @Json(name = "feature_service_name")
   private String featureServiceName;
 
   public AbstractTectonRequest(
