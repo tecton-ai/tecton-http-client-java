@@ -4,6 +4,7 @@ import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.GetFeaturesRequestData;
 import com.tecton.client.transport.TectonHttpClient;
+import com.tecton.client.request.GetFeaturesRequest.MetadataOption;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,7 +12,10 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.fail;
 
@@ -101,6 +105,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
     Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
     Assert.assertTrue(getFeaturesRequest.getFeaturesRequestData().isEmptyRequestContextMap());
+    Assert.assertTrue(getFeaturesRequest.getMetadataOptions().isEmpty());
 
     Map<String, String> joinKeyMap = getFeaturesRequest.getFeaturesRequestData().getJoinKeyMap();
     Assert.assertEquals(1, joinKeyMap.size());
@@ -125,6 +130,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(TectonHttpClient.HttpMethod.POST, getFeaturesRequest.getMethod());
     Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
     Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
+    Assert.assertTrue(getFeaturesRequest.getMetadataOptions().isEmpty());
 
     Map<String, Object> requestContextMap =
         getFeaturesRequest.getFeaturesRequestData().getRequestContextMap();
@@ -136,6 +142,105 @@ public class GetFeaturesRequestTest {
         "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}";
     String actual_json = getFeaturesRequest.requestToJson();
 
+    Assert.assertEquals(expected_json, actual_json);
+  }
+
+  @Test
+  public void testAllMetadataOptions() {
+    getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            defaultFeatureRequestData,
+            MetadataOption.ALL);
+    Assert.assertEquals(4, getFeaturesRequest.getMetadataOptions().size());
+    Set<MetadataOption> metadataOptionSet = getFeaturesRequest.getMetadataOptions();
+    Set<MetadataOption> expectedSet =
+        new HashSet<>(
+            Arrays.asList(
+                MetadataOption.NAME,
+                MetadataOption.DATA_TYPE,
+                MetadataOption.EFFECTIVE_TIME,
+                MetadataOption.SLO_INFO));
+    Assert.assertTrue(metadataOptionSet.containsAll(expectedSet));
+  }
+
+  @Test
+  public void testCustomMetadataOptions() {
+    getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            defaultFeatureRequestData,
+            MetadataOption.DATA_TYPE,
+            MetadataOption.NAME);
+    Assert.assertEquals(2, getFeaturesRequest.getMetadataOptions().size());
+    Set<MetadataOption> metadataOptionSet = getFeaturesRequest.getMetadataOptions();
+    Set<MetadataOption> expectedSet =
+        new HashSet<>(Arrays.asList(MetadataOption.NAME, MetadataOption.DATA_TYPE));
+    Assert.assertTrue(metadataOptionSet.containsAll(expectedSet));
+  }
+
+  @Test
+  public void testJsonWithCustomMetadataOptions() {
+    defaultFeatureRequestData.addRequestContext("testKey", 999.99);
+    getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            defaultFeatureRequestData,
+            MetadataOption.NAME,
+            MetadataOption.SLO_INFO);
+
+    Assert.assertEquals(2, getFeaturesRequest.getMetadataOptions().size());
+
+    String expected_json =
+        "{"
+            + "\"feature_service_name\":\"testFSName\","
+            + "\"join_key_map\":{"
+            + "\"testKey\":\"testValue\""
+            + "},"
+            + "\"metadata_options\":{"
+            + "\"include_slo_info\":true,"
+            + "\"include_names\":true},"
+            + "\"request_context_map\":{"
+            + "\"testKey\":999.99},"
+            + "\"workspace_name\":\"testWorkspaceName\""
+            + "}";
+    String actual_json = getFeaturesRequest.requestToJson();
+    Assert.assertEquals(expected_json, actual_json);
+  }
+
+  @Test
+  public void testJsonWithAllMetadataOptions() {
+    defaultFeatureRequestData.addRequestContext("testKey", "testValue");
+    getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            defaultFeatureRequestData,
+            MetadataOption.ALL);
+
+    Assert.assertEquals(4, getFeaturesRequest.getMetadataOptions().size());
+
+    String expected_json =
+        "{"
+            + "\"feature_service_name\":\"testFSName\","
+            + "\"join_key_map\":{"
+            + "\"testKey\":\"testValue\""
+            + "},"
+            + "\"metadata_options\":{"
+            + "\"include_slo_info\":true,"
+            + "\"include_effective_times\":true,"
+            + "\"include_names\":true,"
+            + "\"include_data_types\":true"
+            + "},"
+            + "\"request_context_map\":{"
+            + "\"testKey\":\"testValue\""
+            + "},"
+            + "\"workspace_name\":\"testWorkspaceName\""
+            + "}";
+    String actual_json = getFeaturesRequest.requestToJson();
     Assert.assertEquals(expected_json, actual_json);
   }
 }

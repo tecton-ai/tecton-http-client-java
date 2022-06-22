@@ -6,15 +6,18 @@ import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.GetFeaturesRequestData;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final HttpMethod httpMethod = HttpMethod.POST;
 
   private GetFeaturesRequestData getFeaturesRequestData;
+  private Set<MetadataOption> metadataOptions;
 
   public GetFeaturesRequest(
       String workspaceName,
@@ -23,10 +26,44 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
     validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
+    this.metadataOptions = EnumSet.noneOf(MetadataOption.class);
+  }
+
+  public GetFeaturesRequest(
+      String workspaceName,
+      String featureServiceName,
+      GetFeaturesRequestData getFeaturesRequestData,
+      MetadataOption... metadataOptions) {
+
+    super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
+    validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
+    this.getFeaturesRequestData = getFeaturesRequestData;
+
+    List<MetadataOption> metadataOptionList = Arrays.asList(metadataOptions);
+    if (metadataOptionList.contains(MetadataOption.ALL)) {
+      this.metadataOptions =
+          EnumSet.complementOf(EnumSet.of(MetadataOption.ALL, MetadataOption.NONE));
+    } else if (metadataOptionList.contains(MetadataOption.NONE)) {
+      this.metadataOptions = EnumSet.noneOf(MetadataOption.class);
+    } else {
+      this.metadataOptions = EnumSet.copyOf(metadataOptionList);
+    }
   }
 
   public GetFeaturesRequestData getFeaturesRequestData() {
     return this.getFeaturesRequestData;
+  }
+
+  public Set<MetadataOption> getMetadataOptions() {
+    return this.metadataOptions;
+  }
+
+  private static class GetFeatureRequestJson {
+    String feature_service_name;
+    String workspace_name;
+    Map<String, String> join_key_map;
+    Map<String, Object> request_context_map;
+    Map<String, Boolean> metadata_options;
   }
 
   public String requestToJson() {
@@ -42,6 +79,10 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     if (!getFeaturesRequestData().isEmptyRequestContextMap()) {
       getFeaturesRequestJson.request_context_map = getFeaturesRequestData().getRequestContextMap();
     }
+    if (!metadataOptions.isEmpty()) {
+        getFeaturesRequestJson.metadata_options = metadataOptions.stream()
+            .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
+    }
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
     } catch (Exception e) {
@@ -49,11 +90,26 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     }
   }
 
-  public static class GetFeatureRequestJson {
-    String feature_service_name;
-    String workspace_name;
-    Map<String, String> join_key_map;
-    Map<String, Object> request_context_map;
+  public enum MetadataOption {
+    NAME("include_names"),
+    EFFECTIVE_TIME("include_effective_times"),
+    DATA_TYPE("include_data_types"),
+    SLO_INFO("include_slo_info"),
+    ALL(),
+    NONE();
+    private final String jsonName;
+
+    MetadataOption() {
+      this.jsonName = StringUtils.EMPTY;
+    }
+
+    MetadataOption(String name) {
+      this.jsonName = name;
+    }
+
+    public String getJsonName() {
+      return jsonName;
+    }
   }
 
   private void validateRequestParameters(
