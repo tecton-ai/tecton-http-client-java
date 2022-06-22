@@ -1,4 +1,4 @@
-package com.tecton.client.model;
+package com.tecton.client.request;
 
 import com.tecton.client.exceptions.TectonErrorMessage;
 import org.apache.commons.lang3.Validate;
@@ -13,6 +13,18 @@ public class GetFeaturesRequestData {
   public GetFeaturesRequestData() {
     this.joinKeyMap = new HashMap<>();
     this.requestContextMap = new HashMap<>();
+  }
+
+  public GetFeaturesRequestData addJoinKeyMap(Map<String, String> joinKeyMap) {
+    Validate.notEmpty(joinKeyMap);
+    this.joinKeyMap = joinKeyMap;
+    return this;
+  }
+
+  public GetFeaturesRequestData addRequestContextMap(Map<String, Object> requestContextMap) {
+    Validate.notEmpty(requestContextMap);
+    this.requestContextMap = requestContextMap;
+    return this;
   }
 
   public GetFeaturesRequestData addJoinKey(String key, String value) {
@@ -45,19 +57,19 @@ public class GetFeaturesRequestData {
     return this;
   }
 
-  public Map<String, String> getJoinKeyMap() {
+  Map<String, String> getJoinKeyMap() {
     return this.joinKeyMap;
   }
 
-  public Map<String, Object> getRequestContextMap() {
+  Map<String, Object> getRequestContextMap() {
     return requestContextMap;
   }
 
-  public boolean isEmptyJoinKeyMap() {
+  boolean isEmptyJoinKeyMap() {
     return this.joinKeyMap.isEmpty();
   }
 
-  public boolean isEmptyRequestContextMap() {
+  boolean isEmptyRequestContextMap() {
     return this.requestContextMap.isEmpty();
   }
 

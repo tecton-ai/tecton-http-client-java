@@ -2,7 +2,6 @@ package com.tecton.client.request;
 
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-import com.tecton.client.model.GetFeaturesRequestData;
 import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.request.GetFeaturesRequest.MetadataOption;
 import org.junit.Assert;

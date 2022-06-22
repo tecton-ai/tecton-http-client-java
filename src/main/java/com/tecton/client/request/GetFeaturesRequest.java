@@ -4,7 +4,6 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-import com.tecton.client.model.GetFeaturesRequestData;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -16,8 +15,9 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final HttpMethod httpMethod = HttpMethod.POST;
 
-  private GetFeaturesRequestData getFeaturesRequestData;
-  private Set<MetadataOption> metadataOptions;
+  private JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
+  private final GetFeaturesRequestData getFeaturesRequestData;
+  private final Set<MetadataOption> metadataOptions;
 
   public GetFeaturesRequest(
       String workspaceName,
@@ -27,6 +27,8 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
     this.metadataOptions = EnumSet.noneOf(MetadataOption.class);
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
   public GetFeaturesRequest(
@@ -48,6 +50,8 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     } else {
       this.metadataOptions = EnumSet.copyOf(metadataOptionList);
     }
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
   public GetFeaturesRequestData getFeaturesRequestData() {
@@ -58,7 +62,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     return this.metadataOptions;
   }
 
-  private static class GetFeatureRequestJson {
+  private static class GetFeaturesRequestJson {
     String feature_service_name;
     String workspace_name;
     Map<String, String> join_key_map;
@@ -66,11 +70,8 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     Map<String, Boolean> metadata_options;
   }
 
-  public String requestToJson() {
-    Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<GetFeatureRequestJson> jsonAdapter = moshi.adapter(GetFeatureRequestJson.class);
-
-    GetFeatureRequestJson getFeaturesRequestJson = new GetFeatureRequestJson();
+  String requestToJson() {
+    GetFeaturesRequestJson getFeaturesRequestJson = new GetFeaturesRequestJson();
     getFeaturesRequestJson.feature_service_name = this.getFeatureServiceName();
     getFeaturesRequestJson.workspace_name = this.getWorkspaceName();
     if (!getFeaturesRequestData().isEmptyJoinKeyMap()) {
@@ -80,8 +81,9 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
       getFeaturesRequestJson.request_context_map = getFeaturesRequestData().getRequestContextMap();
     }
     if (!metadataOptions.isEmpty()) {
-        getFeaturesRequestJson.metadata_options = metadataOptions.stream()
-            .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
+      getFeaturesRequestJson.metadata_options =
+          metadataOptions.stream()
+              .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
     }
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
@@ -97,6 +99,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     SLO_INFO("include_slo_info"),
     ALL(),
     NONE();
+
     private final String jsonName;
 
     MetadataOption() {

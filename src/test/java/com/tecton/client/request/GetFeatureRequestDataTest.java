@@ -1,10 +1,11 @@
-package com.tecton.client.model;
+package com.tecton.client.request;
 
 import com.tecton.client.exceptions.TectonErrorMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -128,12 +129,41 @@ public class GetFeatureRequestDataTest {
 
   @Test
   public void testJoinKeyAndRequestContext() {
-    getFeaturesRequestData
-        .addJoinKey("testJoinKey", "testJoinValue")
-        .addRequestContext("testRequestContext", 555.55)
-        .addRequestContext("testRequestContextMore", "testValue");
+    Map<String, String> joinKeyMap =
+        new HashMap<String, String>() {
+          {
+            put("testJoinKey1", "testJoinValue1");
+            put("testJoinKey2", "testJoinValue2");
+          }
+        };
+
+    Map<String, Object> requestContextMap =
+        new HashMap<String, Object>() {
+          {
+            put("testRequestContext1", 555.55);
+            put("testRequestContext2", "testStringValue");
+          }
+        };
+
+    getFeaturesRequestData.addJoinKeyMap(joinKeyMap).addRequestContextMap(requestContextMap);
 
     Assert.assertEquals(2, getFeaturesRequestData.getRequestContextMap().size());
-    Assert.assertEquals(1, getFeaturesRequestData.getJoinKeyMap().size());
+    Assert.assertEquals(2, getFeaturesRequestData.getJoinKeyMap().size());
+    joinKeyMap
+        .keySet()
+        .forEach(
+            key -> {
+              Assert.assertEquals(
+                  joinKeyMap.get(key), getFeaturesRequestData.getJoinKeyMap().get(key));
+            });
+
+    requestContextMap
+        .keySet()
+        .forEach(
+            key -> {
+              Assert.assertEquals(
+                  requestContextMap.get(key),
+                  getFeaturesRequestData.getRequestContextMap().get(key));
+            });
   }
 }
