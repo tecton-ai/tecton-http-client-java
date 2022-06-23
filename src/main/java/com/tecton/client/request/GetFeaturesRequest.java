@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final HttpMethod httpMethod = HttpMethod.POST;
+  // Always include name and data_type in metadata options
   private static final Set<MetadataOption> defaultMetadataOptions =
       EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
@@ -45,6 +46,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
 
     List<MetadataOption> metadataOptionList = Arrays.asList(metadataOptions);
     if (metadataOptionList.contains(MetadataOption.ALL)) {
+      // Add everything except ALL and NONE from MetadataOption EnumSet
       this.metadataOptions =
           EnumSet.complementOf(EnumSet.of(MetadataOption.ALL, MetadataOption.NONE));
     } else if (metadataOptionList.contains(MetadataOption.NONE)) {
@@ -52,7 +54,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     } else {
       this.metadataOptions = EnumSet.copyOf(metadataOptionList);
     }
-    this.metadataOptions.addAll(defaultMetadataOptions);
+    this.metadataOptions.addAll(defaultMetadataOptions); // default metadata options
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
