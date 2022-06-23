@@ -6,15 +6,10 @@ import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.request.GetFeaturesRequest.MetadataOption;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.fail;
 
@@ -23,7 +18,8 @@ public class GetFeaturesRequestTest {
   private static final String TEST_WORKSPACENAME = "testWorkspaceName";
   private static final String TEST_FEATURESERVICE_NAME = "testFSName";
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
-  @Rule public TestName name = new TestName();
+  private static final Set<MetadataOption> defaultMetadataOptions =
+      EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
   GetFeaturesRequest getFeaturesRequest;
   GetFeaturesRequestData defaultFeatureRequestData;
@@ -104,14 +100,14 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
     Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
     Assert.assertTrue(getFeaturesRequest.getFeaturesRequestData().isEmptyRequestContextMap());
-    Assert.assertTrue(getFeaturesRequest.getMetadataOptions().isEmpty());
+    Assert.assertEquals(defaultMetadataOptions, getFeaturesRequest.getMetadataOptions());
 
     Map<String, String> joinKeyMap = getFeaturesRequest.getFeaturesRequestData().getJoinKeyMap();
     Assert.assertEquals(1, joinKeyMap.size());
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"workspace_name\":\"testWorkspaceName\"}";
+        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -129,7 +125,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(TectonHttpClient.HttpMethod.POST, getFeaturesRequest.getMethod());
     Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
     Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
-    Assert.assertTrue(getFeaturesRequest.getMetadataOptions().isEmpty());
+    Assert.assertEquals(defaultMetadataOptions, getFeaturesRequest.getMetadataOptions());
 
     Map<String, Object> requestContextMap =
         getFeaturesRequest.getFeaturesRequestData().getRequestContextMap();
@@ -138,7 +134,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testVal", requestContextMap.get("testKey2"));
 
     String expected_json =
-        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}";
+        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -191,7 +187,7 @@ public class GetFeaturesRequestTest {
             MetadataOption.NAME,
             MetadataOption.SLO_INFO);
 
-    Assert.assertEquals(2, getFeaturesRequest.getMetadataOptions().size());
+    Assert.assertEquals(3, getFeaturesRequest.getMetadataOptions().size());
 
     String expected_json =
         "{"
@@ -201,7 +197,8 @@ public class GetFeaturesRequestTest {
             + "},"
             + "\"metadata_options\":{"
             + "\"include_slo_info\":true,"
-            + "\"include_names\":true},"
+            + "\"include_names\":true,"
+            + "\"include_data_types\":true},"
             + "\"request_context_map\":{"
             + "\"testKey\":999.99},"
             + "\"workspace_name\":\"testWorkspaceName\""

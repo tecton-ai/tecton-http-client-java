@@ -14,10 +14,12 @@ import java.util.stream.Collectors;
 public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final HttpMethod httpMethod = HttpMethod.POST;
+  private static final Set<MetadataOption> defaultMetadataOptions =
+      EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
   private JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
-  private final Set<MetadataOption> metadataOptions;
+  private Set<MetadataOption> metadataOptions;
 
   public GetFeaturesRequest(
       String workspaceName,
@@ -26,7 +28,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
     validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
-    this.metadataOptions = EnumSet.noneOf(MetadataOption.class);
+    this.metadataOptions = defaultMetadataOptions;
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
@@ -50,15 +52,16 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     } else {
       this.metadataOptions = EnumSet.copyOf(metadataOptionList);
     }
+    this.metadataOptions.addAll(defaultMetadataOptions);
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
-  public GetFeaturesRequestData getFeaturesRequestData() {
+  GetFeaturesRequestData getFeaturesRequestData() {
     return this.getFeaturesRequestData;
   }
 
-  public Set<MetadataOption> getMetadataOptions() {
+  Set<MetadataOption> getMetadataOptions() {
     return this.metadataOptions;
   }
 
