@@ -12,6 +12,10 @@ repositories {
 dependencies {
     //OkHttp Client
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
+    //Moshi JSON Parsing Library
+    implementation group: 'com.squareup.moshi', name: 'moshi', version: '1.9.3'
+    //Moshi JSON Adapter Library for Standard Java Types
+    implementation group: 'com.squareup.moshi', name: 'moshi-adapters', version: '1.9.3'
     //StringUtils and Validation checks
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     //JUnit tests
