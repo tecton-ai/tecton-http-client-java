@@ -75,7 +75,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     Map<String, Boolean> metadata_options;
   }
 
-  String requestToJson() {
+  public String requestToJson() {
     GetFeaturesRequestJson getFeaturesRequestJson = new GetFeaturesRequestJson();
     getFeaturesRequestJson.feature_service_name = this.getFeatureServiceName();
     getFeaturesRequestJson.workspace_name = this.getWorkspaceName();

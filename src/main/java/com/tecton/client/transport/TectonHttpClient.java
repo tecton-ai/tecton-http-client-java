@@ -5,7 +5,6 @@ import com.tecton.client.exceptions.TectonServiceException;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class TectonHttpClient {
     try {
       Response response = call.execute();
       return new HttpResponse(response);
-    } catch (IOException e) {
+    } catch (Exception e) {
         throw new TectonServiceException(e.getMessage());
     }
   }

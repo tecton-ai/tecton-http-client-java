@@ -1,0 +1,17 @@
+{
+  "result": {
+    "features": [
+      "0"
+    ]
+  },
+  "metadata": {
+    "features": [
+      {
+        "name":"average_rain.rain_in_last_24_hrs",
+        "data_type": {
+          "type": "int64"
+        }
+      }
+    ]
+  }
+}
