@@ -1,7 +1,11 @@
 {
   "result": {
     "features": [
-      "0"
+      "0",
+      false,
+      null,
+      "nimbostratus",
+      55.5
     ]
   },
   "metadata": {
@@ -10,6 +14,30 @@
         "name":"average_rain.rain_in_last_24_hrs",
         "data_type": {
           "type": "int64"
+        }
+      },
+      {
+        "name":"average_rain.precipitation_higher_than_average",
+        "data_type": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name":"average_rain.atmospheric_pressure",
+        "data_type": {
+          "type": "float64"
+        }
+      },
+      {
+        "name":"average_rain.cloud_type",
+        "data_type": {
+          "type": "string"
+        }
+      },
+      {
+        "name":"average_rain.average_temperate_24hrs",
+        "data_type": {
+          "type": "float64"
         }
       }
     ]

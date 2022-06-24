@@ -24,7 +24,7 @@ public class HttpResponse {
     if (response.isSuccessful()) {
       this.body = (response.body()).string();
     } else {
-        this.body = null;
+      this.body = null;
     }
   }
 
