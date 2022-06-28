@@ -65,10 +65,6 @@ public class FeatureValue {
     return featureNamespace;
   }
 
-  public String getRelativeFeatureName() {
-    return StringUtils.join(featureNamespace, ".", featureName);
-  }
-
   public class Value {
 
     private final ValueType valueType;

@@ -36,8 +36,14 @@ public class GetFeaturesResponse {
   }
 
   public Map<String, FeatureValue> getFeatureValuesAsMap() {
-    return featureValues.stream()
-        .collect(Collectors.toMap(FeatureValue::getRelativeFeatureName, Function.identity()));
+    Map<String, FeatureValue> featureMap = new HashMap<>();
+    featureValues.forEach(
+        featureValue ->
+            featureMap.put(
+                StringUtils.join(
+                    featureValue.getFeatureNamespace(), ".", featureValue.getFeatureName()),
+                featureValue));
+    return featureMap;
   }
 
   public Duration getRequestLatency() {
@@ -99,7 +105,7 @@ public class GetFeaturesResponse {
   private void validateResponse(
       List<Object> featureVector, List<GetFeaturesResponseJson.FeatureMetadata> featureMetadata) {
     if (featureVector.isEmpty()) {
-      // TODO Is an empty feature vector an error?
+      throw new TectonClientException(TectonErrorMessage.EMPTY_FEATURE_VECTOR);
     }
     for (GetFeaturesResponseJson.FeatureMetadata metadata : featureMetadata) {
       if (StringUtils.isEmpty(metadata.name)) {
