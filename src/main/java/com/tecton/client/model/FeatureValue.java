@@ -23,10 +23,13 @@ public class FeatureValue {
 
   public FeatureValue(
       Object featureObject, String name, Map<String, String> dataType, String effectiveTime) {
+
+    // Split name into featureNamespace and featureName
     String[] split = StringUtils.split(name, ".");
     featureNamespace = split[0];
     featureName = split[1];
 
+    // Parse effective_time if present
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -36,6 +39,7 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
+    // Parse dataType from response
     String type = dataType.get(TYPE);
     Optional<ValueType> valueType = ValueType.fromString(type);
     if (valueType.isPresent()) {
@@ -140,7 +144,7 @@ public class FeatureValue {
       return this.name;
     }
 
-    //Map string to the corresponding ValueType enum
+    // Map string to the corresponding ValueType enum
     static Optional<ValueType> fromString(String name) {
       return Arrays.stream(ValueType.values())
           .filter(val -> StringUtils.equalsIgnoreCase(val.getName(), name))
