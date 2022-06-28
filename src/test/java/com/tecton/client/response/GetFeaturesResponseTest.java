@@ -11,6 +11,9 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class GetFeaturesResponseTest {
@@ -56,6 +59,50 @@ public class GetFeaturesResponseTest {
         sloInfo
             .getSloIneligibilityReasons()
             .contains(SloIneligibilityReason.DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED));
+  }
+
+  @Test
+  public void testArrayValueResponse() {
+    Duration duration = Duration.ofMillis(5);
+    List<Double> expectedDoubleArray =
+        new ArrayList<Double>() {
+          {
+            add(55.5);
+            add(57.88);
+            add(58.96);
+            add(57.66);
+            add(null);
+            add(55.98);
+          }
+        };
+    List<String> expectedStringArray = new ArrayList<>();
+    expectedStringArray.add(null);
+    List<Long> expectedLongArray = Collections.singletonList(0L);
+
+    getFeaturesResponse = new GetFeaturesResponse(responseWithArray, duration);
+    Assert.assertNotNull(getFeaturesResponse);
+    Assert.assertEquals(3, getFeaturesResponse.getFeatureValues().size());
+
+    List<Double> actualDoubleArray =
+        getFeaturesResponse
+            .getFeatureValuesAsMap()
+            .get("average_rain.average_temperate_6hrs")
+            .float64ArrayValue();
+    Assert.assertEquals(expectedDoubleArray, actualDoubleArray);
+
+    List<String> actualStringArray =
+        getFeaturesResponse
+            .getFeatureValuesAsMap()
+            .get("average_rain.cloud_type")
+            .stringArrayValue();
+    Assert.assertEquals(expectedStringArray, actualStringArray);
+
+    List<Long> actualLongArray =
+        getFeaturesResponse
+            .getFeatureValuesAsMap()
+            .get("average_rain.rain_in_last_24_hrs")
+            .int64ArrayValue();
+    Assert.assertEquals(expectedLongArray, actualLongArray);
   }
 
   private void checkFeatureValues(Map<String, FeatureValue> featureValues) {

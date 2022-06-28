@@ -6,7 +6,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.fail;
 
@@ -21,7 +24,8 @@ public class FeatureValueTest {
 
   @Test
   public void testStringValue() {
-    FeatureValue featureValue = new FeatureValue("stringValue", testName, "string", null, null);
+    FeatureValue featureValue =
+        new FeatureValue("stringValue", testName, "string", Optional.empty(), null);
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
@@ -30,7 +34,8 @@ public class FeatureValueTest {
 
   @Test
   public void testFloat64Value() {
-    FeatureValue featureValue = new FeatureValue(555.55, testName, "float64", null, null);
+    FeatureValue featureValue =
+        new FeatureValue(555.55, testName, "float64", Optional.empty(), null);
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, featureValue.getValueType());
@@ -40,17 +45,50 @@ public class FeatureValueTest {
   @Test
   public void testInt64Value() {
 
-    FeatureValue featureValue = new FeatureValue("0", testName, "int64", null, null);
+    FeatureValue featureValue = new FeatureValue("0", testName, "int64", Optional.empty(), null);
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     Assert.assertEquals(new Long(0), featureValue.int64value());
   }
 
   @Test
-  public void testEffectiveTime() throws ParseException {
+  public void testEffectiveTime() {
     FeatureValue featureValue =
-        new FeatureValue("testVal", testName, "string", null, "2021-08-21T01:23:58.996Z");
+        new FeatureValue(
+            "testVal", testName, "string", Optional.empty(), "2021-08-21T01:23:58.996Z");
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
     Assert.assertEquals("2021-08-21T01:23:58.996Z", featureValue.getEffectiveTime().toString());
+  }
+
+  @Test
+  public void testStringList() {
+    List<String> fruits = new ArrayList<>(Arrays.asList("apple", "mango", "kiwi", "orange"));
+    FeatureValue featureValue =
+        new FeatureValue(fruits, testName, "array", Optional.of("string"), null);
+    Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
+    Assert.assertEquals(ValueType.STRING, featureValue.getListElementType().get());
+    List<String> listValue = featureValue.stringArrayValue();
+    Assert.assertEquals(4, listValue.size());
+    Assert.assertEquals(fruits, listValue);
+  }
+
+  @Test
+  public void testFloat32ListWithNulls() {
+    List<Float> expectedArray =
+        new ArrayList<Float>() {
+          {
+            add(2.5F);
+            add(5.5F);
+            add(null);
+            add(null);
+          }
+        };
+
+    FeatureValue featureValue =
+        new FeatureValue(expectedArray, testName, "array", Optional.of("float32"), null);
+    Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
+    Assert.assertEquals(ValueType.FLOAT32, featureValue.getListElementType().get());
+    List<Float> actualArray = featureValue.float32ArrayValue();
+    Assert.assertEquals(expectedArray, actualArray);
   }
 
   @Test
@@ -59,6 +97,14 @@ public class FeatureValueTest {
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     try {
       Boolean boolVal = featureValue.booleanValue();
+      fail();
+    } catch (TectonClientException e) {
+      String message = String.format(TectonErrorMessage.MISMATCHED_TYPE, "int64");
+      Assert.assertEquals(message, e.getMessage());
+    }
+
+    try {
+      List<Double> doubleListVal = featureValue.float64ArrayValue();
       fail();
     } catch (TectonClientException e) {
       String message = String.format(TectonErrorMessage.MISMATCHED_TYPE, "int64");

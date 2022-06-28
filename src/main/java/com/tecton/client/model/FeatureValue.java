@@ -61,6 +61,10 @@ public class FeatureValue {
     return value.valueType;
   }
 
+  public Optional<ValueType> getListElementType() {
+    return Optional.ofNullable(this.value.listValue.listElementType);
+  }
+
   public Instant getEffectiveTime() {
     return effectiveTime;
   }
@@ -84,7 +88,7 @@ public class FeatureValue {
     private Long int64Value;
     private Boolean booleanValue;
     private Double float64Value;
-    private ListDataType listDataType;
+    private ListDataType listValue;
 
     // Primitive types
     public Value(Object featureObject, ValueType valueType) {
@@ -111,8 +115,7 @@ public class FeatureValue {
     // Array type
     public Value(Object featureObject, ValueType valueType, ValueType listElementType) {
       this.valueType = valueType;
-      this.listDataType =
-          new ListDataType(listElementType, Arrays.asList((Object[]) featureObject));
+      this.listValue = new ListDataType(listElementType, featureObject);
     }
   }
 
@@ -138,22 +141,22 @@ public class FeatureValue {
 
   public List<Double> float64ArrayValue() {
     validateValueType(ValueType.ARRAY, ValueType.FLOAT64);
-    return this.value.listDataType.float64List;
+    return this.value.listValue.float64List;
   }
 
   public List<Float> float32ArrayValue() {
     validateValueType(ValueType.ARRAY, ValueType.FLOAT32);
-    return this.value.listDataType.float32List;
+    return this.value.listValue.float32List;
   }
 
   public List<Long> int64ArrayValue() {
     validateValueType(ValueType.ARRAY, ValueType.INT64);
-    return this.value.listDataType.int64List;
+    return this.value.listValue.int64List;
   }
 
   public List<String> stringArrayValue() {
     validateValueType(ValueType.ARRAY, ValueType.STRING);
-    return this.value.listDataType.stringList;
+    return this.value.listValue.stringList;
   }
 
   private void validateValueType(ValueType valueType) {
@@ -165,9 +168,10 @@ public class FeatureValue {
 
   private void validateValueType(ValueType valueType, ValueType elementType) {
     validateValueType(valueType);
-    if (this.value.listDataType.listElementType != elementType) {
-      String.format(
-          TectonErrorMessage.MISMATCHED_TYPE, value.listDataType.listElementType.getName());
+    if (this.value.listValue.listElementType != elementType) {
+      throw new TectonClientException(
+          String.format(
+              TectonErrorMessage.MISMATCHED_TYPE, value.listValue.listElementType.getName()));
     }
   }
 

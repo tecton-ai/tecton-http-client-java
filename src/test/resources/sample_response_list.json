@@ -1,9 +1,9 @@
 {
   "result": {
     "features": [
-      "0",
-      null,
-      [55.5, 57.88, 58.96, 57.66, 56.95, 55,98]
+      ["0"],
+      [null],
+      [55.5, 57.88, 58.96, 57.66, null, 55.98]
     ]
   },
   "metadata": {
@@ -11,13 +11,19 @@
       {
         "name":"average_rain.rain_in_last_24_hrs",
         "data_type": {
-          "type": "int64"
+          "type": "array",
+          "element_type": {
+            "type": "int64"
+          }
         }
       },
       {
-        "name":"average_rain.precipitation_higher_than_average",
+        "name":"average_rain.cloud_type",
         "data_type": {
-          "type": "boolean"
+          "type": "array",
+          "element_type": {
+            "type": "string"
+          }
         }
       },
       {

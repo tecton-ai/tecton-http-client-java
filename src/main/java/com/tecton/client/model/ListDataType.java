@@ -3,8 +3,11 @@ package com.tecton.client.model;
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class ListDataType {
   List<String> stringList;
   List<Float> float32List;
@@ -12,19 +15,24 @@ public class ListDataType {
   List<Long> int64List;
   ValueType listElementType;
 
-  ListDataType(ValueType listElementType, List<Object> featureObjectList) {
+  ListDataType(ValueType listElementType, Object featureObject) {
+    List<Object> featureObjectList = (ArrayList<Object>) featureObject;
     this.listElementType = listElementType;
     switch (listElementType) {
       case INT64:
-        featureObjectList.forEach(obj -> this.int64List.add((Long) obj));
+        this.int64List = new ArrayList<>();
+        featureObjectList.forEach(obj -> this.int64List.add(Long.parseLong((String) obj)));
         break;
       case FLOAT32:
+        this.float32List = new ArrayList<>();
         featureObjectList.forEach(obj -> this.float32List.add((Float) obj));
         break;
       case FLOAT64:
+        this.float64List = new ArrayList<>();
         featureObjectList.forEach(obj -> this.float64List.add((Double) obj));
         break;
       case STRING:
+        this.stringList = new ArrayList<>();
         featureObjectList.forEach(obj -> this.stringList.add((String) obj));
         break;
       default:
