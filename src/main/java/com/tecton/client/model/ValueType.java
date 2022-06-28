@@ -5,30 +5,25 @@ import java.util.Arrays;
 import java.util.Optional;
 
 enum ValueType {
-  BOOLEAN("boolean", Boolean.class),
-  INT64("int64", Long.class),
-  STRING("string", String.class),
-  FLOAT32("float32", Float.class),
-  FLOAT64("float64", Double.class),
-  ARRAY("array", ListDataType.class);
+  BOOLEAN("boolean"),
+  INT64("int64"),
+  STRING("string"),
+  FLOAT32("float32"),
+  FLOAT64("float64"),
+  ARRAY("array");
 
   String name;
-  Class<?> javaClass;
 
-  ValueType(String name, Class<?> javaClass) {
+  ValueType(String name) {
     this.name = name;
-    this.javaClass = javaClass;
   }
 
   String getName() {
     return this.name;
   }
 
-  Class<?> getJavaClass() {
-    return this.javaClass;
-  }
-
-  public static Optional<ValueType> fromString(String name) {
+  static Optional<ValueType> fromString(String name) {
+    // Map string to the corresponding ValueType enum
     return Arrays.stream(ValueType.values())
         .filter(val -> StringUtils.equalsIgnoreCase(val.getName(), name))
         .findAny();

@@ -39,6 +39,7 @@ public class FeatureValueTest {
 
   @Test
   public void testInt64Value() {
+
     FeatureValue featureValue = new FeatureValue("0", testName, "int64", null, null);
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     Assert.assertEquals(new Long(0), featureValue.int64value());

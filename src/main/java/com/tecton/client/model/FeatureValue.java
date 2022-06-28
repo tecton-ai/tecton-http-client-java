@@ -30,6 +30,7 @@ public class FeatureValue {
     this.featureNamespace = split[0];
     this.featureName = split[1];
 
+    // Parse effective_time if present
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -38,6 +39,8 @@ public class FeatureValue {
     } catch (ParseException e) {
       // TODO should we continue if effective_time cannot be parsed?
     }
+
+    // Parse data type from response
     ValueType valueType = getValueTypeFromString(Optional.of(dataType));
     switch (valueType) {
       case ARRAY:
