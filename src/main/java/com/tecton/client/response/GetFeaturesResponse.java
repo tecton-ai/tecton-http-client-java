@@ -61,7 +61,14 @@ public class GetFeaturesResponse {
     static class FeatureMetadata {
       String name;
       String effective_time;
-      Map<String, String> data_type;
+      TectonDataType data_type = new TectonDataType();
+
+      FeatureMetadata() {}
+    }
+
+    static class TectonDataType {
+      String type;
+      TectonDataType element_type;
     }
   }
 
@@ -78,11 +85,16 @@ public class GetFeaturesResponse {
     validateResponse(featureVector, featureMetadata);
 
     for (int i = 0; i < responseJson.result.features.size(); i++) {
+      GetFeaturesResponseJson.TectonDataType elementTypeMap =
+          featureMetadata.get(i).data_type.element_type;
+      Optional<String> listElementType =
+          elementTypeMap == null ? Optional.empty() : Optional.ofNullable(elementTypeMap.type);
       FeatureValue value =
           new FeatureValue(
               featureVector.get(i),
               featureMetadata.get(i).name,
-              featureMetadata.get(i).data_type,
+              featureMetadata.get(i).data_type.type,
+              listElementType,
               featureMetadata.get(i).effective_time);
       this.featureValues.put(value.getRelativeFeatureName(), value);
     }
@@ -104,7 +116,7 @@ public class GetFeaturesResponse {
         throw new TectonClientException(
             String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, NAME));
       }
-      if (!metadata.data_type.containsKey("type")) {
+      if (StringUtils.isEmpty(metadata.data_type.type)) {
         throw new TectonClientException(
             String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, DATA_TYPE));
       }

@@ -11,8 +11,6 @@ import java.util.*;
 
 public class FeatureValue {
 
-  public static final String TYPE = "type";
-
   private static final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
@@ -22,12 +20,16 @@ public class FeatureValue {
   private final Value value;
 
   public FeatureValue(
-      Object featureObject, String name, Map<String, String> dataType, String effectiveTime) {
-    String[] split = StringUtils.split(name, ".");
-    featureNamespace = split[0];
-    featureName = split[1];
+      Object featureObject,
+      String name,
+      String dataType,
+      Optional<String> elementType,
+      String effectiveTime) {
 
-    // TODO Double check date format and zone
+    String[] split = StringUtils.split(name, ".");
+    this.featureNamespace = split[0];
+    this.featureName = split[1];
+
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -36,13 +38,19 @@ public class FeatureValue {
     } catch (ParseException e) {
       // TODO should we continue if effective_time cannot be parsed?
     }
-
-    String type = dataType.get(TYPE);
-    Optional<ValueType> valueType = ValueType.fromString(type);
-    if (valueType.isPresent()) {
-      this.value = new Value(featureObject, valueType.get());
-    } else {
-      throw new TectonClientException(String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, type));
+    ValueType valueType = getValueTypeFromString(Optional.of(dataType));
+    switch (valueType) {
+      case ARRAY:
+        ValueType elementValueType = getValueTypeFromString(elementType);
+        this.value = new Value(featureObject, valueType, elementValueType);
+        break;
+      case STRING:
+      case INT64:
+      case BOOLEAN:
+      case FLOAT32:
+      case FLOAT64:
+      default:
+        this.value = new Value(featureObject, valueType);
     }
   }
 
@@ -63,18 +71,19 @@ public class FeatureValue {
   }
 
   public String getRelativeFeatureName() {
-      return StringUtils.join(featureNamespace, ".", featureName);
+    return StringUtils.join(featureNamespace, ".", featureName);
   }
 
   public class Value {
 
     private final ValueType valueType;
-    private ValueType listElementType;
     private String stringValue;
     private Long int64Value;
     private Boolean booleanValue;
     private Double float64Value;
+    private ListDataType listDataType;
 
+    // Primitive types
     public Value(Object featureObject, ValueType valueType) {
       this.valueType = valueType;
       switch (valueType) {
@@ -94,6 +103,13 @@ public class FeatureValue {
           throw new TectonClientException(
               String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, valueType.getName()));
       }
+    }
+
+    // Array type
+    public Value(Object featureObject, ValueType valueType, ValueType listElementType) {
+      this.valueType = valueType;
+      this.listDataType =
+          new ListDataType(listElementType, Arrays.asList((Object[]) featureObject));
     }
   }
 
@@ -117,9 +133,24 @@ public class FeatureValue {
     return this.value.float64Value;
   }
 
-  public List<Value> listValue() {
-      //TODO
-    return null;
+  public List<Double> float64ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.FLOAT64);
+    return this.value.listDataType.float64List;
+  }
+
+  public List<Float> float32ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.FLOAT32);
+    return this.value.listDataType.float32List;
+  }
+
+  public List<Long> int64ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.INT64);
+    return this.value.listDataType.int64List;
+  }
+
+  public List<String> stringArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.STRING);
+    return this.value.listDataType.stringList;
   }
 
   private void validateValueType(ValueType valueType) {
@@ -129,34 +160,24 @@ public class FeatureValue {
     }
   }
 
-  enum ValueType {
-    BOOLEAN("boolean", Boolean.class),
-    INT64("int64", Long.class),
-    STRING("string", String.class),
-    FLOAT32("float32", Float.class),
-    FLOAT64("float64", Double.class),
-    ARRAY("array", ArrayList.class);
-
-    String name;
-    Class<?> javaClass;
-
-    ValueType(String name, Class<?> javaClass) {
-      this.name = name;
-      this.javaClass = javaClass;
+  private void validateValueType(ValueType valueType, ValueType elementType) {
+    validateValueType(valueType);
+    if (this.value.listDataType.listElementType != elementType) {
+      String.format(
+          TectonErrorMessage.MISMATCHED_TYPE, value.listDataType.listElementType.getName());
     }
+  }
 
-    String getName() {
-      return this.name;
+  private ValueType getValueTypeFromString(Optional<String> dataType) {
+    if (!dataType.isPresent()) {
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, "type"));
     }
-
-    Class<?> getJavaClass() {
-      return this.javaClass;
+    Optional<ValueType> valueType = ValueType.fromString(dataType.get());
+    if (!valueType.isPresent()) {
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, dataType));
     }
-
-    static Optional<ValueType> fromString(String name) {
-      return Arrays.stream(ValueType.values())
-          .filter(val -> StringUtils.equalsIgnoreCase(val.getName(), name))
-          .findAny();
-    }
+    return valueType.get();
   }
 }

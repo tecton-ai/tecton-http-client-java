@@ -1,5 +1,7 @@
 package com.tecton.client.response;
 
+import com.tecton.client.exceptions.TectonClientException;
+import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.FeatureValue;
 import com.tecton.client.model.SloInformation;
 import com.tecton.client.model.SloInformation.SloIneligibilityReason;
@@ -16,6 +18,7 @@ public class GetFeaturesResponseTest {
   GetFeaturesResponse getFeaturesResponse;
   String simpleResponse;
   String responseWithSlo;
+  String responseWithArray;
 
   @Before
   public void setup() throws Exception {
@@ -24,6 +27,8 @@ public class GetFeaturesResponseTest {
     simpleResponse = new String(Files.readAllBytes(Paths.get(simpleInput)));
     String sloInput = classLoader.getResource("sample_response_slo.json").getFile();
     responseWithSlo = new String(Files.readAllBytes(Paths.get(sloInput)));
+    String arrayInput = classLoader.getResource("sample_response_list.json").getFile();
+    responseWithArray = new String(Files.readAllBytes(Paths.get(arrayInput)));
   }
 
   @Test
@@ -64,5 +69,11 @@ public class GetFeaturesResponseTest {
     Assert.assertEquals(featureValues.get("average_rain.cloud_type").stringValue(), "nimbostratus");
     Assert.assertEquals(
         featureValues.get("average_rain.average_temperate_24hrs").float64Value(), new Double(55.5));
+    try {
+      featureValues.get("average_rain.average_temperate_24hrs").booleanValue();
+    } catch (TectonClientException e) {
+      Assert.assertEquals(
+          String.format(TectonErrorMessage.MISMATCHED_TYPE, "float64"), e.getMessage());
+    }
   }
 }
