@@ -27,7 +27,6 @@ public class FeatureValue {
     featureNamespace = split[0];
     featureName = split[1];
 
-    // TODO Double check date format and zone
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -63,13 +62,12 @@ public class FeatureValue {
   }
 
   public String getRelativeFeatureName() {
-      return StringUtils.join(featureNamespace, ".", featureName);
+    return StringUtils.join(featureNamespace, ".", featureName);
   }
 
   public class Value {
 
     private final ValueType valueType;
-    private ValueType listElementType;
     private String stringValue;
     private Long int64Value;
     private Boolean booleanValue;
@@ -117,11 +115,6 @@ public class FeatureValue {
     return this.value.float64Value;
   }
 
-  public List<Value> listValue() {
-      //TODO
-    return null;
-  }
-
   private void validateValueType(ValueType valueType) {
     if (this.value.valueType != valueType) {
       throw new TectonClientException(
@@ -130,29 +123,24 @@ public class FeatureValue {
   }
 
   enum ValueType {
-    BOOLEAN("boolean", Boolean.class),
-    INT64("int64", Long.class),
-    STRING("string", String.class),
-    FLOAT32("float32", Float.class),
-    FLOAT64("float64", Double.class),
-    ARRAY("array", ArrayList.class);
+    BOOLEAN("boolean"),
+    INT64("int64"),
+    STRING("string"),
+    FLOAT32("float32"),
+    FLOAT64("float64"),
+    ARRAY("array");
 
     String name;
-    Class<?> javaClass;
 
-    ValueType(String name, Class<?> javaClass) {
+    ValueType(String name) {
       this.name = name;
-      this.javaClass = javaClass;
     }
 
     String getName() {
       return this.name;
     }
 
-    Class<?> getJavaClass() {
-      return this.javaClass;
-    }
-
+    //Map string to the corresponding ValueType enum
     static Optional<ValueType> fromString(String name) {
       return Arrays.stream(ValueType.values())
           .filter(val -> StringUtils.equalsIgnoreCase(val.getName(), name))

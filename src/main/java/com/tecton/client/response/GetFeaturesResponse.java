@@ -77,6 +77,7 @@ public class GetFeaturesResponse {
 
     validateResponse(featureVector, featureMetadata);
 
+    // Construct Feature Value object from response
     for (int i = 0; i < responseJson.result.features.size(); i++) {
       FeatureValue value =
           new FeatureValue(
@@ -86,6 +87,7 @@ public class GetFeaturesResponse {
               featureMetadata.get(i).effective_time);
       this.featureValues.put(value.getRelativeFeatureName(), value);
     }
+    // Construct Slo Info if present
     if (responseJson.metadata.sloInfo != null) {
       this.sloInformation = responseJson.metadata.sloInfo;
     }
@@ -96,6 +98,7 @@ public class GetFeaturesResponse {
     if (featureVector.isEmpty()) {
       // TODO Is an empty feature vector an error?
     }
+    // Check that each feature has a corresponding name and data type in the response
     if (featureVector.size() != featureMetadata.size()) {
       throw new TectonClientException(TectonErrorMessage.MISMATCHED_FEATURE_VECTOR_SIZE);
     }
