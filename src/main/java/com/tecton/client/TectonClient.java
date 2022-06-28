@@ -12,10 +12,10 @@ import org.apache.commons.lang3.Validate;
 
 public class TectonClient {
 
-  private final TectonHttpClient tectonHttpClient;
+  private TectonHttpClient tectonHttpClient;
 
   private HttpUrl url;
-  private final String apiKey;
+  private String apiKey;
 
   public TectonClient(String url, String apiKey) {
     validateClientParameters(url, apiKey);
@@ -29,8 +29,9 @@ public class TectonClient {
     this.tectonHttpClient = new TectonHttpClient(tectonClientOptions);
   }
 
+  // TODO
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest) {
-   return null;
+    return null;
   }
 
   // TODO
