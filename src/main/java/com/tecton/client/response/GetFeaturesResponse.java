@@ -11,10 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class GetFeaturesResponse {
 
-  private Map<String, FeatureValue> featureValues;
+  private List<FeatureValue> featureValues;
   private Duration requestLatency;
   private SloInformation sloInformation;
   JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
@@ -24,17 +26,18 @@ public class GetFeaturesResponse {
   public GetFeaturesResponse(String response, Duration requestLatency) {
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
-    this.featureValues = new HashMap<>();
+    this.featureValues = new ArrayList<>();
     this.requestLatency = requestLatency;
     buildResponseFromJson(response);
   }
 
   public List<FeatureValue> getFeatureValues() {
-    return new ArrayList<>(featureValues.values());
+    return featureValues;
   }
 
   public Map<String, FeatureValue> getFeatureValuesAsMap() {
-    return featureValues;
+    return featureValues.stream()
+        .collect(Collectors.toMap(FeatureValue::getRelativeFeatureName, Function.identity()));
   }
 
   public Duration getRequestLatency() {
@@ -65,7 +68,7 @@ public class GetFeaturesResponse {
     }
   }
 
-  public void buildResponseFromJson(String response) {
+  void buildResponseFromJson(String response) {
     GetFeaturesResponseJson responseJson;
     try {
       responseJson = jsonAdapter.fromJson(response);
@@ -85,7 +88,7 @@ public class GetFeaturesResponse {
               featureMetadata.get(i).name,
               featureMetadata.get(i).data_type,
               featureMetadata.get(i).effective_time);
-      this.featureValues.put(value.getRelativeFeatureName(), value);
+      this.featureValues.add(value);
     }
     // Construct Slo Info if present
     if (responseJson.metadata.sloInfo != null) {
@@ -97,10 +100,6 @@ public class GetFeaturesResponse {
       List<Object> featureVector, List<GetFeaturesResponseJson.FeatureMetadata> featureMetadata) {
     if (featureVector.isEmpty()) {
       // TODO Is an empty feature vector an error?
-    }
-    // Check that each feature has a corresponding name and data type in the response
-    if (featureVector.size() != featureMetadata.size()) {
-      throw new TectonClientException(TectonErrorMessage.MISMATCHED_FEATURE_VECTOR_SIZE);
     }
     for (GetFeaturesResponseJson.FeatureMetadata metadata : featureMetadata) {
       if (StringUtils.isEmpty(metadata.name)) {
