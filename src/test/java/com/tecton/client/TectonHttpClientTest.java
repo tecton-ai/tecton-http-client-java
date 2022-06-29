@@ -1,7 +1,6 @@
 package com.tecton.client;
 
 import com.tecton.client.transport.HttpRequest;
-import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.tecton.client.transport.TectonHttpClient.HttpHeader;
@@ -22,19 +21,19 @@ public class TectonHttpClientTest {
 
   @Before
   public void setup() {
-    url = "http://staging.tecton.ai";
+    url = "http://test-url.com";
     endpoint = "/api/v1/feature-service/get-features";
-    apiKey = "f4e27a3a1139cc4b1b1b72d59318557f";
+    apiKey = "12345";
     body = "{}";
     httpClient = new TectonHttpClient();
   }
 
   @Test
   public void testDefaultHttpClient() {
-      TectonHttpClient httpClient = new TectonHttpClient();
-      Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
-      Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
-      Assert.assertFalse(httpClient.isClosed());
+    TectonHttpClient httpClient = new TectonHttpClient();
+    Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
+    Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
+    Assert.assertFalse(httpClient.isClosed());
   }
 
   @Test
@@ -48,11 +47,9 @@ public class TectonHttpClientTest {
     Assert.assertEquals(
         request.headers().get(HttpHeader.CONTENT_TYPE.getName()),
         MediaType.APPLICATION_JSON.getName());
-    Assert.assertEquals(MediaType.APPLICATION_JSON.getName(),
-        request.headers().get(HttpHeader.ACCEPT.getName()));
-    Assert.assertEquals("Tecton-key " + apiKey, request.headers().get(HttpHeader.AUTHORIZATION.getName()));
-
-      HttpResponse response = httpClient.performRequest(httpRequest);
-      Assert.assertNotNull(response);
+    Assert.assertEquals(
+        MediaType.APPLICATION_JSON.getName(), request.headers().get(HttpHeader.ACCEPT.getName()));
+    Assert.assertEquals(
+        "Tecton-key " + apiKey, request.headers().get(HttpHeader.AUTHORIZATION.getName()));
   }
 }
