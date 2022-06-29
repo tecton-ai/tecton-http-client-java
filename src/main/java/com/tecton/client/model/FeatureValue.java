@@ -27,8 +27,8 @@ public class FeatureValue {
       String effectiveTime) {
 
     String[] split = StringUtils.split(name, ".");
-    this.featureNamespace = split[0];
-    this.featureName = split[1];
+    featureNamespace = split[0];
+    featureName = split[1];
 
     // Parse effective_time if present
     try {
@@ -40,7 +40,7 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    // Parse data type from response
+    //Create Value using valueType
     switch (valueType) {
       case ARRAY:
         this.value = new Value(featureObject, valueType, elementValueType.get());
