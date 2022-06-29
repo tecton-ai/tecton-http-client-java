@@ -25,7 +25,7 @@ public class FeatureValueTest {
   @Test
   public void testStringValue() {
     FeatureValue featureValue =
-        new FeatureValue("stringValue", testName, "string", Optional.empty(), null);
+        new FeatureValue("stringValue", testName, ValueType.STRING, Optional.empty(), null);
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
@@ -35,7 +35,7 @@ public class FeatureValueTest {
   @Test
   public void testFloat64Value() {
     FeatureValue featureValue =
-        new FeatureValue(555.55, testName, "float64", Optional.empty(), null);
+        new FeatureValue(555.55, testName, ValueType.FLOAT64, Optional.empty(), null);
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, featureValue.getValueType());
@@ -45,7 +45,8 @@ public class FeatureValueTest {
   @Test
   public void testInt64Value() {
 
-    FeatureValue featureValue = new FeatureValue("0", testName, "int64", Optional.empty(), null);
+    FeatureValue featureValue =
+        new FeatureValue("0", testName, ValueType.INT64, Optional.empty(), null);
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     Assert.assertEquals(new Long(0), featureValue.int64value());
   }
@@ -54,7 +55,7 @@ public class FeatureValueTest {
   public void testEffectiveTime() {
     FeatureValue featureValue =
         new FeatureValue(
-            "testVal", testName, "string", Optional.empty(), "2021-08-21T01:23:58.996Z");
+            "testVal", testName, ValueType.STRING, Optional.empty(), "2021-08-21T01:23:58.996Z");
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
     Assert.assertEquals("2021-08-21T01:23:58.996Z", featureValue.getEffectiveTime().toString());
   }
@@ -63,7 +64,7 @@ public class FeatureValueTest {
   public void testStringList() {
     List<String> fruits = new ArrayList<>(Arrays.asList("apple", "mango", "kiwi", "orange"));
     FeatureValue featureValue =
-        new FeatureValue(fruits, testName, "array", Optional.of("string"), null);
+        new FeatureValue(fruits, testName, ValueType.ARRAY, Optional.of(ValueType.STRING), null);
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.STRING, featureValue.getListElementType().get());
     List<String> listValue = featureValue.stringArrayValue();
@@ -84,7 +85,8 @@ public class FeatureValueTest {
         };
 
     FeatureValue featureValue =
-        new FeatureValue(expectedArray, testName, "array", Optional.of("float32"), null);
+        new FeatureValue(
+            expectedArray, testName, ValueType.ARRAY, Optional.of(ValueType.FLOAT32), null);
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.FLOAT32, featureValue.getListElementType().get());
     List<Float> actualArray = featureValue.float32ArrayValue();
@@ -93,7 +95,7 @@ public class FeatureValueTest {
 
   @Test
   public void testInvalidTypeAccess() {
-    FeatureValue featureValue = new FeatureValue("0", testName, "int64", null, null);
+    FeatureValue featureValue = new FeatureValue("0", testName, ValueType.INT64, null, null);
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     try {
       Boolean boolVal = featureValue.booleanValue();

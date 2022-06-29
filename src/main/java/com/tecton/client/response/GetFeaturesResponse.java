@@ -11,23 +11,20 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-public class GetFeaturesResponse {
+public class GetFeaturesResponse extends AbstractTectonResponse {
 
   private List<FeatureValue> featureValues;
-  private Duration requestLatency;
   private SloInformation sloInformation;
   JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
   private static final String NAME = "Name";
   private static final String DATA_TYPE = "Data Type";
 
   public GetFeaturesResponse(String response, Duration requestLatency) {
+    super(requestLatency);
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
     this.featureValues = new ArrayList<>();
-    this.requestLatency = requestLatency;
     buildResponseFromJson(response);
   }
 
@@ -44,10 +41,6 @@ public class GetFeaturesResponse {
                     featureValue.getFeatureNamespace(), ".", featureValue.getFeatureName()),
                 featureValue));
     return featureMap;
-  }
-
-  public Duration getRequestLatency() {
-    return requestLatency;
   }
 
   public Optional<SloInformation> getSloInformation() {
@@ -70,17 +63,11 @@ public class GetFeaturesResponse {
     static class FeatureMetadata {
       String name;
       String effective_time;
-      TectonDataType data_type = new TectonDataType();
-
-      FeatureMetadata() {}
-    }
-
-    static class TectonDataType {
-      String type;
-      TectonDataType element_type;
+      ResponseDataType dataType = new ResponseDataType();
     }
   }
 
+  @Override
   void buildResponseFromJson(String response) {
     GetFeaturesResponseJson responseJson;
     try {
@@ -95,16 +82,12 @@ public class GetFeaturesResponse {
 
     // Construct Feature Value object from response
     for (int i = 0; i < responseJson.result.features.size(); i++) {
-      GetFeaturesResponseJson.TectonDataType elementTypeMap =
-          featureMetadata.get(i).data_type.element_type;
-      Optional<String> listElementType =
-          elementTypeMap == null ? Optional.empty() : Optional.ofNullable(elementTypeMap.type);
       FeatureValue value =
           new FeatureValue(
               featureVector.get(i),
               featureMetadata.get(i).name,
-              featureMetadata.get(i).data_type.type,
-              listElementType,
+              featureMetadata.get(i).dataType.getDataType(),
+              featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effective_time);
       this.featureValues.add(value);
     }
@@ -124,7 +107,7 @@ public class GetFeaturesResponse {
         throw new TectonClientException(
             String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, NAME));
       }
-      if (StringUtils.isEmpty(metadata.data_type.type)) {
+      if (StringUtils.isEmpty(metadata.dataType.type)) {
         throw new TectonClientException(
             String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, DATA_TYPE));
       }

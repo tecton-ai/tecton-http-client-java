@@ -14,16 +14,16 @@ public class FeatureValue {
   private static final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
-  private final String featureNamespace;
-  private final String featureName;
+  String featureNamespace;
+  String featureName;
   private Instant effectiveTime;
   private final Value value;
 
   public FeatureValue(
       Object featureObject,
       String name,
-      String dataType,
-      Optional<String> elementType,
+      ValueType dataType,
+      Optional<ValueType> elementType,
       String effectiveTime) {
 
     String[] split = StringUtils.split(name, ".");
@@ -40,12 +40,13 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    // Parse data type from response
-    ValueType valueType = getValueTypeFromString(Optional.of(dataType));
-    switch (valueType) {
+    switch (dataType) {
       case ARRAY:
-        ValueType elementValueType = getValueTypeFromString(elementType);
-        this.value = new Value(featureObject, valueType, elementValueType);
+        if (!elementType.isPresent()) {
+          throw new TectonClientException(
+              String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, "elementType"));
+        }
+        this.value = new Value(featureObject, dataType, elementType.get());
         break;
       case STRING:
       case INT64:
@@ -53,7 +54,7 @@ public class FeatureValue {
       case FLOAT32:
       case FLOAT64:
       default:
-        this.value = new Value(featureObject, valueType);
+        this.value = new Value(featureObject, dataType);
     }
   }
 
@@ -70,11 +71,11 @@ public class FeatureValue {
   }
 
   public String getFeatureName() {
-    return featureName;
+    return this.featureName;
   }
 
   public String getFeatureNamespace() {
-    return featureNamespace;
+    return this.featureNamespace;
   }
 
   public class Value {
@@ -169,18 +170,5 @@ public class FeatureValue {
           String.format(
               TectonErrorMessage.MISMATCHED_TYPE, value.listValue.listElementType.getName()));
     }
-  }
-
-  private ValueType getValueTypeFromString(Optional<String> dataType) {
-    if (!dataType.isPresent()) {
-      throw new TectonClientException(
-          String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, "type"));
-    }
-    Optional<ValueType> valueType = ValueType.fromString(dataType.get());
-    if (!valueType.isPresent()) {
-      throw new TectonClientException(
-          String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, dataType));
-    }
-    return valueType.get();
   }
 }
