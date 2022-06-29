@@ -64,8 +64,6 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       String name;
       String effective_time;
       ResponseDataType dataType = new ResponseDataType();
-
-      FeatureMetadata() {}
     }
   }
 

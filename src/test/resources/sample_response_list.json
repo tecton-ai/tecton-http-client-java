@@ -10,27 +10,27 @@
     "features": [
       {
         "name":"average_rain.rain_in_last_24_hrs",
-        "data_type": {
+        "dataType": {
           "type": "array",
-          "element_type": {
+          "elementType": {
             "type": "int64"
           }
         }
       },
       {
         "name":"average_rain.cloud_type",
-        "data_type": {
+        "dataType": {
           "type": "array",
-          "element_type": {
+          "elementType": {
             "type": "string"
           }
         }
       },
       {
         "name":"average_rain.average_temperate_6hrs",
-        "data_type": {
+        "dataType": {
           "type": "array",
-          "element_type": {
+          "elementType": {
             "type": "float64"
           }
         }
