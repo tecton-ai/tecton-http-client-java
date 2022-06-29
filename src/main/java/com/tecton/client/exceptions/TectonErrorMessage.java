@@ -14,8 +14,8 @@ public class TectonErrorMessage {
     public static final String INVALID_GET_FEATURE_REQUEST = "The parameters passed to the GetFeatureRequest are invalid";
     public static final String INVALID_RESPONSE_FORMAT = "Unable to parse JSON response from Tecton";
     public static final String EMPTY_RESPONSE = "Received empty response body from Tecton";
+    public static final String EMPTY_FEATURE_VECTOR = "Received empty feature vector from Tecton";
 
-    public static final String MISMATCHED_FEATURE_VECTOR_SIZE = "The size of the feature vector does not match the size of the metadata";
     public static final String MISSING_EXPECTED_METADATA = "Required metadata %s is missing in the response";
     public static final String UNKNOWN_DATA_TYPE = "Unknown Data Type %s in response";
     public static final String MISMATCHED_TYPE = "Invalid method used to access value of type %s";
