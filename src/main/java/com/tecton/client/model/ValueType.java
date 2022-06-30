@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Optional;
 
-enum ValueType {
+public enum ValueType {
   BOOLEAN("boolean"),
   INT64("int64"),
   STRING("string"),
@@ -12,7 +12,7 @@ enum ValueType {
   FLOAT64("float64"),
   ARRAY("array");
 
-  String name;
+  final String name;
 
   ValueType(String name) {
     this.name = name;
@@ -22,7 +22,7 @@ enum ValueType {
     return this.name;
   }
 
-  static Optional<ValueType> fromString(String name) {
+  public static Optional<ValueType> fromString(String name) {
     // Map string to the corresponding ValueType enum
     return Arrays.stream(ValueType.values())
         .filter(val -> StringUtils.equalsIgnoreCase(val.getName(), name))

@@ -22,13 +22,13 @@ public class FeatureValue {
   public FeatureValue(
       Object featureObject,
       String name,
-      String dataType,
-      Optional<String> elementType,
+      ValueType valueType,
+      Optional<ValueType> elementValueType,
       String effectiveTime) {
 
     String[] split = StringUtils.split(name, ".");
-    this.featureNamespace = split[0];
-    this.featureName = split[1];
+    featureNamespace = split[0];
+    featureName = split[1];
 
     // Parse effective_time if present
     try {
@@ -40,12 +40,10 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    // Parse data type from response
-    ValueType valueType = getValueTypeFromString(Optional.of(dataType));
+    //Create Value using valueType
     switch (valueType) {
       case ARRAY:
-        ValueType elementValueType = getValueTypeFromString(elementType);
-        this.value = new Value(featureObject, valueType, elementValueType);
+        this.value = new Value(featureObject, valueType, elementValueType.get());
         break;
       case STRING:
       case INT64:
@@ -169,18 +167,5 @@ public class FeatureValue {
           String.format(
               TectonErrorMessage.MISMATCHED_TYPE, value.listValue.listElementType.getName()));
     }
-  }
-
-  private ValueType getValueTypeFromString(Optional<String> dataType) {
-    if (!dataType.isPresent()) {
-      throw new TectonClientException(
-          String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, "type"));
-    }
-    Optional<ValueType> valueType = ValueType.fromString(dataType.get());
-    if (!valueType.isPresent()) {
-      throw new TectonClientException(
-          String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, dataType));
-    }
-    return valueType.get();
   }
 }
