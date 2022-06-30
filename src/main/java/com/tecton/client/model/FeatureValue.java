@@ -11,8 +11,6 @@ import java.util.*;
 
 public class FeatureValue {
 
-  public static final String TYPE = "type";
-
   private static final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
@@ -22,9 +20,12 @@ public class FeatureValue {
   private final Value value;
 
   public FeatureValue(
-      Object featureObject, String name, Map<String, String> dataType, String effectiveTime) {
+      Object featureObject,
+      String name,
+      ValueType valueType,
+      Optional<ValueType> elementValueType,
+      String effectiveTime) {
 
-    // Split name into featureNamespace and featureName
     String[] split = StringUtils.split(name, ".");
     featureNamespace = split[0];
     featureName = split[1];
@@ -39,18 +40,27 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    // Parse dataType from response
-    String type = dataType.get(TYPE);
-    Optional<ValueType> valueType = ValueType.fromString(type);
-    if (valueType.isPresent()) {
-      this.value = new Value(featureObject, valueType.get());
-    } else {
-      throw new TectonClientException(String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, type));
+    //Create Value using valueType
+    switch (valueType) {
+      case ARRAY:
+        this.value = new Value(featureObject, valueType, elementValueType.get());
+        break;
+      case STRING:
+      case INT64:
+      case BOOLEAN:
+      case FLOAT32:
+      case FLOAT64:
+      default:
+        this.value = new Value(featureObject, valueType);
     }
   }
 
   public ValueType getValueType() {
     return value.valueType;
+  }
+
+  public Optional<ValueType> getListElementType() {
+    return Optional.ofNullable(this.value.listValue.listElementType);
   }
 
   public Instant getEffectiveTime() {
@@ -72,7 +82,9 @@ public class FeatureValue {
     private Long int64Value;
     private Boolean booleanValue;
     private Double float64Value;
+    private ListDataType listValue;
 
+    // Primitive types
     public Value(Object featureObject, ValueType valueType) {
       this.valueType = valueType;
       switch (valueType) {
@@ -92,6 +104,12 @@ public class FeatureValue {
           throw new TectonClientException(
               String.format(TectonErrorMessage.UNKNOWN_DATA_TYPE, valueType.getName()));
       }
+    }
+
+    // Array type
+    public Value(Object featureObject, ValueType valueType, ValueType listElementType) {
+      this.valueType = valueType;
+      this.listValue = new ListDataType(listElementType, featureObject);
     }
   }
 
@@ -115,10 +133,39 @@ public class FeatureValue {
     return this.value.float64Value;
   }
 
+  public List<Double> float64ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.FLOAT64);
+    return this.value.listValue.float64List;
+  }
+
+  public List<Float> float32ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.FLOAT32);
+    return this.value.listValue.float32List;
+  }
+
+  public List<Long> int64ArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.INT64);
+    return this.value.listValue.int64List;
+  }
+
+  public List<String> stringArrayValue() {
+    validateValueType(ValueType.ARRAY, ValueType.STRING);
+    return this.value.listValue.stringList;
+  }
+
   private void validateValueType(ValueType valueType) {
     if (this.value.valueType != valueType) {
       throw new TectonClientException(
           String.format(TectonErrorMessage.MISMATCHED_TYPE, value.valueType.getName()));
+    }
+  }
+
+  private void validateValueType(ValueType valueType, ValueType elementType) {
+    validateValueType(valueType);
+    if (this.value.listValue.listElementType != elementType) {
+      throw new TectonClientException(
+          String.format(
+              TectonErrorMessage.MISMATCHED_TYPE, value.listValue.listElementType.getName()));
     }
   }
 }
