@@ -68,7 +68,7 @@ public class TectonHttpClient {
       Response response = call.execute();
       return new HttpResponse(response);
     } catch (Exception e) {
-      throw new TectonServiceException(e.getMessage());
+        throw new TectonServiceException(e.getMessage());
     }
   }
 
@@ -90,7 +90,7 @@ public class TectonHttpClient {
         {
           okhttp3.MediaType mediaType =
               okhttp3.MediaType.parse(MediaType.APPLICATION_JSON.getName());
-          RequestBody requestBody = RequestBody.create(mediaType, httpRequest.getJsonBody());
+          RequestBody requestBody = RequestBody.create(httpRequest.getJsonBody(), mediaType);
           requestBuilder.post(requestBody);
         }
     }
