@@ -107,7 +107,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -134,7 +134,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testVal", requestContextMap.get("testKey2"));
 
     String expected_json =
-        "{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -190,7 +190,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(3, getFeaturesRequest.getMetadataOptions().size());
 
     String expected_json =
-        "{"
+        "{\"params\":{"
             + "\"feature_service_name\":\"testFSName\","
             + "\"join_key_map\":{"
             + "\"testKey\":\"testValue\""
@@ -202,7 +202,7 @@ public class GetFeaturesRequestTest {
             + "\"request_context_map\":{"
             + "\"testKey\":999.99},"
             + "\"workspace_name\":\"testWorkspaceName\""
-            + "}";
+            + "}}";
     String actual_json = getFeaturesRequest.requestToJson();
     Assert.assertEquals(expected_json, actual_json);
   }
@@ -220,7 +220,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals(4, getFeaturesRequest.getMetadataOptions().size());
 
     String expected_json =
-        "{"
+        "{\"params\":{"
             + "\"feature_service_name\":\"testFSName\","
             + "\"join_key_map\":{"
             + "\"testKey\":\"testValue\""
@@ -235,7 +235,7 @@ public class GetFeaturesRequestTest {
             + "\"testKey\":\"testValue\""
             + "},"
             + "\"workspace_name\":\"testWorkspaceName\""
-            + "}";
+            + "}}";
     String actual_json = getFeaturesRequest.requestToJson();
     Assert.assertEquals(expected_json, actual_json);
   }

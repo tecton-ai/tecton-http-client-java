@@ -10,4 +10,9 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
   public GetFeatureServiceMetadataRequest(String workspaceName, String featureServiceName) {
     super(ENDPOINT, method, workspaceName, featureServiceName);
   }
+
+  @Override
+  public String requestToJson() {
+    return null;
+  }
 }

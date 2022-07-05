@@ -67,7 +67,15 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     return this.metadataOptions;
   }
 
-  private static class GetFeaturesRequestJson {
+  static class GetFeaturesRequestJson {
+    GetFeaturesFields params;
+
+    GetFeaturesRequestJson(GetFeaturesFields params) {
+      this.params = params;
+    }
+  }
+
+  static class GetFeaturesFields {
     String feature_service_name;
     String workspace_name;
     Map<String, String> join_key_map;
@@ -76,20 +84,21 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
   }
 
   public String requestToJson() {
-    GetFeaturesRequestJson getFeaturesRequestJson = new GetFeaturesRequestJson();
-    getFeaturesRequestJson.feature_service_name = this.getFeatureServiceName();
-    getFeaturesRequestJson.workspace_name = this.getWorkspaceName();
+    GetFeaturesFields getFeaturesFields = new GetFeaturesFields();
+    getFeaturesFields.feature_service_name = this.getFeatureServiceName();
+    getFeaturesFields.workspace_name = this.getWorkspaceName();
     if (!getFeaturesRequestData().isEmptyJoinKeyMap()) {
-      getFeaturesRequestJson.join_key_map = getFeaturesRequestData().getJoinKeyMap();
+      getFeaturesFields.join_key_map = getFeaturesRequestData().getJoinKeyMap();
     }
     if (!getFeaturesRequestData().isEmptyRequestContextMap()) {
-      getFeaturesRequestJson.request_context_map = getFeaturesRequestData().getRequestContextMap();
+      getFeaturesFields.request_context_map = getFeaturesRequestData().getRequestContextMap();
     }
     if (!metadataOptions.isEmpty()) {
-      getFeaturesRequestJson.metadata_options =
+      getFeaturesFields.metadata_options =
           metadataOptions.stream()
               .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
     }
+    GetFeaturesRequestJson getFeaturesRequestJson = new GetFeaturesRequestJson(getFeaturesFields);
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
     } catch (Exception e) {

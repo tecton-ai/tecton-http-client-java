@@ -9,6 +9,7 @@ public abstract class AbstractTectonRequest {
   private String workspaceName;
   private String featureServiceName;
 
+
   public AbstractTectonRequest(
       String endpoint, HttpMethod method, String workspaceName, String featureServiceName) {
     this.endpoint = endpoint;
@@ -32,4 +33,7 @@ public abstract class AbstractTectonRequest {
   public String getWorkspaceName() {
     return this.workspaceName;
   }
+
+  abstract public String requestToJson();
+
 }
