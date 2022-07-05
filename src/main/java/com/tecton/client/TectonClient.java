@@ -7,41 +7,27 @@ import com.tecton.client.request.GetFeatureServiceMetadataRequest;
 import com.tecton.client.request.GetFeaturesRequest;
 import com.tecton.client.response.GetFeatureServiceMetadataResponse;
 import com.tecton.client.response.GetFeaturesResponse;
-import com.tecton.client.transport.HttpRequest;
 import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
-import okhttp3.HttpUrl;
-import org.apache.commons.lang3.Validate;
 
 public class TectonClient {
 
   private final TectonHttpClient tectonHttpClient;
 
-  private HttpUrl url;
-  private final String apiKey;
-
   public TectonClient(String url, String apiKey) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    this.tectonHttpClient = new TectonHttpClient(new TectonClientOptions());
+    this.tectonHttpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions());
   }
 
   public TectonClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    this.tectonHttpClient = new TectonHttpClient(tectonClientOptions);
+    this.tectonHttpClient = new TectonHttpClient(url, apiKey, tectonClientOptions);
   }
 
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest) {
-    String requestBody = getFeaturesRequest.requestToJson();
-    HttpRequest httpRequest =
-        new HttpRequest(
-            url.url().toString(),
+    HttpResponse httpResponse =
+        tectonHttpClient.performRequest(
             getFeaturesRequest.getEndpoint(),
             getFeaturesRequest.getMethod(),
-            apiKey,
-            requestBody);
-    HttpResponse httpResponse = tectonHttpClient.performRequest(httpRequest);
+            getFeaturesRequest.requestToJson());
     if (httpResponse.isSuccessful()) {
       if (!httpResponse.getResponseBody().isPresent()) {
         throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
@@ -61,20 +47,5 @@ public class TectonClient {
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
       GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest) {
     return null;
-  }
-
-  private void validateClientParameters(String url, String apiKey) {
-    try {
-      Validate.notEmpty(apiKey);
-    } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_KEY);
-    }
-
-    try {
-      Validate.notEmpty(url);
-      this.url = HttpUrl.parse(url);
-    } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_URL);
-    }
   }
 }

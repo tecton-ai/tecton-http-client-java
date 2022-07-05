@@ -1,9 +1,12 @@
 package com.tecton.client.transport;
 
 import com.tecton.client.TectonClientOptions;
+import com.tecton.client.exceptions.TectonClientException;
+import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.exceptions.TectonServiceException;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -13,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TectonHttpClient {
 
+  private HttpUrl url;
+  private final String apiKey;
   private final OkHttpClient client;
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
@@ -26,7 +31,9 @@ public class TectonHttpClient {
         }
       };
 
-  public TectonHttpClient() {
+  public TectonHttpClient(String url, String apiKey) {
+    validateClientParameters(url, apiKey);
+    this.apiKey = apiKey;
     client =
         new OkHttpClient.Builder()
             .readTimeout(TIMEOUT, TimeUnit.SECONDS)
@@ -35,7 +42,9 @@ public class TectonHttpClient {
     isClosed = new AtomicBoolean(false);
   }
 
-  public TectonHttpClient(TectonClientOptions tectonClientOptions) {
+  public TectonHttpClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
+    validateClientParameters(url, apiKey);
+    this.apiKey = apiKey;
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder()
             .readTimeout(tectonClientOptions.getReadTimeout().getSeconds(), TimeUnit.SECONDS)
@@ -61,14 +70,16 @@ public class TectonHttpClient {
     return isClosed.get();
   }
 
-  public HttpResponse performRequest(HttpRequest httpRequest) {
+  public HttpResponse performRequest(String endpoint, HttpMethod method, String requestBody) {
+    HttpRequest httpRequest =
+        new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
     Request request = buildRequestWithDefaultHeaders(httpRequest);
     Call call = client.newCall(request);
     try {
       Response response = call.execute();
       return new HttpResponse(response);
     } catch (Exception e) {
-        throw new TectonServiceException(e.getMessage());
+      throw new TectonServiceException(e.getMessage());
     }
   }
 
@@ -103,6 +114,21 @@ public class TectonHttpClient {
 
   public Duration getConnectTimeout() {
     return Duration.ofMillis(client.connectTimeoutMillis());
+  }
+
+  private void validateClientParameters(String url, String apiKey) {
+    try {
+      Validate.notEmpty(apiKey);
+    } catch (Exception e) {
+      throw new TectonClientException(TectonErrorMessage.INVALID_KEY);
+    }
+
+    try {
+      Validate.notEmpty(url);
+      this.url = HttpUrl.parse(url);
+    } catch (Exception e) {
+      throw new TectonClientException(TectonErrorMessage.INVALID_URL);
+    }
   }
 
   public enum HttpMethod {
