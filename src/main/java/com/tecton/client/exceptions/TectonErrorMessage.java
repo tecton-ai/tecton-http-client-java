@@ -11,7 +11,8 @@ public class TectonErrorMessage {
     public static final String INVALID_FEATURESERVICENAME = "FeatureService Name cannot be null or empty";
     public static final String EMPTY_REQUEST_MAPS = "Both Join Key map and Request Context Map cannot be empty";
 
-    public static final String INVALID_GET_FEATURE_REQUEST = "The parameters passed to the GetFeatureRequest are invalid";
+    public static final String INVALID_GET_FEATURE_REQUEST = "The parameters passed to the GetFeatureRequest are invalid. %s";
+    public static final String INVALID_GET_SERVICE_METADATA_REQUEST = "The parameters passed to the GetFeatureServiceMetadataRequest are invalid. %s";
     public static final String INVALID_RESPONSE_FORMAT = "Unable to parse JSON response from Tecton";
     public static final String EMPTY_RESPONSE = "Received empty response body from Tecton";
     public static final String EMPTY_FEATURE_VECTOR = "Received empty feature vector from Tecton";

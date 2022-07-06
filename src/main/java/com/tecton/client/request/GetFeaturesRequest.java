@@ -6,7 +6,6 @@ import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,7 +26,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
       String featureServiceName,
       GetFeaturesRequestData getFeaturesRequestData) {
     super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
-    validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
+    validateRequestParameters(getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
     this.metadataOptions = defaultMetadataOptions;
     Moshi moshi = new Moshi.Builder().build();
@@ -41,7 +40,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
       MetadataOption... metadataOptions) {
 
     super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
-    validateRequestParameters(workspaceName, featureServiceName, getFeaturesRequestData);
+    validateRequestParameters(getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
 
     List<MetadataOption> metadataOptionList = Arrays.asList(metadataOptions);
@@ -102,7 +101,8 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
     } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST);
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST, e.getMessage()));
     }
   }
 
@@ -129,14 +129,7 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     }
   }
 
-  private void validateRequestParameters(
-      String workspaceName,
-      String featureServiceName,
-      GetFeaturesRequestData getFeaturesRequestData) {
-
-    Validate.notEmpty(workspaceName, TectonErrorMessage.INVALID_WORKSPACENAME);
-    Validate.notEmpty(featureServiceName, TectonErrorMessage.INVALID_FEATURESERVICENAME);
-
+  private void validateRequestParameters(GetFeaturesRequestData getFeaturesRequestData) {
     if (getFeaturesRequestData.isEmptyJoinKeyMap()
         && getFeaturesRequestData.isEmptyRequestContextMap()) {
       throw new TectonClientException(TectonErrorMessage.EMPTY_REQUEST_MAPS);
