@@ -14,8 +14,8 @@ public class FeatureValue {
   private static final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
 
-  String featureNamespace;
-  String featureName;
+  private final String featureNamespace;
+  private final String featureName;
   private Instant effectiveTime;
   private final Value value;
 
@@ -40,7 +40,7 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    // Create Value using valueType
+    //Create Value using valueType
     switch (valueType) {
       case ARRAY:
         this.value = new Value(featureObject, valueType, elementValueType.get());
@@ -68,11 +68,11 @@ public class FeatureValue {
   }
 
   public String getFeatureName() {
-    return this.featureName;
+    return featureName;
   }
 
   public String getFeatureNamespace() {
-    return this.featureNamespace;
+    return featureNamespace;
   }
 
   public class Value {

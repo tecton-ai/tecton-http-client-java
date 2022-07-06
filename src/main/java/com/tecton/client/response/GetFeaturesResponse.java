@@ -108,8 +108,10 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
             String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, NAME));
       }
       if (StringUtils.isEmpty(metadata.dataType.type)) {
-        throw new TectonClientException(
-            String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, DATA_TYPE));
+        {
+          throw new TectonClientException(
+              String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, DATA_TYPE));
+        }
       }
     }
   }
