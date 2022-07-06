@@ -14,10 +14,10 @@ public class HttpRequest {
       TectonHttpClient.HttpMethod method,
       String apiKey,
       String jsonBody) {
-      url = HttpUrl.parse(baseUrl);
-      if(endpoint!=null && !endpoint.isEmpty()) {
-          url = url.newBuilder().addPathSegment(endpoint).build();
-      }
+    url = HttpUrl.parse(baseUrl);
+    if (endpoint != null && !endpoint.isEmpty()) {
+      url = url.newBuilder().addPathSegment(endpoint).build();
+    }
     this.method = method;
     this.apiKey = apiKey;
     this.jsonBody = jsonBody;
