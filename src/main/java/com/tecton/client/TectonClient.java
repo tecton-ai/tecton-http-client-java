@@ -2,56 +2,50 @@ package com.tecton.client;
 
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
+import com.tecton.client.exceptions.TectonServiceException;
 import com.tecton.client.request.GetFeatureServiceMetadataRequest;
 import com.tecton.client.request.GetFeaturesRequest;
 import com.tecton.client.response.GetFeatureServiceMetadataResponse;
 import com.tecton.client.response.GetFeaturesResponse;
+import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
-import okhttp3.HttpUrl;
-import org.apache.commons.lang3.Validate;
 
 public class TectonClient {
 
-  private TectonHttpClient tectonHttpClient;
-
-  private HttpUrl url;
-  private String apiKey;
+  private final TectonHttpClient tectonHttpClient;
 
   public TectonClient(String url, String apiKey) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    this.tectonHttpClient = new TectonHttpClient(new TectonClientOptions());
+    this.tectonHttpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions());
   }
 
   public TectonClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    this.tectonHttpClient = new TectonHttpClient(tectonClientOptions);
+    this.tectonHttpClient = new TectonHttpClient(url, apiKey, tectonClientOptions);
   }
 
-  // TODO
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest) {
-    return null;
+    HttpResponse httpResponse =
+        tectonHttpClient.performRequest(
+            getFeaturesRequest.getEndpoint(),
+            getFeaturesRequest.getMethod(),
+            getFeaturesRequest.requestToJson());
+    if (httpResponse.isSuccessful()) {
+      if (!httpResponse.getResponseBody().isPresent()) {
+        throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
+      }
+      return new GetFeaturesResponse(
+          httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+    } else {
+      throw new TectonServiceException(
+          String.format(
+              TectonErrorMessage.ERROR_RESPONSE,
+              httpResponse.getResponseCode(),
+              httpResponse.getMessage()));
+    }
   }
 
   // TODO
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
       GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest) {
     return null;
-  }
-
-  private void validateClientParameters(String url, String apiKey) {
-    try {
-      Validate.notEmpty(apiKey);
-    } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_KEY);
-    }
-
-    try {
-      Validate.notEmpty(url);
-      this.url = HttpUrl.parse(url);
-    } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_URL);
-    }
   }
 }
