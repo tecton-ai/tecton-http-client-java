@@ -16,7 +16,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
   private List<FeatureValue> featureValues;
   private SloInformation sloInformation;
-  JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
+  private JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
   private static final String NAME = "Name";
   private static final String DATA_TYPE = "Data Type";
 
