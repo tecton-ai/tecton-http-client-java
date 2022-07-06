@@ -1,5 +1,6 @@
 package com.tecton.client.request;
 
+import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.transport.TectonHttpClient;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,17 +24,42 @@ public class GetFeatureServiceMetadataRequestTest {
     Assert.assertEquals(ENDPOINT, getFeatureServiceMetadataRequest.getEndpoint());
     Assert.assertEquals(
         TectonHttpClient.HttpMethod.POST, getFeatureServiceMetadataRequest.getMethod());
+    String expectedRequest =
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"workspace_name\":\"prod\"}}";
+    Assert.assertEquals(expectedRequest, getFeatureServiceMetadataRequest.requestToJson());
   }
 
   @Test
   public void testMetadataRequestWithWorkspace() {
     getFeatureServiceMetadataRequest =
-            new GetFeatureServiceMetadataRequest(TEST_FEATURESERVICE_NAME, TEST_WORKSPACENAME);
+        new GetFeatureServiceMetadataRequest(TEST_FEATURESERVICE_NAME, TEST_WORKSPACENAME);
     Assert.assertEquals(
-            TEST_FEATURESERVICE_NAME, getFeatureServiceMetadataRequest.getFeatureServiceName());
+        TEST_FEATURESERVICE_NAME, getFeatureServiceMetadataRequest.getFeatureServiceName());
     Assert.assertEquals(TEST_WORKSPACENAME, getFeatureServiceMetadataRequest.getWorkspaceName());
     Assert.assertEquals(ENDPOINT, getFeatureServiceMetadataRequest.getEndpoint());
     Assert.assertEquals(
-            TectonHttpClient.HttpMethod.POST, getFeatureServiceMetadataRequest.getMethod());
+        TectonHttpClient.HttpMethod.POST, getFeatureServiceMetadataRequest.getMethod());
+    String expectedJson =
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"workspace_name\":\"testWorkspaceName\"}}";
+    Assert.assertEquals(expectedJson, getFeatureServiceMetadataRequest.requestToJson());
+  }
+
+  @Test
+  public void testEmptyWorkspace() {
+    try {
+      getFeatureServiceMetadataRequest =
+          new GetFeatureServiceMetadataRequest(TEST_FEATURESERVICE_NAME, "");
+    } catch (Exception e) {
+      Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
+    }
+  }
+
+  @Test
+  public void testNullFeatureServiceName() {
+    try {
+      getFeatureServiceMetadataRequest = new GetFeatureServiceMetadataRequest(null);
+    } catch (Exception e) {
+      Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
+    }
   }
 }

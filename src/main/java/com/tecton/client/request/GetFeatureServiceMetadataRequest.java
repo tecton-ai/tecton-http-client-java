@@ -1,6 +1,7 @@
 package com.tecton.client.request;
 
 import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
@@ -14,10 +15,14 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
 
   public GetFeatureServiceMetadataRequest(String featureServiceName, String workspaceName) {
     super(ENDPOINT, method, workspaceName, featureServiceName);
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeatureServiceMetadataJson.class);
   }
 
   public GetFeatureServiceMetadataRequest(String featureServiceName) {
     super(ENDPOINT, method, DEFAULT_WORKSPACE, featureServiceName);
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeatureServiceMetadataJson.class);
   }
 
   static class GetFeatureServiceMetadataJson {
