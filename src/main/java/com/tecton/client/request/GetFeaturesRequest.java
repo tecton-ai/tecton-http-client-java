@@ -92,7 +92,8 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
     } catch (Exception e) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST);
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST, e.getMessage()));
     }
   }
 

@@ -25,12 +25,12 @@ public class TectonHttpClientTest {
     endpoint = "/api/v1/feature-service/get-features";
     apiKey = "12345";
     body = "{}";
-    httpClient = new TectonHttpClient();
+    httpClient = new TectonHttpClient(url,apiKey);
   }
 
   @Test
   public void testDefaultHttpClient() {
-    TectonHttpClient httpClient = new TectonHttpClient();
+    TectonHttpClient httpClient = new TectonHttpClient(url,apiKey);
     Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
     Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
     Assert.assertFalse(httpClient.isClosed());

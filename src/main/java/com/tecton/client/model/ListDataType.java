@@ -18,21 +18,22 @@ public class ListDataType {
   ListDataType(ValueType listElementType, Object featureObject) {
     List<Object> featureObjectList = (ArrayList<Object>) featureObject;
     this.listElementType = listElementType;
+    //Parse List of Object to List of corresponding Java type
     switch (listElementType) {
       case INT64:
-        this.int64List = new ArrayList<>();
+        this.int64List = new ArrayList<>(featureObjectList.size());
         featureObjectList.forEach(obj -> this.int64List.add(Long.parseLong((String) obj)));
         break;
       case FLOAT32:
-        this.float32List = new ArrayList<>();
+        this.float32List = new ArrayList<>(featureObjectList.size());
         featureObjectList.forEach(obj -> this.float32List.add((Float) obj));
         break;
       case FLOAT64:
-        this.float64List = new ArrayList<>();
+        this.float64List = new ArrayList<>(featureObjectList.size());
         featureObjectList.forEach(obj -> this.float64List.add((Double) obj));
         break;
       case STRING:
-        this.stringList = new ArrayList<>();
+        this.stringList = new ArrayList<>(featureObjectList.size());
         featureObjectList.forEach(obj -> this.stringList.add((String) obj));
         break;
       default:

@@ -22,13 +22,13 @@ public class FeatureValue {
   public FeatureValue(
       Object featureObject,
       String name,
-      ValueType dataType,
-      Optional<ValueType> elementType,
+      ValueType valueType,
+      Optional<ValueType> elementValueType,
       String effectiveTime) {
 
     String[] split = StringUtils.split(name, ".");
-    this.featureNamespace = split[0];
-    this.featureName = split[1];
+    featureNamespace = split[0];
+    featureName = split[1];
 
     // Parse effective_time if present
     try {
@@ -40,13 +40,10 @@ public class FeatureValue {
       // TODO should we continue if effective_time cannot be parsed?
     }
 
-    switch (dataType) {
+    // Create Value using valueType
+    switch (valueType) {
       case ARRAY:
-        if (!elementType.isPresent()) {
-          throw new TectonClientException(
-              String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, "elementType"));
-        }
-        this.value = new Value(featureObject, dataType, elementType.get());
+        this.value = new Value(featureObject, valueType, elementValueType.get());
         break;
       case STRING:
       case INT64:
@@ -54,7 +51,7 @@ public class FeatureValue {
       case FLOAT32:
       case FLOAT64:
       default:
-        this.value = new Value(featureObject, dataType);
+        this.value = new Value(featureObject, valueType);
     }
   }
 
