@@ -12,7 +12,7 @@ import java.util.*;
 public class FeatureValue {
 
   private static final SimpleDateFormat dateFormat =
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
   private final String featureNamespace;
   private final String featureName;
