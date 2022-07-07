@@ -4,7 +4,7 @@ import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import org.apache.commons.lang3.Validate;
 
-abstract class AbstractTectonRequest {
+public abstract class AbstractTectonRequest {
 
   private final String endpoint;
   private final HttpMethod method;
@@ -35,6 +35,8 @@ abstract class AbstractTectonRequest {
   public String getWorkspaceName() {
     return this.workspaceName;
   }
+
+  public abstract String requestToJson();
 
   private void validateRequestParameters(String workspaceName, String featureServiceName) {
     Validate.notEmpty(workspaceName, TectonErrorMessage.INVALID_WORKSPACENAME);
