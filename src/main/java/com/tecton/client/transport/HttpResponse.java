@@ -3,6 +3,7 @@ package com.tecton.client.transport;
 import okhttp3.Headers;
 import okhttp3.Response;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.Optional;
 
 public class HttpResponse {
@@ -20,12 +21,7 @@ public class HttpResponse {
         Duration.ofMillis(response.receivedResponseAtMillis() - response.sentRequestAtMillis());
     this.isSuccessful = response.isSuccessful();
     this.message = response.message();
-
-    if (response.isSuccessful()) {
-      this.body = (response.body()).string();
-    } else {
-      this.body = null;
-    }
+    this.body = (Objects.requireNonNull(response.body())).string();
   }
 
   public boolean isSuccessful() {

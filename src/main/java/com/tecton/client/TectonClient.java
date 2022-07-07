@@ -1,8 +1,11 @@
 package com.tecton.client;
 
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.exceptions.TectonServiceException;
+import com.tecton.client.request.AbstractTectonRequest;
 import com.tecton.client.request.GetFeatureServiceMetadataRequest;
 import com.tecton.client.request.GetFeaturesRequest;
 import com.tecton.client.response.GetFeatureServiceMetadataResponse;
@@ -10,9 +13,13 @@ import com.tecton.client.response.GetFeaturesResponse;
 import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
 
+import java.io.IOException;
+
 public class TectonClient {
 
   private final TectonHttpClient tectonHttpClient;
+  Moshi moshi = new Moshi.Builder().build();
+  private final JsonAdapter<ErrorResponseJson> jsonAdapter = moshi.adapter(ErrorResponseJson.class);
 
   public TectonClient(String url, String apiKey) {
     this.tectonHttpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions());
@@ -23,29 +30,47 @@ public class TectonClient {
   }
 
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest) {
+    HttpResponse httpResponse = getHttpResponse(getFeaturesRequest);
+    return new GetFeaturesResponse(
+        httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+  }
+
+  public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
+      GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest) {
+    HttpResponse httpResponse = getHttpResponse(getFeatureServiceMetadataRequest);
+    return new GetFeatureServiceMetadataResponse(
+        httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+  }
+
+  private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {
     HttpResponse httpResponse =
         tectonHttpClient.performRequest(
-            getFeaturesRequest.getEndpoint(),
-            getFeaturesRequest.getMethod(),
-            getFeaturesRequest.requestToJson());
+            tectonRequest.getEndpoint(), tectonRequest.getMethod(), tectonRequest.requestToJson());
     if (httpResponse.isSuccessful()) {
       if (!httpResponse.getResponseBody().isPresent()) {
         throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
       }
-      return new GetFeaturesResponse(
-          httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+      return httpResponse;
     } else {
+      String errorMessage = httpResponse.getMessage();
+      if (httpResponse.getResponseBody().isPresent()) {
+        try {
+          ErrorResponseJson errorResponseJson =
+              jsonAdapter.fromJson(httpResponse.getResponseBody().get());
+          errorMessage = errorResponseJson.message;
+        } catch (IOException e) {
+          throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
+        }
+      }
       throw new TectonServiceException(
           String.format(
-              TectonErrorMessage.ERROR_RESPONSE,
-              httpResponse.getResponseCode(),
-              httpResponse.getMessage()));
+              TectonErrorMessage.ERROR_RESPONSE, httpResponse.getResponseCode(), errorMessage));
     }
   }
 
-  // TODO
-  public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
-      GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest) {
-    return null;
+  static class ErrorResponseJson {
+    String error;
+    int code;
+    String message;
   }
 }
