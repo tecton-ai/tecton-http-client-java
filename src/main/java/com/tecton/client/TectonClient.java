@@ -43,15 +43,18 @@ public class TectonClient {
   }
 
   private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {
+    // Perform request and get HttpResponse
     HttpResponse httpResponse =
         tectonHttpClient.performRequest(
             tectonRequest.getEndpoint(), tectonRequest.getMethod(), tectonRequest.requestToJson());
+
     if (httpResponse.isSuccessful()) {
       if (!httpResponse.getResponseBody().isPresent()) {
         throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
       }
       return httpResponse;
     } else {
+      // Parse error response and throw TectonServiceException
       String errorMessage = httpResponse.getMessage();
       if (httpResponse.getResponseBody().isPresent()) {
         try {
@@ -60,6 +63,7 @@ public class TectonClient {
           errorMessage = errorResponseJson.message;
         } catch (IOException e) {
           throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
+        } catch (Exception ignored) {
         }
       }
       throw new TectonServiceException(
