@@ -57,7 +57,7 @@ public class FeatureValueTest {
         new FeatureValue(
             "testVal", testName, ValueType.STRING, Optional.empty(), "2021-08-21T01:23:58Z");
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
-    Assert.assertEquals("2021-08-21T01:23:58Z", featureValue.getEffectiveTime().toString());
+    Assert.assertEquals("2021-08-21T01:23:58Z", featureValue.getEffectiveTime().get().toString());
   }
 
   @Test
