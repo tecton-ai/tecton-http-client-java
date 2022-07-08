@@ -38,6 +38,7 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
     String workspace_name;
   }
 
+  @Override
   public String requestToJson() {
     GetFeatureServiceMetadataFields serviceMetadataFields = new GetFeatureServiceMetadataFields();
     serviceMetadataFields.feature_service_name = super.getFeatureServiceName();
@@ -47,7 +48,7 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
       return jsonAdapter.toJson(new GetFeatureServiceMetadataJson(serviceMetadataFields));
     } catch (Exception e) {
       throw new TectonClientException(
-          String.format(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST, e.getMessage()));
+          String.format(TectonErrorMessage.INVALID_GET_SERVICE_METADATA_REQUEST, e.getMessage()));
     }
   }
 }
