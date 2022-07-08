@@ -34,10 +34,9 @@ public class FeatureValue {
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
+        this.effectiveTime =dateFormat.parse(effectiveTime).toInstant();
       }
-    } catch (ParseException e) {
-      // TODO should we continue if effective_time cannot be parsed?
+    } catch (ParseException ignored) {
     }
 
     //Create Value using valueType
@@ -63,8 +62,8 @@ public class FeatureValue {
     return Optional.ofNullable(this.value.listValue.listElementType);
   }
 
-  public Instant getEffectiveTime() {
-    return effectiveTime;
+  public Optional<Instant> getEffectiveTime() {
+    return Optional.ofNullable(effectiveTime);
   }
 
   public String getFeatureName() {
