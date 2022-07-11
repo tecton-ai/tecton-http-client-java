@@ -138,7 +138,7 @@ public class TectonHttpClient {
     DELETE;
   }
 
-  public enum HttpHeader {
+  enum HttpHeader {
     CONTENT_TYPE("Content-Type"),
     ACCEPT("Accept"),
     AUTHORIZATION("Authorization");
@@ -154,7 +154,7 @@ public class TectonHttpClient {
     }
   }
 
-  public enum MediaType {
+  enum MediaType {
     APPLICATION_JSON("application/json"),
     PLAIN_TEXT("text/plain");
 

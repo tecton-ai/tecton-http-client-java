@@ -5,6 +5,7 @@ import com.tecton.client.model.ValueType;
 import java.time.Duration;
 import java.util.Optional;
 
+/** An abstract parent class for Tecton FeatureService API Response subclasses. */
 abstract class AbstractTectonResponse {
 
   private final Duration requestLatency;
@@ -31,6 +32,12 @@ abstract class AbstractTectonResponse {
     }
   }
 
+  /**
+   * Returns the response time (network latency + online store latency) as provided by the
+   * underlying Http Client
+   *
+   * @return response time as {@link java.time.Duration}
+   */
   public Duration getRequestLatency() {
     return requestLatency;
   }

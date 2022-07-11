@@ -2,13 +2,13 @@ package com.tecton.client.transport;
 
 import okhttp3.HttpUrl;
 
-public class HttpRequest {
+class HttpRequest {
   HttpUrl url;
   TectonHttpClient.HttpMethod method;
   String jsonBody;
   String apiKey;
 
-  public HttpRequest(
+  HttpRequest(
       String baseUrl,
       String endpoint,
       TectonHttpClient.HttpMethod method,
@@ -23,19 +23,19 @@ public class HttpRequest {
     this.jsonBody = jsonBody;
   }
 
-  public HttpUrl getUrl() {
+  HttpUrl getUrl() {
     return this.url;
   }
 
-  public TectonHttpClient.HttpMethod getMethod() {
+  TectonHttpClient.HttpMethod getMethod() {
     return method;
   }
 
-  public String getApiKey() {
+  String getApiKey() {
     return apiKey;
   }
 
-  public String getJsonBody() {
+  String getJsonBody() {
     return jsonBody;
   }
 }
