@@ -1,5 +1,7 @@
 package com.tecton.client;
 
+import static junit.framework.TestCase.fail;
+
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.exceptions.TectonServiceException;
@@ -9,13 +11,6 @@ import com.tecton.client.request.GetFeaturesRequest;
 import com.tecton.client.request.GetFeaturesRequestData;
 import com.tecton.client.response.GetFeatureServiceMetadataResponse;
 import com.tecton.client.response.GetFeaturesResponse;
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,8 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static junit.framework.TestCase.fail;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TectonClientTest {
   private String url;

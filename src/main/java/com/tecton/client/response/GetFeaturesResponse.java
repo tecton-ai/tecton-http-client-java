@@ -6,15 +6,15 @@ import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.FeatureValue;
 import com.tecton.client.model.SloInformation;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * A class that represents the response from the HTTP API for a call to the <i>/get-features</i> endpoint. The class
- * provides methods to access the feature vector returned, along with its metadata, if present.
+ * A class that represents the response from the HTTP API for a call to the <i>/get-features</i>
+ * endpoint. The class provides methods to access the feature vector returned, along with its
+ * metadata, if present.
  */
 public class GetFeaturesResponse extends AbstractTectonResponse {
 

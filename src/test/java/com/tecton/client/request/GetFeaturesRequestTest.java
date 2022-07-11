@@ -1,17 +1,16 @@
 package com.tecton.client.request;
 
+import static org.junit.Assert.fail;
+
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.request.GetFeaturesRequest.MetadataOption;
+import com.tecton.client.transport.TectonHttpClient;
+import java.io.IOException;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.*;
-
-import static org.junit.Assert.fail;
 
 public class GetFeaturesRequestTest {
 

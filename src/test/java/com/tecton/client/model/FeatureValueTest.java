@@ -1,17 +1,16 @@
 package com.tecton.client.model;
 
+import static org.junit.Assert.fail;
+
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.Assert.fail;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class FeatureValueTest {
 

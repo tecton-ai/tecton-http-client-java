@@ -104,7 +104,7 @@ public class TectonClientOptions {
   /**
    * Sets the maximum number of idle connections to keep in the pool.
    *
-   * @param maxIdleConnections 
+   * @param maxIdleConnections
    * @return The {@link com.tecton.client.TectonClientOptions} object after configuring the
    *     maxIdleConnections
    */

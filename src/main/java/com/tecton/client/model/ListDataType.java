@@ -2,9 +2,7 @@ package com.tecton.client.model;
 
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
@@ -18,7 +16,7 @@ public class ListDataType {
   ListDataType(ValueType listElementType, Object featureObject) {
     List<Object> featureObjectList = (ArrayList<Object>) featureObject;
     this.listElementType = listElementType;
-    //Parse List of Object to List of corresponding Java type
+    // Parse List of Object to List of corresponding Java type
     switch (listElementType) {
       case INT64:
         this.int64List = new ArrayList<>(featureObjectList.size());
