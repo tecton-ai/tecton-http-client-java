@@ -6,11 +6,10 @@ import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.FeatureValue;
 import com.tecton.client.model.SloInformation;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 public class GetFeaturesResponse extends AbstractTectonResponse {
 

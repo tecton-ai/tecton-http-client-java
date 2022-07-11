@@ -3,16 +3,15 @@ package com.tecton.client.response;
 import com.tecton.client.model.FeatureServiceMetadata;
 import com.tecton.client.model.NameAndType;
 import com.tecton.client.model.ValueType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GetFeatureServiceMetadataResponseTest {
 
@@ -22,7 +21,8 @@ public class GetFeatureServiceMetadataResponseTest {
   @Before
   public void setup() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    String metadataInput = classLoader.getResource("response/sample_metadata_response.json").getFile();
+    String metadataInput =
+        classLoader.getResource("response/sample_metadata_response.json").getFile();
     metadataResponse = new String(Files.readAllBytes(Paths.get(metadataInput)));
   }
 

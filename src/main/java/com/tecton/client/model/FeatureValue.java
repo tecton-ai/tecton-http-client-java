@@ -2,12 +2,11 @@ package com.tecton.client.model;
 
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
-import org.apache.commons.lang3.StringUtils;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 public class FeatureValue {
 
@@ -34,12 +33,12 @@ public class FeatureValue {
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.effectiveTime =dateFormat.parse(effectiveTime).toInstant();
+        this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
       }
     } catch (ParseException ignored) {
     }
 
-    //Create Value using valueType
+    // Create Value using valueType
     switch (valueType) {
       case ARRAY:
         this.value = new Value(featureObject, valueType, elementValueType.get());

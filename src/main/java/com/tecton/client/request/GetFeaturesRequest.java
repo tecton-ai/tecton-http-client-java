@@ -5,10 +5,9 @@ import com.squareup.moshi.Moshi;
 import com.tecton.client.exceptions.TectonClientException;
 import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 
 public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";

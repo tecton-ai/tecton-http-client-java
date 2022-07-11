@@ -1,9 +1,9 @@
 package com.tecton.client.request;
 
 import com.tecton.client.exceptions.TectonErrorMessage;
-import org.apache.commons.lang3.Validate;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang3.Validate;
 
 public class GetFeaturesRequestData {
 

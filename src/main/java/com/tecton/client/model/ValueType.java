@@ -1,8 +1,8 @@
 package com.tecton.client.model;
 
-import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
 public enum ValueType {
   BOOLEAN("boolean"),
