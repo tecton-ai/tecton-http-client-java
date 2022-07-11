@@ -20,6 +20,8 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     //JUnit tests
     testImplementation 'junit:junit:4.13.2'
+    //Mock Server for OkHttp Testing
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 }
 
 jar {

@@ -21,7 +21,8 @@ public class GetFeatureServiceMetadataResponseTest {
   @Before
   public void setup() throws IOException {
     ClassLoader classLoader = getClass().getClassLoader();
-    String metadataInput = classLoader.getResource("sample_metadata_response.json").getFile();
+    String metadataInput =
+        classLoader.getResource("response/sample_metadata_response.json").getFile();
     metadataResponse = new String(Files.readAllBytes(Paths.get(metadataInput)));
   }
 

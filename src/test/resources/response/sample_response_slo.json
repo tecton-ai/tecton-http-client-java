@@ -42,10 +42,10 @@
       }
     ],
     "sloInfo": {
-      "store_response_size_bytes": 13100000,
-      "server_time_seconds": 0.034437937,
-      "slo_eligible": false,
-      "slo_ineligibility_reasons": [
+      "storeResponseSizeBytes": 13100000,
+      "serverTimeSeconds": 0.034437937,
+      "sloEligible": false,
+      "sloIneligibilityReasons": [
         "DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED"
       ]
     }

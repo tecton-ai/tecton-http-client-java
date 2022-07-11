@@ -13,6 +13,8 @@ import com.tecton.client.response.GetFeaturesResponse;
 import com.tecton.client.transport.HttpResponse;
 import com.tecton.client.transport.TectonHttpClient;
 
+import java.io.IOException;
+
 public class TectonClient {
 
   private final TectonHttpClient tectonHttpClient;
@@ -59,6 +61,8 @@ public class TectonClient {
           ErrorResponseJson errorResponseJson =
               jsonAdapter.fromJson(httpResponse.getResponseBody().get());
           errorMessage = errorResponseJson.message;
+        } catch (IOException e) {
+          throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
         } catch (Exception ignored) {
         }
       }
