@@ -2,8 +2,8 @@ package com.tecton.client;
 
 import com.tecton.client.transport.HttpRequest;
 import com.tecton.client.transport.TectonHttpClient;
-import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.tecton.client.transport.TectonHttpClient.HttpHeader;
+import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.tecton.client.transport.TectonHttpClient.MediaType;
 import okhttp3.Request;
 import org.junit.Assert;

@@ -33,7 +33,7 @@ repositories {
 
 Download the Client Library as a zip or tar file from Maven Central, extract and place them directly in the application `CLASSPATH`
 
-### Build the Java Client 
+### Build the Java Client
 
 There is a `build.gradle` file provided to build the JAR from source and the client library can be built by running `./gradlew clean build` from the repository root. By default, the gradle build will generate `tecton-http-client-java-<VERSION>-SNAPSHOT.jar` in `build/libs`.
 

@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: check-json
+      - id: pretty-format-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-merge-conflict
+  - repo: https://github.com/tecton-ai/pre-commit-google-java-format
+    rev: 01a440260bd38c501f5db51b957ddde72f785fa9
+    hooks:
+      - id: google-java-format

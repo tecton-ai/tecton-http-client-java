@@ -3,17 +3,15 @@ package com.tecton.client.response;
 import com.tecton.client.model.FeatureServiceMetadata;
 import com.tecton.client.model.NameAndType;
 import com.tecton.client.model.ValueType;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GetFeatureServiceMetadataResponseTest {
 

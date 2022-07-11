@@ -7,7 +7,6 @@ import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.FeatureServiceMetadata;
 import com.tecton.client.model.NameAndType;
 import com.tecton.client.model.ValueType;
-
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;

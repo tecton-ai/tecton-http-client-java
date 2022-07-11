@@ -5,9 +5,6 @@ import com.tecton.client.exceptions.TectonErrorMessage;
 import com.tecton.client.model.FeatureValue;
 import com.tecton.client.model.SloInformation;
 import com.tecton.client.model.SloInformation.SloIneligibilityReason;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -15,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class GetFeaturesResponseTest {
 

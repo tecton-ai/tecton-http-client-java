@@ -1,9 +1,9 @@
 package com.tecton.client.transport;
 
-import okhttp3.Headers;
-import okhttp3.Response;
 import java.time.Duration;
 import java.util.Optional;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 public class HttpResponse {
   private final boolean isSuccessful;

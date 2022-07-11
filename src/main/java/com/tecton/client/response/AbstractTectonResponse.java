@@ -1,7 +1,6 @@
 package com.tecton.client.response;
 
 import com.tecton.client.model.ValueType;
-
 import java.time.Duration;
 import java.util.Optional;
 
