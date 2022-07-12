@@ -8,8 +8,8 @@ import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 
 /**
  * A subclass of {@link com.tecton.client.request.AbstractTectonRequest} that represents a request
- * to the <i>feature-service/metadata</i> endpoint that returns metadata about a FeatureService,
- * including the schema for join keys and request context, as well as the in-order output schema of
+ * to the <i>feature-service/metadata</i> endpoint to retrieve metadata about a FeatureService,
+ * including the schema for join keys and request context, and the in-order output schema of
  * returned feature values.
  */
 public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {

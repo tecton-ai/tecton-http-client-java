@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.Validate;
 
-/** Class that represents the map parameters passed to a GetFeaturesRequest */
+/**
+ * Class that represents the map parameters passed to a {@link
+ * com.tecton.client.request.GetFeaturesRequest}
+ */
 public class GetFeaturesRequestData {
 
   private Map<String, String> joinKeyMap;

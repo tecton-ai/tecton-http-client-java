@@ -137,15 +137,30 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
   }
 
   /**
-   * Enum representing various metadata information that can be requested from the FeatureService
-   * API
+   * Enum representing options for different metadata information that can be requested from the
+   * FeatureService API
    */
   public enum MetadataOption {
+    /**
+     * Include feature name in the response. By default, this is always included in a
+     * GetFeaturesRequest
+     */
     NAME("include_names"),
+    /** Include feature effective_time in the response */
     EFFECTIVE_TIME("include_effective_times"),
+    /**
+     * Include feature data_type in the response. By default, this is always included in a
+     * GetFeaturesRequest
+     */
     DATA_TYPE("include_data_types"),
+    /** Include SLO Info in the response */
     SLO_INFO("include_slo_info"),
+    /** Include all metadata in the response */
     ALL(),
+    /**
+     * Include no metadata in the response. Note that the default metadata options - NAME and
+     * DATA_TYPE will still be included
+     */
     NONE();
 
     private final String jsonName;
