@@ -1,9 +1,9 @@
 package com.tecton.client.exceptions;
 
 /**
- * Exception class that is used to represent various errors encountered by the client. Each
- * TectonClientException includes an error message that provides information about the cause of the
- * exception
+ * Exception class that is used to represent various errors encountered by the client. It includes a
+ * {@link com.tecton.client.exceptions.TectonErrorMessage} that provides more information about the
+ * cause of the exception
  */
 public class TectonClientException extends RuntimeException {
 

@@ -1,4 +1,2 @@
-/**
- * Exception classes with error messages for Tecton Client
- */
+/** This package contains exception classes with error messages for Tecton Client */
 package com.tecton.client.exceptions;
