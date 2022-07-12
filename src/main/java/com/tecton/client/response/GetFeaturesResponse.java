@@ -35,6 +35,8 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
   /**
    * Returns the feature vector as a List of {@link com.tecton.client.model.FeatureValue} objects
+   *
+   * @return List of {@link com.tecton.client.model.FeatureValue}
    */
   public List<FeatureValue> getFeatureValues() {
     return featureValues;

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("unchecked")
-public class ListDataType {
+class ListDataType {
   List<String> stringList;
   List<Float> float32List;
   List<Double> float64List;

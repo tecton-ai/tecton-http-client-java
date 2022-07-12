@@ -9,6 +9,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * A subclass of {@link com.tecton.client.request.AbstractTectonRequest} that represents a request
+ * to the <i>/get-features</i> endpoint to retrieve feature values from Tecton's online store
+ */
 public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final HttpMethod httpMethod = HttpMethod.POST;
@@ -16,10 +20,23 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
   private static final Set<MetadataOption> defaultMetadataOptions =
       EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
-  private JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
+  private final JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
-  private Set<MetadataOption> metadataOptions;
+  private final Set<MetadataOption> metadataOptions;
 
+  /**
+   * Constructor that creates a new GetFeaturesRequest with specified parameters and default
+   * MetadataOptions.
+   *
+   * <p>Note: Each GetFeaturesRequest will always include the MetadataOption.NAME and
+   * MetadataOption.DATA_TYPE options
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vector is being
+   *     requested
+   * @param getFeaturesRequestData {@link com.tecton.client.request.GetFeaturesRequestData} object
+   *     with joinKeyMap and/or requestContextMap
+   */
   public GetFeaturesRequest(
       String workspaceName,
       String featureServiceName,
@@ -32,6 +49,19 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
+  /**
+   * Constructor that creates a new GetFeaturesRequest with the specified parameters
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vector is being
+   *     requested
+   * @param getFeaturesRequestData {@link com.tecton.client.request.GetFeaturesRequestData} object
+   *     with joinKeyMap and/or requestContextMap
+   * @param metadataOptions Options for retrieving additional metadata about the feature values.
+   *     Note if MetadataOption.ALL is included, all metadata will be requested. If
+   *     MetadataOption.NONE is included, all other arguments will be ignored. By default,
+   *     MetadataOption.NAME and MetadataOption.DATA_TYPE will be added to each request
+   */
   public GetFeaturesRequest(
       String workspaceName,
       String featureServiceName,
@@ -106,6 +136,10 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
     }
   }
 
+  /**
+   * Enum representing various metadata information that can be requested from the FeatureService
+   * API
+   */
   public enum MetadataOption {
     NAME("include_names"),
     EFFECTIVE_TIME("include_effective_times"),
