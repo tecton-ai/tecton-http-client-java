@@ -13,6 +13,7 @@ public class HttpResponse {
   private final String body;
   private final Headers headers;
   private final Duration requestDuration;
+  private HttpMetrics callMetrics;
 
   public HttpResponse(Response response) throws Exception {
     this.responseCode = response.code();
@@ -42,5 +43,15 @@ public class HttpResponse {
 
   public Optional<String> getResponseBody() {
     return Optional.ofNullable(this.body);
+  }
+
+  // Private methods
+
+  HttpMetrics getCallMetrics() {
+    return this.callMetrics;
+  }
+
+  void setCallMetrics(HttpMetrics metrics) {
+    this.callMetrics = metrics;
   }
 }

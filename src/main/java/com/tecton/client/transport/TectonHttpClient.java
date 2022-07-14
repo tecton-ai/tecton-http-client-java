@@ -17,10 +17,12 @@ public class TectonHttpClient {
 
   private HttpUrl url;
   private final String apiKey;
-  private final OkHttpClient client;
+  private OkHttpClient client = new OkHttpClient();
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
   private static final int TIMEOUT = 5;
+  private MetricsEventListener metricsEventListener;
+  private boolean DEBUG_MODE = false;
 
   private static final Map<String, String> defaultHeaders =
       new HashMap<String, String>() {
@@ -34,18 +36,21 @@ public class TectonHttpClient {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
     client =
-        new OkHttpClient.Builder()
+        client
+            .newBuilder()
             .readTimeout(TIMEOUT, TimeUnit.SECONDS)
             .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
             .build();
     isClosed = new AtomicBoolean(false);
+    this.DEBUG_MODE = false;
   }
 
   public TectonHttpClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
     OkHttpClient.Builder builder =
-        new OkHttpClient.Builder()
+        client
+            .newBuilder()
             .readTimeout(tectonClientOptions.getReadTimeout().getSeconds(), TimeUnit.SECONDS)
             .connectTimeout(tectonClientOptions.getConnectTimeout().getSeconds(), TimeUnit.SECONDS);
     ConnectionPool connectionPool =
@@ -56,6 +61,22 @@ public class TectonHttpClient {
     builder.connectionPool(connectionPool);
     client = builder.build();
     isClosed = new AtomicBoolean(false);
+    this.DEBUG_MODE = false;
+  }
+
+  TectonHttpClient(String url, String apiKey, boolean debugMode) {
+    validateClientParameters(url, apiKey);
+    this.metricsEventListener = new MetricsEventListener();
+    this.apiKey = apiKey;
+    client =
+        client
+            .newBuilder()
+            .readTimeout(TIMEOUT, TimeUnit.SECONDS)
+            .eventListener(metricsEventListener)
+            .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+            .build();
+    isClosed = new AtomicBoolean(false);
+    this.DEBUG_MODE = true;
   }
 
   public void close() {
@@ -74,9 +95,15 @@ public class TectonHttpClient {
         new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
     Request request = buildRequestWithDefaultHeaders(httpRequest);
     Call call = client.newCall(request);
+    HttpResponse httpResponse;
     try {
       Response response = call.execute();
-      return new HttpResponse(response);
+      httpResponse = new HttpResponse(response);
+      response.close();
+      if (this.DEBUG_MODE) {
+        httpResponse.setCallMetrics(this.metricsEventListener.build());
+      }
+      return httpResponse;
     } catch (Exception e) {
       throw new TectonServiceException(e.getMessage());
     }
