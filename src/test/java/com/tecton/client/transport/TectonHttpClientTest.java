@@ -1,7 +1,5 @@
-package com.tecton.client;
+package com.tecton.client.transport;
 
-import com.tecton.client.transport.HttpRequest;
-import com.tecton.client.transport.TectonHttpClient;
 import com.tecton.client.transport.TectonHttpClient.HttpHeader;
 import com.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.tecton.client.transport.TectonHttpClient.MediaType;

@@ -8,6 +8,10 @@ import java.time.Instant;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Class that represents each feature value in the feature vector returned in the
+ * GetFeaturesResponse
+ */
 public class FeatureValue {
 
   private static final SimpleDateFormat dateFormat =
@@ -25,6 +29,7 @@ public class FeatureValue {
       Optional<ValueType> elementValueType,
       String effectiveTime) {
 
+    // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");
     featureNamespace = split[0];
     featureName = split[1];
@@ -53,27 +58,49 @@ public class FeatureValue {
     }
   }
 
+  /**
+   * Returns the ValueType representing the Tecton data_type for the feature value. Currently
+   * supported types are ARRAY, STRING, INT64, BOOLEAN and FLOAT64
+   *
+   * @return {@link com.tecton.client.model.ValueType} of the feature value
+   */
   public ValueType getValueType() {
     return value.valueType;
   }
 
+  /**
+   * Returns the individual array element type if the feature valueType is ARRAY.
+   *
+   * @return {@link com.tecton.client.model.ValueType} of the feature values in the array wrapped in
+   *     {@link java.util.Optional} if the getValueType() is ARRAY, Optional.empty() otherwise
+   */
   public Optional<ValueType> getListElementType() {
     return Optional.ofNullable(this.value.listValue.listElementType);
   }
 
+  /**
+   * Returns the effective serving time for this feature. This is the most recent time that's
+   * aligned to the interval for which a full aggregation is available for this feature. Note: Only
+   * present if MetadataOption.EFFECTIVE_TIME is included in the GetFeaturesRequest
+   *
+   * @return Optional&lt;Instant&gt; representing the effectiveTime if present, Optional.empty()
+   *     otherwise
+   */
   public Optional<Instant> getEffectiveTime() {
     return Optional.ofNullable(effectiveTime);
   }
 
+  /** Returns the feature service name */
   public String getFeatureName() {
     return featureName;
   }
 
+  /** Returns the feature service namespace */
   public String getFeatureNamespace() {
     return featureNamespace;
   }
 
-  public class Value {
+  class Value {
 
     private final ValueType valueType;
     private String stringValue;
@@ -105,48 +132,100 @@ public class FeatureValue {
     }
 
     // Array type
-    public Value(Object featureObject, ValueType valueType, ValueType listElementType) {
+    Value(Object featureObject, ValueType valueType, ValueType listElementType) {
       this.valueType = valueType;
       this.listValue = new ListDataType(listElementType, featureObject);
     }
   }
 
-  public String stringValue() {
+  /**
+   * A Feature Value of type String
+   *
+   * @return feature value cast to java.lang.String
+   * @throws TectonClientException if the method is called on a value whose ValueType is not STRING
+   */
+  public String stringValue() throws TectonClientException {
     validateValueType(ValueType.STRING);
     return this.value.stringValue;
   }
 
-  public Long int64value() {
+  /**
+   * A Feature Value of type int64 (Long)
+   *
+   * @return feature value cast to java.lang.Long
+   * @throws TectonClientException if the method is called on a value whose ValueType is not INT64
+   */
+  public Long int64value() throws TectonClientException {
     validateValueType(ValueType.INT64);
     return this.value.int64Value;
   }
 
-  public Boolean booleanValue() {
+  /**
+   * A Feature Value of type Boolean
+   *
+   * @return feature value cast to java.lang.Boolean
+   * @throws TectonClientException if the method is called on a value whose ValueType is not BOOLEAN
+   */
+  public Boolean booleanValue() throws TectonClientException {
     validateValueType(ValueType.BOOLEAN);
     return this.value.booleanValue;
   }
 
-  public Double float64Value() {
+  /**
+   * A Feature Value of type Float64 (Double)
+   *
+   * @return feature value cast to java.lang.Double
+   * @throws TectonClientException if the method is called on a value whose ValueType is not FLOAT64
+   */
+  public Double float64Value() throws TectonClientException {
     validateValueType(ValueType.FLOAT64);
     return this.value.float64Value;
   }
 
-  public List<Double> float64ArrayValue() {
+  /**
+   * A Feature Value of type ARRAY with FLOAT64 values
+   *
+   * @return feature value cast to List&lt;Double&gt;
+   * @throws TectonClientException if the method is called on a value whose valueType is not ARRAY
+   *     or listElementType is not FLOAT64
+   */
+  public List<Double> float64ArrayValue() throws TectonClientException {
     validateValueType(ValueType.ARRAY, ValueType.FLOAT64);
     return this.value.listValue.float64List;
   }
 
-  public List<Float> float32ArrayValue() {
+  /**
+   * A Feature Value of type ARRAY with FLOAT32 values
+   *
+   * @return feature value cast to List&lt;Float&gt;
+   * @throws TectonClientException if the method is called on a value whose valueType is not ARRAY
+   *     or listElementType is not FLOAT32
+   */
+  public List<Float> float32ArrayValue() throws TectonClientException {
     validateValueType(ValueType.ARRAY, ValueType.FLOAT32);
     return this.value.listValue.float32List;
   }
 
-  public List<Long> int64ArrayValue() {
+  /**
+   * A Feature Value of type ARRAY with INT64 values
+   *
+   * @return feature value cast to List&lt;Long&gt;
+   * @throws TectonClientException if the method is called on a value whose valueType is not ARRAY
+   *     or listElementType is not INT64
+   */
+  public List<Long> int64ArrayValue() throws TectonClientException {
     validateValueType(ValueType.ARRAY, ValueType.INT64);
     return this.value.listValue.int64List;
   }
 
-  public List<String> stringArrayValue() {
+  /**
+   * A Feature Value of type ARRAY with String values
+   *
+   * @return feature value cast to List&lt;String&gt;
+   * @throws TectonClientException if the method is called on a value whose valueType is not ARRAY
+   *     or listElementType is not STRING
+   */
+  public List<String> stringArrayValue() throws TectonClientException {
     validateValueType(ValueType.ARRAY, ValueType.STRING);
     return this.value.listValue.stringList;
   }

@@ -1,5 +1,9 @@
 package com.tecton.client.exceptions;
 
+/**
+ * Class that declares all the different error messages included in the {@link
+ * com.tecton.client.exceptions.TectonClientException}
+ */
 public class TectonErrorMessage {
   public static final String INVALID_KEY = "API Key cannot be empty";
   public static final String INVALID_URL = "Cannot connect to Tecton because the URL is invalid";

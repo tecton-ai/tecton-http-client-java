@@ -11,15 +11,21 @@ import java.time.Duration;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * A class that represents the response from the HTTP API for a call to the <i>/get-features</i>
+ * endpoint. The class provides methods to access the feature vector returned, along with its
+ * metadata, if present.
+ */
 public class GetFeaturesResponse extends AbstractTectonResponse {
 
-  private List<FeatureValue> featureValues;
+  private final List<FeatureValue> featureValues;
   private SloInformation sloInformation;
-  private JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
+  private final JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
   private static final String NAME = "Name";
   private static final String DATA_TYPE = "Data Type";
 
-  public GetFeaturesResponse(String response, Duration requestLatency) {
+  public GetFeaturesResponse(String response, Duration requestLatency)
+      throws TectonClientException {
     super(requestLatency);
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
@@ -27,10 +33,16 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     buildResponseFromJson(response);
   }
 
+  /**
+   * Returns the feature vector as a List of {@link com.tecton.client.model.FeatureValue} objects
+   *
+   * @return List of {@link com.tecton.client.model.FeatureValue}
+   */
   public List<FeatureValue> getFeatureValues() {
     return featureValues;
   }
 
+  /** Returns the feature vector as a Map, with the feature name as the key */
   public Map<String, FeatureValue> getFeatureValuesAsMap() {
     Map<String, FeatureValue> featureMap = new HashMap<>();
     featureValues.forEach(
@@ -42,6 +54,11 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     return featureMap;
   }
 
+  /**
+   * Returns an {@link com.tecton.client.model.SloInformation} objected wrapped in {@link
+   * java.util.Optional} if present in the response received from the HTTP API, Optional.empty()
+   * otherwise
+   */
   public Optional<SloInformation> getSloInformation() {
     return Optional.ofNullable(sloInformation);
   }

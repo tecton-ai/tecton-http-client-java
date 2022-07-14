@@ -12,6 +12,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A class that represents the response from the HTTP API for a call to the <i>/metadata</i>
+ * endpoint.
+ */
 public class GetFeatureServiceMetadataResponse extends AbstractTectonResponse {
 
   private FeatureServiceMetadata featureServiceMetadata;
@@ -24,6 +28,10 @@ public class GetFeatureServiceMetadataResponse extends AbstractTectonResponse {
     buildResponseFromJson(response);
   }
 
+  /**
+   * Returns a {@link com.tecton.client.model.FeatureServiceMetadata} object that represents the
+   * metadata returned
+   */
   public FeatureServiceMetadata getFeatureServiceMetadata() {
     return this.featureServiceMetadata;
   }
@@ -42,10 +50,6 @@ public class GetFeatureServiceMetadataResponse extends AbstractTectonResponse {
     } catch (IOException | NullPointerException e) {
       throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
     }
-  }
-
-  private void validateResponse(GetFeatureServiceMetadataJson featureServiceMetadataJson) {
-    // TODO can all the maps in the response be empty?
   }
 
   static class GetFeatureServiceMetadataJson {
