@@ -1,4 +1,4 @@
-name: Run Gradle Builds
+name: java-build
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - main
       - release
 jobs:
-  build:
+  java-gradle-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -17,8 +17,5 @@ jobs:
         distribution: zulu
         java-version: 8
         cache: gradle
-    - name: Run Pre-Commit
-      uses: actions/setup-python@v3
-      uses: pre-commit/action@v3.0.0
     - name: Run Gradle
       run: ./gradlew build
