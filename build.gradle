@@ -1,3 +1,6 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id 'java'
     id 'maven-publish'
@@ -5,12 +8,13 @@ plugins {
 }
 
 group 'ai.tecton'
-version '1.0.0b1'
 
+version = findProperty('version')
 repositories {
     mavenCentral()
 }
 
+//Project dependencies
 dependencies {
     //OkHttp Client
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
@@ -26,8 +30,8 @@ dependencies {
     testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
 }
 
+//Package JAR with dependencies
 jar {
-    // Will package all dependencies into the jar
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
@@ -37,7 +41,14 @@ test {
     useJUnit()
     testLogging {
         showStandardStreams = true
-        events("skipped", "failed")
+        events = [TestLogEvent.FAILED,
+                TestLogEvent.PASSED,
+                TestLogEvent.SKIPPED,
+                TestLogEvent.STANDARD_OUT]
+        exceptionFormat = TestExceptionFormat.FULL
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
 
     }
 }
@@ -57,12 +68,13 @@ artifacts {
     archives javadocJar
 }
 
+//Publish JAR to Nexus
 publishing {
     repositories {
         maven {
             credentials {
-                username = findProperty('ossrhUsername')
-                password = findProperty('ossrhPassword')
+                username = findProperty('ossrh.username')
+                password = findProperty('ossrh.password')
             }
             if (version.endsWith('-SNAPSHOT')) {
                 url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
@@ -80,7 +92,7 @@ publishing {
 
             pom {
                 name = 'Tecton Java Client'
-                artifactId = 'http-client'
+                artifactId = 'java-client'
                 packaging = 'jar'
                 description = 'A Java Client Library for Tecton Online Feature Store'
                 url = 'https://github.com/tecton-ai/tecton-http-client-java'
