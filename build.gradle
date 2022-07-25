@@ -8,7 +8,6 @@ plugins {
 }
 
 group 'ai.tecton'
-
 version = findProperty('version')
 repositories {
     mavenCentral()
@@ -37,6 +36,7 @@ jar {
     }
 }
 
+//Run tests during build and output test status
 test {
     useJUnit()
     testLogging {
@@ -125,5 +125,9 @@ publishing {
 }
 
 signing {
+    signingKeyId = findProperty("signingKeyId")
+    signingKey = findProperty('signingKey')
+    signingPassword = findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }
