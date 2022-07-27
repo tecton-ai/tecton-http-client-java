@@ -21,12 +21,15 @@ public class GetFeaturesResponseTest {
   String simpleResponse;
   String responseWithSlo;
   String responseWithArray;
+  String simpleResponseWithNulls;
 
   @Before
   public void setup() throws Exception {
     ClassLoader classLoader = getClass().getClassLoader();
     String simpleInput = classLoader.getResource("response/sample_response.json").getFile();
     simpleResponse = new String(Files.readAllBytes(Paths.get(simpleInput)));
+    String nullValueInput = classLoader.getResource("response/sample_null_response.json").getFile();
+    simpleResponseWithNulls = new String(Files.readAllBytes(Paths.get(nullValueInput)));
     String sloInput = classLoader.getResource("response/sample_response_slo.json").getFile();
     responseWithSlo = new String(Files.readAllBytes(Paths.get(sloInput)));
     String arrayInput = classLoader.getResource("response/sample_response_list.json").getFile();
@@ -41,6 +44,24 @@ public class GetFeaturesResponseTest {
     Assert.assertEquals(duration, getFeaturesResponse.getRequestLatency());
     Assert.assertFalse(getFeaturesResponse.getSloInformation().isPresent());
     checkFeatureValues(getFeaturesResponse.getFeatureValuesAsMap());
+  }
+
+  @Test
+  public void testSimpleResponseWithNulls() {
+    Duration duration = Duration.ofMillis(10);
+    getFeaturesResponse = new GetFeaturesResponse(simpleResponseWithNulls, duration);
+    Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+    Map<String, FeatureValue> featureValueMap = getFeaturesResponse.getFeatureValuesAsMap();
+
+    // Check float64 null value
+    Double doubleValue =
+        featureValueMap.get("merchant_fraud_rate.is_fraud_mean_30d_1d").float64Value();
+    Assert.assertNull(doubleValue);
+
+    // Check int64 null value
+    Long longValue =
+        featureValueMap.get("user_transaction_counts.transaction_count_1d_1d").int64value();
+    Assert.assertNull(longValue);
   }
 
   @Test

@@ -120,7 +120,8 @@ public class FeatureValue {
           this.stringValue = (String) featureObject;
           break;
         case INT64:
-          this.int64Value = Long.parseLong((String) featureObject);
+          String stringValue = (String) featureObject;
+          this.int64Value = stringValue == null ? null : Long.parseLong(stringValue);
           break;
         case FLOAT64:
           this.float64Value = (Double) featureObject;
