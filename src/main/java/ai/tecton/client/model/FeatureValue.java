@@ -121,7 +121,9 @@ public class FeatureValue {
           break;
         case INT64:
           String stringValue = (String) featureObject;
-          this.int64Value = stringValue == null ? null : Long.parseLong(stringValue);
+          if (stringValue != null) {
+            this.int64Value = Long.parseLong(stringValue);
+          }
           break;
         case FLOAT64:
           this.float64Value = (Double) featureObject;
