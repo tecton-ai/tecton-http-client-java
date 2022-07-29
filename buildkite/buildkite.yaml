@@ -1,6 +1,9 @@
 - command: ./gradlew clean build
   label: 'Build Java Client'
+  key: "build"
 - wait
-- command: ./gradlew publish -i -Possrh.password=OSSRH_PASSWORD -PsigningPassword=SIGNING_PASSWORD -PsigningKey=SIGNING_KEY
+- command: ./gradlew publish -i
   label: ':rocket: Publish Snapshot Jar'
+  key: "deploy"
+  depends_on: "build"
 - wait

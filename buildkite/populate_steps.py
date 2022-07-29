@@ -2,8 +2,8 @@
 
 import os
 import subprocess
+
 import requests
-import argparse
 
 DEFAULT_BRANCH = "main"
 
@@ -29,7 +29,7 @@ def should_publish_snapshot(pipeline_url: str):
     builds = response.json()
     if len(builds) == 0:
         return True, "Found no previous builds"
-    most_recent = builds[0]
+    most_recent = builds[1]
     state = most_recent["state"]
     last_commit = most_recent["commit"]
     if state != "passed":
@@ -41,20 +41,17 @@ def should_publish_snapshot(pipeline_url: str):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("pipeline_url")
-    parser.add_argument("ossrh_password")
-    parser.add_argument("signing_password")
-    parser.add_argument("signing_key")
-    args = parser.parse_args()
-    release, reason = should_publish_snapshot(args.pipeline_url)
+    pipeline_url = os.environ['PIPELINE_URL']
+    should_release, reason = should_publish_snapshot(pipeline_url)
     steps = ""
-    if release:
-        with open('buildkite.yaml', 'r') as file:
-            steps = file.read().strip().replace('OSSRH_PASSWORD', args.ossrh_password).replace('SIGNING_PASSWORD',
-                                                                                               args.signing_password).replace(
-                'SIGNING_KEY', args.signing_key.strip())
+    if should_release:
+        with open('buildkite/buildkite.yaml', 'r') as file:
+            steps = file.read().strip()
+        annotation = f"Publishing Client Snapshot. Reason: {reason}"
+    else:
+        annotation = f"Not Publishing Snapshot. Reason: {reason}"
     print(steps)
+    call("buildkite-agent", "annotate", "--context", "ctx-decision", "--style", "info", annotation)
 
 
 if __name__ == "__main__":
