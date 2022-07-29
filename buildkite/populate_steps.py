@@ -4,7 +4,6 @@ import os
 import subprocess
 import requests
 import argparse
-import yaml
 
 DEFAULT_BRANCH = "main"
 
@@ -49,23 +48,13 @@ def main() -> None:
     parser.add_argument("signing_key")
     args = parser.parse_args()
     release, reason = should_publish_snapshot(args.pipeline_url)
-    steps = []
+    steps = ""
     if release:
-        steps.append(
-            {
-                "label": "Build Java Client",
-                "command": f"./gradlew clean build",
-            }
-        )
-        steps.append("wait")
-        steps.append(
-            {
-                "label": ":rocket: Publish Snapshot Jar",
-                "command": f"./gradlew publish -i -Possrh.password={args.ossrh_password} -PsigningPassword={args.signing_password} -PsigningKey={args.signing_key.strip()}",
-            }
-        )
-        steps.append("wait")
-        print(yaml.dump(steps))
+        with open('buildkite.yaml', 'r') as file:
+            steps = file.read().strip().replace('OSSRH_PASSWORD', args.ossrh_password).replace('SIGNING_PASSWORD',
+                                                                                               args.signing_password).replace(
+                'SIGNING_KEY', args.signing_key.strip())
+    print(steps)
 
 
 if __name__ == "__main__":
