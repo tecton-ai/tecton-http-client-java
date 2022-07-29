@@ -74,7 +74,7 @@ publishing {
         maven {
             credentials {
                 username = findProperty('ossrh.username')
-                password = findProperty('ossrh.password')
+                password = System.getenv('OSSRH_TOKEN')
             }
             if (version.endsWith('-SNAPSHOT')) {
                 url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
@@ -125,6 +125,8 @@ publishing {
 }
 
 signing {
-    useInMemoryPgpKeys(findProperty("signingKey"), findProperty("signingPassword"))
+    def signingKey = System.getenv('CLIENT_GPG_KEY')
+    def signingPassword = System.getenv('CLIENT_GPG_PASSPHRASE')
+    useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }
