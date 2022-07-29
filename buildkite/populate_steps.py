@@ -41,15 +41,12 @@ def should_publish_snapshot(pipeline_url: str):
 
 
 def main() -> None:
-    ossrh_password = os.environ['OSSRH_TOKEN']
-    signing_password = os.environ['CLIENT_GPG_PASSPHRASE']
     pipeline_url = os.environ['PIPELINE_URL']
     should_release, reason = should_publish_snapshot(pipeline_url)
     steps = ""
     if should_release:
         with open('buildkite/buildkite.yaml', 'r') as file:
-            steps = file.read().strip().replace('OSSRH_PASSWORD', ossrh_password).replace('SIGNING_PASSWORD',
-                                                                                          signing_password)
+            steps = file.read().strip()
         annotation = f"Publishing Client Snapshot. Reason: {reason}"
     else:
         annotation = f"Not Publishing Snapshot. Reason: {reason}"
