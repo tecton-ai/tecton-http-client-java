@@ -13,6 +13,9 @@ repositories {
     mavenCentral()
 }
 
+sourceCompatibility = 8
+targetCompatibility = 8
+
 //Project dependencies
 dependencies {
     //OkHttp Client
