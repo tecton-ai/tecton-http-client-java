@@ -29,7 +29,7 @@ def should_publish_snapshot(pipeline_url: str):
     builds = response.json()
     if len(builds) == 0:
         return True, "Found no previous builds"
-    most_recent = builds[0]
+    most_recent = builds[1]
     state = most_recent["state"]
     last_commit = most_recent["commit"]
     if state != "passed":
