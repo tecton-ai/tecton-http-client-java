@@ -18,7 +18,6 @@ def output(*args):
 
 
 def get_commits_since_last(commit: str):
-    call("git", "checkout", DEFAULT_BRANCH)
     commit_count = output("git", "rev-list", "--count", f"{commit}..HEAD").strip()
     return int(commit_count)
 
