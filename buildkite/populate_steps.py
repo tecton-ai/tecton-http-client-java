@@ -2,7 +2,6 @@
 
 import os
 import subprocess
-import argparse
 
 DEFAULT_BRANCH = "main"
 
@@ -21,16 +20,13 @@ def get_commits_since_last(commit: str):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("pipeline_url")
-    parser.add_argument("ossrh_password")
-    parser.add_argument("signing_password")
-    parser.add_argument("signing_key")
-    args = parser.parse_args()
+    ossrh_password = os.environ['OSSRH_TOKEN']
+    signing_password = os.environ['CLIENT_GPG_PASSPHRASE']
+    signing_key = "testKey"
     with open('buildkite.yaml', 'r') as file:
-        steps = file.read().strip().replace('OSSRH_PASSWORD', args.ossrh_password).replace('SIGNING_PASSWORD',
-                                                                                           args.signing_password).replace(
-            'SIGNING_KEY', args.signing_key.strip())
+        steps = file.read().strip().replace('OSSRH_PASSWORD', ossrh_password).replace('SIGNING_PASSWORD',
+                                                                                      signing_password).replace(
+            'SIGNING_KEY', signing_key)
     print(steps)
 
 
