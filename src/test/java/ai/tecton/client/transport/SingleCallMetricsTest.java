@@ -7,7 +7,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-abstract class SingleCallMetricsTest {
+class SingleCallMetricsTest {
   private TectonHttpClient tectonHttpClient;
   private final String WORKSPACE_NAME = "prod";
   private final String FEATURE_SERVICE_NAME = "fraud_detection_feature_service";

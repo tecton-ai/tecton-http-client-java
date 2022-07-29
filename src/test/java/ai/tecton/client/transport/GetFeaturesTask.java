@@ -13,12 +13,10 @@ class GetFeaturesTask extends TimerTask {
 
   List<CallMetrics> callMetricsList;
   TectonHttpClient tectonHttpClient;
-  long targetTime;
   GetFeaturesRequest request;
 
-  GetFeaturesTask(long targetTime, TectonHttpClient tectonHttpClient, GetFeaturesRequest request) {
+  GetFeaturesTask(TectonHttpClient tectonHttpClient, GetFeaturesRequest request) {
     this.tectonHttpClient = tectonHttpClient;
-    this.targetTime = targetTime;
     this.callMetricsList = new ArrayList<>();
     this.request = request;
   }

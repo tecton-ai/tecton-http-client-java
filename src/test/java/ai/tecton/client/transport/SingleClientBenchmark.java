@@ -6,12 +6,16 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assume;
 
-public class SingleClientBenchmark {
+class SingleClientBenchmark {
 
   private final TectonHttpClient tectonHttpClient;
   private final int BASELINE_QPS = 15;
+  private final int MAX_THREADS = 10;
+  private static final int MARGIN = 3;
+  private static final String THREAD = "Thread";
 
   SingleClientBenchmark(String tectonUrl, String tectonApiKey) {
 
@@ -25,34 +29,71 @@ public class SingleClientBenchmark {
 
   BenchmarkMetrics runTest(int qps, long durationInSeconds, GetFeaturesRequest request)
       throws InterruptedException {
+    List<CallMetrics> allMetrics = new ArrayList<>();
     long durationInMillis = TimeUnit.SECONDS.toMillis(durationInSeconds);
-    long targetTime = System.currentTimeMillis() + durationInMillis;
     warmup(request);
 
-    // Initialize thread pool with a starting number of threads
+    // Initialize thread pool with a starting number of threads, with name and task
     int numberOfThreads = qps / BASELINE_QPS;
-    Map<Timer, GetFeaturesTask> threadToTaskPool = new HashMap<>();
-    List<Timer> timerThreads = new ArrayList<>();
-    List<GetFeaturesTask> tasks = new ArrayList<>();
+    Map<String, Pair<Timer, GetFeaturesTask>> threadToTaskPool = new HashMap<>();
     for (int i = 0; i < numberOfThreads; i++) {
+      String name = StringUtils.join(THREAD, i);
       threadToTaskPool.put(
-          new Timer("Thread" + i), new GetFeaturesTask(targetTime, tectonHttpClient, request));
+          name, Pair.of(new Timer("Thread" + i), new GetFeaturesTask(tectonHttpClient, request)));
     }
 
+    // Run all threads in the pool
+    long splitDurationInMillis = durationInMillis / 3;
     long start = System.currentTimeMillis();
-    threadToTaskPool.forEach((timerThread, task) -> timerThread.scheduleAtFixedRate(task, 0, 1));
-    Thread.sleep(durationInMillis);
-    threadToTaskPool.keySet().forEach(Timer::cancel);
+    threadToTaskPool
+        .values()
+        .forEach(
+            threadTaskPair ->
+                threadTaskPair.getKey().scheduleAtFixedRate(threadTaskPair.getRight(), 0, 1));
+
+    // Check qps every 1/3rd of total duration and adjust thread pool
+    for (int i = 0; i < 3; i++) {
+      Thread.sleep(splitDurationInMillis);
+      if (threadToTaskPool.size() >= MAX_THREADS || threadToTaskPool.size() == 1) continue;
+
+      long current = System.currentTimeMillis();
+      long currentQps =
+          GetFeaturesTask.REQUEST_COUNTER.get() / TimeUnit.MILLISECONDS.toSeconds(current - start);
+      if (currentQps > qps) {
+        // If current QPS is high, remove thread from the pool
+        String name = StringUtils.join(THREAD, (numberOfThreads - 1));
+        Pair<Timer, GetFeaturesTask> removedThread = threadToTaskPool.remove(name);
+        removedThread.getKey().cancel();
+        allMetrics.addAll(removedThread.getValue().callMetricsList);
+        numberOfThreads--;
+
+      } else if (current < qps - MARGIN) {
+        // if current qps is low, add thread to the pool
+        String name = StringUtils.join(THREAD, numberOfThreads);
+        numberOfThreads++;
+        Timer timer = new Timer(name);
+        GetFeaturesTask task = new GetFeaturesTask(tectonHttpClient, request);
+        timer.scheduleAtFixedRate(task, 0, 1);
+        threadToTaskPool.put(name, Pair.of(timer, task));
+      }
+    }
+
+    // Stop all threads
+    threadToTaskPool.values().forEach(timerPair -> timerPair.getKey().cancel());
     long stop = System.currentTimeMillis();
-    List<CallMetrics> metricsSuperSet =
-        threadToTaskPool.values().stream()
+
+    // Collect metrics from all threads
+    List<GetFeaturesTask> allTasks =
+        threadToTaskPool.values().stream().map(Pair::getValue).collect(Collectors.toList());
+    allMetrics.addAll(
+        allTasks.stream()
             .map(v -> v.callMetricsList)
             .flatMap(List::stream)
-            .collect(Collectors.toList());
-    return new BenchmarkMetrics(metricsSuperSet, (stop - start));
+            .collect(Collectors.toList()));
+    return new BenchmarkMetrics(allMetrics, (stop - start));
   }
 
-  void warmup(GetFeaturesRequest request) {
+  private void warmup(GetFeaturesRequest request) {
     for (int i = 0; i < 20; i++) {
       HttpResponse httpResponse =
           tectonHttpClient.performRequest(
