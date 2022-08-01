@@ -5,6 +5,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'signing'
+    id 'application'
 }
 
 group 'ai.tecton'
@@ -129,4 +130,16 @@ signing {
     def signingPassword = System.getenv('CLIENT_GPG_PASSPHRASE')
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
+}
+
+task runBenchmarkTest(type: Exec) {
+    def arg1 = findProperty("benchmarkUrl")
+    def arg2 = findProperty("apiKey")
+    def arg3 = findProperty("numUsers")
+    def arg4 = findProperty("qps")
+    def arg5 = findProperty("durationInSeconds")
+    group = "Execution"
+    description = "Run BenchmarkRunner main class"
+    def mainClass = "ai.tecton.client.transport.benchmark.BenchMarkRunner"
+    commandLine "java", "-classpath", sourceSets.main.runtimeClasspath.getAsPath(), mainClass, arg1, arg2, arg3, arg4, arg5
 }

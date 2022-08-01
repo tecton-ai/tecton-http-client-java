@@ -1,5 +1,6 @@
 package ai.tecton.client.transport;
 
+import ai.tecton.client.transport.benchmark.HttpMetrics;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,10 +46,8 @@ public class HttpResponse {
     return Optional.ofNullable(this.body);
   }
 
-  // Private methods
-
-  HttpMetrics getCallMetrics() {
-    return this.callMetrics;
+  public Optional<HttpMetrics> getCallMetrics() {
+    return Optional.ofNullable(this.callMetrics);
   }
 
   void setCallMetrics(HttpMetrics metrics) {

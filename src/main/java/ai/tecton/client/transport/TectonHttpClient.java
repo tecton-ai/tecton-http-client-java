@@ -4,12 +4,16 @@ import ai.tecton.client.TectonClientOptions;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
+import ai.tecton.client.transport.benchmark.CallEventListener;
+import ai.tecton.client.transport.benchmark.HttpMetrics;
+import ai.tecton.client.transport.benchmark.OkhttpCallLog;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.*;
+import okhttp3.internal.connection.RealCall;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
@@ -21,8 +25,7 @@ public class TectonHttpClient {
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
   private static final int TIMEOUT = 5;
-  private MetricsEventListener metricsEventListener;
-  private boolean DEBUG_MODE = false;
+  private final boolean DEBUG_MODE;
 
   private static final Map<String, String> defaultHeaders =
       new HashMap<String, String>() {
@@ -64,19 +67,18 @@ public class TectonHttpClient {
     this.DEBUG_MODE = false;
   }
 
-  TectonHttpClient(String url, String apiKey, boolean debugMode) {
+  public TectonHttpClient(String url, String apiKey, boolean debugMode) {
     validateClientParameters(url, apiKey);
-    this.metricsEventListener = new MetricsEventListener();
     this.apiKey = apiKey;
     client =
         client
             .newBuilder()
             .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .eventListener(metricsEventListener)
             .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
+            .eventListenerFactory(CallEventListener.MetricsEventListenerFactory)
             .build();
     isClosed = new AtomicBoolean(false);
-    this.DEBUG_MODE = true;
+    this.DEBUG_MODE = debugMode;
   }
 
   public void close() {
@@ -94,17 +96,26 @@ public class TectonHttpClient {
     HttpRequest httpRequest =
         new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
     Request request = buildRequestWithDefaultHeaders(httpRequest);
-    Call call = client.newCall(request);
+    RealCall call = new RealCall(client, request, false);
+    long callId = 0;
+
+    if (this.DEBUG_MODE) {
+      CallEventListener metricsEventListener = (CallEventListener) call.getEventListener$okhttp();
+      callId = metricsEventListener.getCallId();
+    }
     HttpResponse httpResponse;
     try {
       Response response = call.execute();
       httpResponse = new HttpResponse(response);
       response.close();
-      if (this.DEBUG_MODE) {
-        httpResponse.setCallMetrics(this.metricsEventListener.build());
+      if (this.DEBUG_MODE && CallEventListener.callToMetricsMap.containsKey(callId)) {
+        OkhttpCallLog callLog = CallEventListener.callToMetricsMap.get(callId);
+        if (callLog.isValidCallLog()) httpResponse.setCallMetrics(new HttpMetrics(callLog));
       }
       return httpResponse;
     } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println(e.getMessage());
       throw new TectonServiceException(e.getMessage());
     }
   }

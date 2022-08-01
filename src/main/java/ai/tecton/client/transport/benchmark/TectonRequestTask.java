@@ -1,21 +1,24 @@
-package ai.tecton.client.transport;
+package ai.tecton.client.transport.benchmark;
 
-import ai.tecton.client.request.GetFeaturesRequest;
+import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.response.GetFeaturesResponse;
+import ai.tecton.client.transport.HttpResponse;
+import ai.tecton.client.transport.TectonHttpClient;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class GetFeaturesTask extends TimerTask {
+class TectonRequestTask extends TimerTask {
 
   static AtomicInteger REQUEST_COUNTER = new AtomicInteger(0);
 
-  List<CallMetrics> callMetricsList;
+  List<SingleCallMetrics> callMetricsList;
   TectonHttpClient tectonHttpClient;
-  GetFeaturesRequest request;
+  AbstractTectonRequest request;
 
-  GetFeaturesTask(TectonHttpClient tectonHttpClient, GetFeaturesRequest request) {
+  TectonRequestTask(TectonHttpClient tectonHttpClient, AbstractTectonRequest request) {
     this.tectonHttpClient = tectonHttpClient;
     this.callMetricsList = new ArrayList<>();
     this.request = request;
@@ -23,13 +26,16 @@ class GetFeaturesTask extends TimerTask {
 
   @Override
   public void run() {
+    // Setup
     REQUEST_COUNTER.getAndIncrement();
     boolean isSuccessful = false;
     long start = System.currentTimeMillis();
+
+    // Perform request
     HttpResponse httpResponse =
         tectonHttpClient.performRequest(
             request.getEndpoint(), request.getMethod(), request.requestToJson());
-    long clientStart = System.currentTimeMillis();
+    long responseStart = System.currentTimeMillis();
     if (httpResponse.isSuccessful()) {
       GetFeaturesResponse response =
           new GetFeaturesResponse(
@@ -37,13 +43,13 @@ class GetFeaturesTask extends TimerTask {
       isSuccessful = true;
     }
     long stop = System.currentTimeMillis();
-    long totalClientDuration = stop - start;
-    long clientResponseParsingDuration = stop - clientStart;
-    callMetricsList.add(
-        new CallMetrics(
-            httpResponse.getCallMetrics(),
-            totalClientDuration,
-            clientResponseParsingDuration,
-            isSuccessful));
+
+    // Add call metrics to list
+    Optional<HttpMetrics> httpMetrics = httpResponse.getCallMetrics();
+    if (httpMetrics.isPresent()) {
+      callMetricsList.add(
+          new SingleCallMetrics(
+              httpMetrics.get(), (stop - start), (stop - responseStart), isSuccessful));
+    }
   }
 }
