@@ -17,8 +17,8 @@ class SingleClientWorker {
   private static final int NUMBER_OF_POLLS = 5;
   private static final String THREAD = "Thread";
   private static final int QPS_MARGIN = 10;
-  private static final int INITIAL_THREAD_COUNT = 1;
-  private static final int PERIOD = 5;
+  private static final int BASELINE_QPS = 20;
+  private static final int PERIOD = 3;
 
   SingleClientWorker(TectonHttpClient tectonHttpClient) {
     this.tectonHttpClient = tectonHttpClient;
@@ -32,8 +32,7 @@ class SingleClientWorker {
     warmup(request);
 
     // Initialize thread pool with a starting number of threads, with name and task
-    // int numberOfThreads = Math.max(BASELINE_QPS / qpsPerClient, 1);
-    int numberOfThreads = INITIAL_THREAD_COUNT;
+    int numberOfThreads = Math.max(qpsPerClient / BASELINE_QPS, 1);
     Map<String, Pair<Timer, TectonRequestTask>> threadToTaskPool = new HashMap<>();
     for (int i = 0; i < numberOfThreads; i++) {
       String name = StringUtils.join(THREAD, i);

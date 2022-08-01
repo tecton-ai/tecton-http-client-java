@@ -18,7 +18,7 @@ public class BenchMarkRunner {
   private static final String FEATURE_SERVICE_NAME = "fraud_detection_feature_service";
   private static final int MAX_USERS = 5;
   private static final int MAX_QPS = 120;
-  private static final long MAX_DURATION_SECONDS = TimeUnit.MINUTES.toSeconds(5);
+  private static final long MAX_DURATION_SECONDS = TimeUnit.MINUTES.toSeconds(2);
 
   public static void main(String[] args) throws InterruptedException {
     if (args.length < 5) {
@@ -63,7 +63,7 @@ public class BenchMarkRunner {
     // Run tests for all clients
     clientTasks.forEach(executorService::execute);
     executorService.shutdown();
-    executorService.awaitTermination(durationInSeconds + 5, TimeUnit.SECONDS);
+    executorService.awaitTermination(durationInSeconds + 10, TimeUnit.SECONDS);
 
     // Collect metrics from each client, aggregate and print
     List<CallMetrics> callMetricsList =
