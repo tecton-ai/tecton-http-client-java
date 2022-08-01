@@ -23,38 +23,39 @@ class BenchmarkMetrics {
 
   DecimalFormat formatter = new DecimalFormat("#0.00");
 
-  BenchmarkMetrics(List<SingleCallMetrics> clientMetrics, long durationInSeconds) {
+  BenchmarkMetrics(List<CallMetrics> clientMetrics, long durationInSeconds) {
+    // Collect metrics from all calls
     long durationInMillis = TimeUnit.SECONDS.toMillis(durationInSeconds);
     int totalCalls = clientMetrics.size();
     this.setOkHttpCallDuration(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getTotalCallDuration())
+                .map(CallMetrics::getTotalCallDuration)
                 .collect(Collectors.toList()))
         .setRequestHeaderDuration(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getRequestHeaderDuration())
+                .map(CallMetrics::getRequestHeaderDuration)
                 .collect(Collectors.toList()))
         .setRequestBodyDuration(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getRequestBodyDuration())
+                .map(CallMetrics::getRequestBodyDuration)
                 .collect(Collectors.toList()))
         .setResponseHeaderDuration(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getResponseHeaderDuration())
+                .map(CallMetrics::getResponseHeaderDuration)
                 .collect(Collectors.toList()))
         .setResponseBodyDuration(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getResponseBodyDuration())
+                .map(CallMetrics::getResponseBodyDuration)
                 .collect(Collectors.toList()))
         .setFsLatency(
             clientMetrics.stream()
-                .map(m -> m.httpMetrics.getResponseLatency())
+                .map(CallMetrics::getResponseLatency)
                 .collect(Collectors.toList()))
         .setClientLatency(
-            clientMetrics.stream().map(m -> m.clientLatency).collect(Collectors.toList()))
+            clientMetrics.stream().map(CallMetrics::getClientLatency).collect(Collectors.toList()))
         .setPercentages(
-            clientMetrics.stream().filter(m -> m.isSuccessful).count(),
-            clientMetrics.stream().filter(m -> !m.isSuccessful).count())
+            clientMetrics.stream().filter(CallMetrics::isSuccessful).count(),
+            clientMetrics.stream().filter(m -> !m.isSuccessful()).count())
         .setQueriesPerSecond(totalCalls, TimeUnit.MILLISECONDS.toSeconds(durationInMillis));
   }
 
@@ -131,7 +132,7 @@ class BenchmarkMetrics {
   }
 
   private Metric createMetric(List<Long> values, String name, String description) {
-
+    // Calculate average, p95 and p99
     Metric metric = new Metric();
     metric.values = new ArrayList<>(values);
     Collections.sort(values);

@@ -1,6 +1,6 @@
 package ai.tecton.client.transport;
 
-import ai.tecton.client.transport.benchmark.HttpMetrics;
+import ai.tecton.client.transport.benchmark.CallMetrics;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -14,7 +14,7 @@ public class HttpResponse {
   private final String body;
   private final Headers headers;
   private final Duration requestDuration;
-  private HttpMetrics callMetrics;
+  private CallMetrics callMetrics;
 
   public HttpResponse(Response response) throws Exception {
     this.responseCode = response.code();
@@ -46,11 +46,11 @@ public class HttpResponse {
     return Optional.ofNullable(this.body);
   }
 
-  public Optional<HttpMetrics> getCallMetrics() {
+  public Optional<CallMetrics> getCallMetrics() {
     return Optional.ofNullable(this.callMetrics);
   }
 
-  void setCallMetrics(HttpMetrics metrics) {
+  void setCallMetrics(CallMetrics metrics) {
     this.callMetrics = metrics;
   }
 }

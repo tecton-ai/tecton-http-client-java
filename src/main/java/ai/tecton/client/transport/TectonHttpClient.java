@@ -5,7 +5,7 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.transport.benchmark.CallEventListener;
-import ai.tecton.client.transport.benchmark.HttpMetrics;
+import ai.tecton.client.transport.benchmark.CallMetrics;
 import ai.tecton.client.transport.benchmark.OkhttpCallLog;
 import java.time.Duration;
 import java.util.HashMap;
@@ -67,6 +67,7 @@ public class TectonHttpClient {
     this.DEBUG_MODE = false;
   }
 
+  // Add the CallEventListenerFactory to the client when in debug mode
   public TectonHttpClient(String url, String apiKey, boolean debugMode) {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
@@ -75,7 +76,7 @@ public class TectonHttpClient {
             .newBuilder()
             .readTimeout(TIMEOUT, TimeUnit.SECONDS)
             .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .eventListenerFactory(CallEventListener.MetricsEventListenerFactory)
+            .eventListenerFactory(CallEventListener.CallEventListenerFactory)
             .build();
     isClosed = new AtomicBoolean(false);
     this.DEBUG_MODE = debugMode;
@@ -100,6 +101,7 @@ public class TectonHttpClient {
     long callId = 0;
 
     if (this.DEBUG_MODE) {
+      // Track events per callId, required if using a multi-threaded environment
       CallEventListener metricsEventListener = (CallEventListener) call.getEventListener$okhttp();
       callId = metricsEventListener.getCallId();
     }
@@ -108,14 +110,14 @@ public class TectonHttpClient {
       Response response = call.execute();
       httpResponse = new HttpResponse(response);
       response.close();
+
       if (this.DEBUG_MODE && CallEventListener.callToMetricsMap.containsKey(callId)) {
         OkhttpCallLog callLog = CallEventListener.callToMetricsMap.get(callId);
-        if (callLog.isValidCallLog()) httpResponse.setCallMetrics(new HttpMetrics(callLog));
+        if (callLog.isValidCallLog()) httpResponse.setCallMetrics(new CallMetrics(callLog));
       }
+
       return httpResponse;
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(e.getMessage());
       throw new TectonServiceException(e.getMessage());
     }
   }

@@ -14,7 +14,7 @@ class TectonRequestTask extends TimerTask {
 
   static AtomicInteger REQUEST_COUNTER = new AtomicInteger(0);
 
-  List<SingleCallMetrics> callMetricsList;
+  List<CallMetrics> callMetricsList;
   TectonHttpClient tectonHttpClient;
   AbstractTectonRequest request;
 
@@ -45,11 +45,12 @@ class TectonRequestTask extends TimerTask {
     long stop = System.currentTimeMillis();
 
     // Add call metrics to list
-    Optional<HttpMetrics> httpMetrics = httpResponse.getCallMetrics();
-    if (httpMetrics.isPresent()) {
-      callMetricsList.add(
-          new SingleCallMetrics(
-              httpMetrics.get(), (stop - start), (stop - responseStart), isSuccessful));
+    Optional<CallMetrics> callMetrics = httpResponse.getCallMetrics();
+    if (callMetrics.isPresent()) {
+      callMetrics.get().setTotalDuration((stop - start));
+      callMetrics.get().setClientLatency(stop - responseStart);
+      callMetrics.get().setCallStatus(isSuccessful);
+      callMetricsList.add(callMetrics.get());
     }
   }
 }

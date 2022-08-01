@@ -24,10 +24,10 @@ class SingleClientWorker {
     this.tectonHttpClient = tectonHttpClient;
   }
 
-  List<SingleCallMetrics> runTest(
+  List<CallMetrics> runTest(
       int qps, long durationInSeconds, AbstractTectonRequest request, int qpsPerClient)
       throws InterruptedException {
-    List<SingleCallMetrics> allMetrics = new ArrayList<>();
+    List<CallMetrics> allMetrics = new ArrayList<>();
     long durationInMillis = TimeUnit.SECONDS.toMillis(durationInSeconds) + QPS_MARGIN;
     warmup(request);
 

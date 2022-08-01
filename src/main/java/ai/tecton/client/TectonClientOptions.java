@@ -35,7 +35,7 @@ public class TectonClientOptions {
   public TectonClientOptions() {
     readTimeout = Duration.ofSeconds(5);
     connectTimeout = Duration.ofSeconds(5);
-    maxIdleConnections = 10;
+    maxIdleConnections = 5;
     keepAliveDuration = Duration.ofMinutes(5);
   }
 

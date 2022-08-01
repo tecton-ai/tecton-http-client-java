@@ -11,7 +11,7 @@ public class CallEventListener extends EventListener {
   long callId;
   public static Map<Long, OkhttpCallLog> callToMetricsMap = new HashMap<>();
 
-  public static final Factory MetricsEventListenerFactory =
+  public static final Factory CallEventListenerFactory =
       new Factory() {
         final AtomicLong nextCallId = new AtomicLong(1L);
 

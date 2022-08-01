@@ -26,12 +26,10 @@ public class BenchMarkRunner {
           "MISSING ARGUMENTS!! Please provide all required arguments in the order - URL, ApiKey, Number of Users, QPS and Test Duration");
       System.exit(1);
     }
+
+    // Get arguments
     String tectonUrl = args[0];
     String tectonApiKey = args[1];
-
-    // String tectonUrl = "https://app.tecton.ai";
-    // String tectonApiKey = "ef171f52af035f189a8661ec658c6777";
-
     int numClients = Integer.parseInt(args[2]);
     int qps = Integer.parseInt(args[3]);
     long durationInSeconds = Long.parseLong(args[4]);
@@ -68,7 +66,7 @@ public class BenchMarkRunner {
     executorService.awaitTermination(durationInSeconds + 5, TimeUnit.SECONDS);
 
     // Collect metrics from each client, aggregate and print
-    List<SingleCallMetrics> callMetricsList =
+    List<CallMetrics> callMetricsList =
         clientTasks.stream()
             .map(t -> t.clientMetrics)
             .flatMap(Collection::stream)
@@ -94,13 +92,13 @@ public class BenchMarkRunner {
   }
 }
 
-// Thread per Client
+// Runnable thread per Client
 class ClientTask implements Runnable {
 
   private final int id;
   private final SingleClientWorker clientWorker;
   TectonHttpClient tectonHttpClient;
-  List<SingleCallMetrics> clientMetrics;
+  List<CallMetrics> clientMetrics;
   int qps;
   int qpsPerClient;
   long duration;
