@@ -20,6 +20,8 @@ public class TectonErrorMessage {
 
   public static final String INVALID_GET_FEATURE_REQUEST =
       "The parameters passed to the GetFeatureRequest are invalid. %s";
+  public static final String INVALID_GET_FEATURE_BATCH_REQUEST =
+      "The parameters passed to the GetFeaturesBatchRequest are invalid. %s";
   public static final String INVALID_GET_SERVICE_METADATA_REQUEST =
       "The parameters passed to the GetFeatureServiceMetadataRequest are invalid. %s";
   public static final String INVALID_RESPONSE_FORMAT = "Unable to parse JSON response from Tecton";
