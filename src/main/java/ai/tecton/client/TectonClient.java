@@ -5,11 +5,9 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
-import ai.tecton.client.request.GetFeaturesBatchRequest;
 import ai.tecton.client.request.GetFeaturesRequest;
 import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
 import ai.tecton.client.response.GetFeaturesResponse;
-import ai.tecton.client.response.GetFeaturesResponseBatch;
 import ai.tecton.client.transport.HttpResponse;
 import ai.tecton.client.transport.TectonHttpClient;
 import com.squareup.moshi.JsonAdapter;
@@ -91,11 +89,6 @@ public class TectonClient {
     HttpResponse httpResponse = getHttpResponse(getFeatureServiceMetadataRequest);
     return new GetFeatureServiceMetadataResponse(
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
-  }
-
-  public GetFeaturesResponseBatch getFeaturesResponseBatch(
-      GetFeaturesBatchRequest getFeaturesBatchRequest) {
-    return null;
   }
 
   private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {
