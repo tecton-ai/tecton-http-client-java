@@ -34,4 +34,6 @@ public class TectonErrorMessage {
   public static final String MISMATCHED_TYPE = "Invalid method used to access value of type %s";
   public static final String UNSUPPORTED_LIST_DATA_TYPE =
       "Unsupported data type detected for array feature values";
+  public static final String EXCEEDS_MAX_BATCH_SIZE =
+      "The microbatch size exceeds the maximum allowed value of %s";
 }

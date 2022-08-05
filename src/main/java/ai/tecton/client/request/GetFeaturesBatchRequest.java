@@ -19,10 +19,13 @@ import java.util.stream.Collectors;
 public class GetFeaturesBatchRequest extends AbstractTectonRequest {
 
   private static final String ENDPOINT = "/api/v1/feature-service/get-features-batch";
+  private static final int MAX_MICRO_BATCH_SIZE = 10;
+  private static final int DEFAULT_MICRO_BATCH_SIZE = 5;
   private static final TectonHttpClient.HttpMethod httpMethod = TectonHttpClient.HttpMethod.POST;
   private final JsonAdapter<GetFeaturesRequestBatchJson> jsonAdapter;
   private final List<GetFeaturesRequestData> getFeaturesRequestDataList;
   private final Set<MetadataOption> metadataOptions;
+  private int microBatchSize;
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with specified parameters and default
@@ -47,6 +50,7 @@ public class GetFeaturesBatchRequest extends AbstractTectonRequest {
     this.metadataOptions = GetFeaturesUtils.defaultMetadataOptions;
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestBatchJson.class);
+    microBatchSize = DEFAULT_MICRO_BATCH_SIZE;
   }
 
   /**
@@ -74,6 +78,33 @@ public class GetFeaturesBatchRequest extends AbstractTectonRequest {
     this.metadataOptions = GetFeaturesUtils.getMetadataOptions(metadataOptions);
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestBatchJson.class);
+    microBatchSize = DEFAULT_MICRO_BATCH_SIZE;
+  }
+
+  /**
+   * Setter for microbatch size for GetFeaturesBatch requests.
+   *
+   * @param microBatchSize The micro batch size for GetFeaturesBatch requests
+   * @return GetFeaturesBatchRequest object after setting the microBatchSize
+   * @throws TectonClientException when the microBatchSize exceeds the MAX value
+   */
+  public GetFeaturesBatchRequest setMicroBatchSize(int microBatchSize)
+      throws TectonClientException {
+    if (microBatchSize > MAX_MICRO_BATCH_SIZE) {
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.EXCEEDS_MAX_BATCH_SIZE, MAX_MICRO_BATCH_SIZE));
+    }
+    this.microBatchSize = microBatchSize;
+    return this;
+  }
+
+  /**
+   * Get configured micro batch size foir the GetFeaturesBatchRequest
+   *
+   * @return microBatchSize
+   */
+  public int getMicroBatchSize() {
+    return microBatchSize;
   }
 
   List<GetFeaturesRequestData> getFeaturesRequestDataList() {

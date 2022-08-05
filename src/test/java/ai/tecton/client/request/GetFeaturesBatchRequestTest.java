@@ -67,6 +67,29 @@ public class GetFeaturesBatchRequestTest {
   }
 
   @Test
+  public void testValidMicroBatchSize() {
+    getFeaturesBatchRequest =
+        new GetFeaturesBatchRequest(
+            TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestDataList);
+    getFeaturesBatchRequest.setMicroBatchSize(8);
+    Assert.assertEquals(8, getFeaturesBatchRequest.getMicroBatchSize());
+  }
+
+  @Test
+  public void testInvalidMicroBatchSize() {
+    try {
+      getFeaturesBatchRequest =
+          new GetFeaturesBatchRequest(
+              TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestDataList);
+      getFeaturesBatchRequest.setMicroBatchSize(20);
+      fail();
+    } catch (TectonClientException e) {
+      Assert.assertEquals(
+          String.format(TectonErrorMessage.EXCEEDS_MAX_BATCH_SIZE, 10), e.getMessage());
+    }
+  }
+
+  @Test
   public void testSingleRequestData() {
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest(
