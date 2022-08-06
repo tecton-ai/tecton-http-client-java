@@ -3,7 +3,6 @@ package ai.tecton.client.request;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
-import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.util.*;
@@ -13,38 +12,11 @@ import java.util.stream.Collectors;
  * A subclass of {@link AbstractTectonRequest} that represents a request to the <i>/get-features</i>
  * endpoint to retrieve feature values from Tecton's online store
  */
-public class GetFeaturesRequest extends AbstractTectonRequest {
-  private static final String ENDPOINT = "/api/v1/feature-service/get-features";
-  private static final HttpMethod httpMethod = HttpMethod.POST;
+public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
 
+  private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private final JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
-  private final Set<MetadataOption> metadataOptions;
-
-  /**
-   * Constructor that creates a new GetFeaturesRequest with specified parameters and default
-   * MetadataOptions.
-   *
-   * <p>Note: Each GetFeaturesRequest will always include the MetadataOption.NAME and
-   * MetadataOption.DATA_TYPE options
-   *
-   * @param workspaceName Name of the workspace in which the Feature Service is defined
-   * @param featureServiceName Name of the Feature Service for which the feature vector is being
-   *     requested
-   * @param getFeaturesRequestData {@link GetFeaturesRequestData} object with joinKeyMap and/or
-   *     requestContextMap
-   */
-  public GetFeaturesRequest(
-      String workspaceName,
-      String featureServiceName,
-      GetFeaturesRequestData getFeaturesRequestData) {
-    super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
-    GetFeaturesUtils.validateRequestParameters(getFeaturesRequestData);
-    this.getFeaturesRequestData = getFeaturesRequestData;
-    this.metadataOptions = GetFeaturesUtils.defaultMetadataOptions;
-    Moshi moshi = new Moshi.Builder().build();
-    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
-  }
 
   /**
    * Constructor that creates a new GetFeaturesRequest with the specified parameters
@@ -65,21 +37,15 @@ public class GetFeaturesRequest extends AbstractTectonRequest {
       GetFeaturesRequestData getFeaturesRequestData,
       MetadataOption... metadataOptions) {
 
-    super(ENDPOINT, httpMethod, workspaceName, featureServiceName);
-    GetFeaturesUtils.validateRequestParameters(getFeaturesRequestData);
+    super(workspaceName, featureServiceName, ENDPOINT, metadataOptions);
+    validateRequestParameters(getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
-    this.metadataOptions = GetFeaturesUtils.getMetadataOptions(metadataOptions);
-
     Moshi moshi = new Moshi.Builder().build();
     jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
   GetFeaturesRequestData getFeaturesRequestData() {
     return this.getFeaturesRequestData;
-  }
-
-  Set<MetadataOption> getMetadataOptions() {
-    return this.metadataOptions;
   }
 
   static class GetFeaturesRequestJson {
