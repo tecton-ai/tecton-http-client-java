@@ -36,6 +36,7 @@ dependencies {
 
 //Package JAR with dependencies
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
@@ -47,9 +48,9 @@ test {
     testLogging {
         showStandardStreams = true
         events = [TestLogEvent.FAILED,
-                TestLogEvent.PASSED,
-                TestLogEvent.SKIPPED,
-                TestLogEvent.STANDARD_OUT]
+                  TestLogEvent.PASSED,
+                  TestLogEvent.SKIPPED,
+                  TestLogEvent.STANDARD_OUT]
         exceptionFormat = TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true

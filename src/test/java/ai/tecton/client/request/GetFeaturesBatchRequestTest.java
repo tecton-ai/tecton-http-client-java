@@ -9,7 +9,6 @@ import ai.tecton.client.transport.TectonHttpClient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,6 @@ public class GetFeaturesBatchRequestTest {
 
   GetFeaturesBatchRequest getFeaturesBatchRequest;
   List<GetFeaturesRequestData> defaultFeatureRequestDataList;
-  private String expected_json;
 
   @Before
   public void setup() throws IOException {
@@ -36,10 +34,6 @@ public class GetFeaturesBatchRequestTest {
     GetFeaturesRequestData requestData = new GetFeaturesRequestData();
     requestData.addJoinKey("testKey", "testValue");
     defaultFeatureRequestDataList.add(requestData);
-    ClassLoader classLoader = getClass().getClassLoader();
-    String simpleInput = classLoader.getResource("request/sample_batch_request.json").getFile();
-    expected_json =
-        StringUtils.replace(new String(Files.readAllBytes(Paths.get(simpleInput))), "\\s", "");
   }
 
   @Test
@@ -270,6 +264,8 @@ public class GetFeaturesBatchRequestTest {
             .metadataOptions(MetadataOption.ALL)
             .build();
 
+    String expected_json =
+        "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\",\"metadata_options\":{\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true},\"request_data\":[{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Cummerata-Jones\"},\"request_context_map\":{\"amt\":61.06}},{\"join_key_map\":{\"user_id\":\"user_394495759023\",\"merchant\":\"fraud_Marks Inc\"},\"request_context_map\":{\"amt\":106.43}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Grimes LLC\"},\"request_context_map\":{\"amt\":24.95}},{\"join_key_map\":{\"user_id\":\"user_499975010057\",\"merchant\":\"fraud_Thiel Ltd\"},\"request_context_map\":{\"amt\":2.12}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Bins-Rice\"},\"request_context_map\":{\"amt\":68.31}}],\"workspace_name\":\"prod\"}}";
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(0, getFeaturesBatchRequest.getFeaturesRequestList().size());
     Assert.assertEquals(1, getFeaturesBatchRequest.getMicroBatchRequestList().size());
@@ -316,86 +312,4 @@ public class GetFeaturesBatchRequestTest {
             });
     return requestDataList;
   }
-
-  /*
-  @Test
-  public void testValidMicroBatchSize() {
-    getFeaturesBatchRequest =
-        new GetFeaturesBatchRequest(
-            TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestDataList);
-    getFeaturesBatchRequest.setMicroBatchSize(8);
-    Assert.assertEquals(8, getFeaturesBatchRequest.getMicroBatchSize());
-  }
-
-  @Test
-  public void testInvalidMicroBatchSize() {
-    try {
-      getFeaturesBatchRequest =
-          new GetFeaturesBatchRequest(
-              TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestDataList);
-      getFeaturesBatchRequest.setMicroBatchSize(20);
-      fail();
-    } catch (TectonClientException e) {
-      Assert.assertEquals(
-          String.format(TectonErrorMessage.EXCEEDS_MAX_BATCH_SIZE, 10), e.getMessage());
-    }
-  }
-
-  @Test
-  public void testSingleRequestData() {
-    getFeaturesBatchRequest =
-        new GetFeaturesBatchRequest(
-            TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestDataList);
-
-    Assert.assertEquals(ENDPOINT, getFeaturesBatchRequest.getEndpoint());
-    Assert.assertEquals(TectonHttpClient.HttpMethod.POST, getFeaturesBatchRequest.getMethod());
-    Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesBatchRequest.getWorkspaceName());
-    Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesBatchRequest.getFeatureServiceName());
-    Assert.assertEquals(defaultMetadataOptions, getFeaturesBatchRequest.getMetadataOptions());
-    Assert.assertEquals(1, getFeaturesBatchRequest.getFeaturesRequestDataList().size());
-    String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_data\":[{\"join_key_map\":{\"testKey\":\"testValue\"}}],\"workspace_name\":\"testWorkspaceName\"}}";
-    String actual_json = getFeaturesBatchRequest.requestToJson();
-    Assert.assertEquals(expected_json, actual_json);
-  }
-
-  @Test
-  public void testMultipleRequestData() throws IOException {
-    List<GetFeaturesRequestData> requestDataList = new ArrayList<>();
-    requestDataList.add(
-        new GetFeaturesRequestData()
-            .addJoinKey("user_id", "76")
-            .addJoinKey("merchant", "44")
-            .addRequestContext("amt", 1000L));
-    requestDataList.add(
-        new GetFeaturesRequestData()
-            .addJoinKey("user_id", "3")
-            .addJoinKey("merchant", "16")
-            .addRequestContext("amt", 1000L));
-    requestDataList.add(
-        new GetFeaturesRequestData()
-            .addJoinKey("user_id", "5")
-            .addJoinKey("merchant", "32")
-            .addRequestContext("amt", 1000L));
-    requestDataList.add(
-        new GetFeaturesRequestData()
-            .addJoinKey("user_id", "61")
-            .addJoinKey("merchant", "36")
-            .addRequestContext("amt", 1000L));
-
-    getFeaturesBatchRequest =
-        new GetFeaturesBatchRequest(
-            "prod", "fraud_detection_feature_service", requestDataList, MetadataOption.ALL);
-
-    String expected_json =
-        "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\","
-            + "\"metadata_options\":{\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true},"
-            + "\"request_data\":[{\"join_key_map\":{\"user_id\":\"76\",\"merchant\":\"44\"},"
-            + "\"request_context_map\":{\"amt\":\"1000\"}},{\"join_key_map\":{\"user_id\":\"3\",\"merchant\":\"16\"},"
-            + "\"request_context_map\":{\"amt\":\"1000\"}},{\"join_key_map\":{\"user_id\":\"5\",\"merchant\":\"32\"},"
-            + "\"request_context_map\":{\"amt\":\"1000\"}},{\"join_key_map\":{\"user_id\":\"61\",\"merchant\":\"36\"},"
-            + "\"request_context_map\":{\"amt\":\"1000\"}}],\"workspace_name\":\"prod\"}}";
-    String actual_json = getFeaturesBatchRequest.requestToJson();
-    Assert.assertEquals(expected_json, actual_json);
-  }*/
 }
