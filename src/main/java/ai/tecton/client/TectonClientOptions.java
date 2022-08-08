@@ -25,6 +25,7 @@ public class TectonClientOptions {
   private Duration connectTimeout;
   private int maxIdleConnections;
   private Duration keepAliveDuration;
+  private int maxParallelRequests;
 
   /**
    * Constructor that configures the TectonClient with default configurations
@@ -32,11 +33,17 @@ public class TectonClientOptions {
    * <p>Read Timeout = 5 seconds, Connect Timeout = 5 seconds, Max Idle Connections = 5, Keep Alive
    * Duration = 5 minutes
    */
-  public TectonClientOptions() {
-    readTimeout = Duration.ofSeconds(5);
-    connectTimeout = Duration.ofSeconds(5);
-    maxIdleConnections = 5;
-    keepAliveDuration = Duration.ofMinutes(5);
+  public TectonClientOptions(
+      Duration readTimeout,
+      Duration connectTimeout,
+      int maxIdleConnections,
+      Duration keepAliveDuration,
+      int maxParallelRequests) {
+    this.readTimeout = readTimeout;
+    this.connectTimeout = connectTimeout;
+    this.maxIdleConnections = maxIdleConnections;
+    this.keepAliveDuration = keepAliveDuration;
+    this.maxParallelRequests = maxParallelRequests;
   }
 
   /**
@@ -76,48 +83,94 @@ public class TectonClientOptions {
   }
 
   /**
-   * Sets the readTimeout value for new connections. A value of 0 means no timeout, otherwise values
-   * must be between 1 and Integer.MAX_VALUE when converted to milliseconds
+   * Returns the maxParallelRequests configuration for the client
    *
-   * @param readTimeout readTimeout as a {@link java.time.Duration}
-   * @return The {@link TectonClientOptions} object after configuring the readTimeout
+   * @return maxParallelRequests
    */
-  public TectonClientOptions setReadTimeout(Duration readTimeout) {
-    this.readTimeout = readTimeout;
-    return this;
+  public int getMaxParallelRequests() {
+    return maxParallelRequests;
   }
 
   /**
-   * Sets the connectTimeout value for new connections. A value of 0 means no timeout, otherwise
-   * values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
-   *
-   * @param connectTimeout connectTimeout as a {@link java.time.Duration}
-   * @return The {@link TectonClientOptions} object after configuring the connectTimeout
+   * A Builder class for creating an instance of {@link TectonClientOptions} object with specific
+   * configurations
    */
-  public TectonClientOptions setConnectTimeout(Duration connectTimeout) {
-    this.connectTimeout = connectTimeout;
-    return this;
-  }
+  public static class Builder {
+    private Duration readTimeout = Duration.ofSeconds(5);
 
-  /**
-   * Sets the maximum number of idle connections to keep in the pool.
-   *
-   * @param maxIdleConnections
-   * @return The {@link TectonClientOptions} object after configuring the maxIdleConnections
-   */
-  public TectonClientOptions setMaxIdleConnections(int maxIdleConnections) {
-    this.maxIdleConnections = maxIdleConnections;
-    return this;
-  }
+    private Duration connectTimeout = Duration.ofSeconds(5);
 
-  /**
-   * Sets the time to keep an idle connection alive in the pool before closing it
-   *
-   * @param keepAliveDuration as a {@link java.time.Duration}
-   * @return The {@link TectonClientOptions} object after configuring the * keepAliveDuration
-   */
-  public TectonClientOptions setKeepAliveDuration(Duration keepAliveDuration) {
-    this.keepAliveDuration = keepAliveDuration;
-    return this;
+    private int maxIdleConnections = 5;
+    private Duration keepAliveDuration = Duration.ofSeconds(5);
+
+    private int maxParallelRequests = 5;
+
+    /**
+     * Setter for the readTimeout value for new connections. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
+     *
+     * @param readTimeout readTimeout as a {@link java.time.Duration}
+     * @return this Builder
+     */
+    public Builder readTimeout(Duration readTimeout) {
+      this.readTimeout = readTimeout;
+      return this;
+    }
+
+    /**
+     * Setter for the connectTimeout value for new connections. A value of 0 means no timeout,
+     * otherwise values must be between 1 and Integer.MAX_VALUE when converted to milliseconds
+     *
+     * @param connectTimeout connectTimeout as a {@link java.time.Duration}
+     * @return this Builder
+     */
+    public Builder connectTimeout(Duration connectTimeout) {
+      this.connectTimeout = connectTimeout;
+      return this;
+    }
+
+    /**
+     * Setter for the maximum number of idle connections to keep in the pool. If not set, the client
+     * will use a default value of 5
+     *
+     * @param maxIdleConnections int value, must be between 1 and Integer.MAX_VALUE
+     * @return this builder
+     */
+    public Builder maxIdleConnections(int maxIdleConnections) {
+      this.maxIdleConnections = maxIdleConnections;
+      return this;
+    }
+
+    /**
+     * Setter for the time to keep an idle connection alive in the pool before closing it
+     *
+     * @param keepAliveDuration as a {@link java.time.Duration}
+     * @return this Builder
+     */
+    public Builder keepAliveDuration(Duration keepAliveDuration) {
+      this.keepAliveDuration = keepAliveDuration;
+      return this;
+    }
+
+    /**
+     * Setter for the maximum number of requests to execute concurrently. Above this requests queue
+     * in memory, waiting for the running calls to complete. Default value is 5
+     *
+     * @param maxParallelRequests int value, must be between 1 and Integer.MAX_VALUE
+     * @return this Builder
+     */
+    public Builder maxParallelRequests(int maxParallelRequests) {
+      this.maxParallelRequests = maxParallelRequests;
+      return this;
+    }
+
+    public TectonClientOptions build() {
+      return new TectonClientOptions(
+          this.readTimeout,
+          this.connectTimeout,
+          this.maxIdleConnections,
+          this.keepAliveDuration,
+          this.maxParallelRequests);
+    }
   }
 }

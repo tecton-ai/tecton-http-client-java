@@ -4,14 +4,21 @@ import ai.tecton.client.TectonClientOptions;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 
 public class TectonHttpClient {
 
@@ -21,6 +28,9 @@ public class TectonHttpClient {
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
   private static final int TIMEOUT = 5;
+  private static Moshi moshi = new Moshi.Builder().build();
+  private static final JsonAdapter<ErrorResponseJson> jsonAdapter =
+      moshi.adapter(ErrorResponseJson.class);
 
   private static final Map<String, String> defaultHeaders =
       new HashMap<String, String>() {
@@ -30,24 +40,17 @@ public class TectonHttpClient {
         }
       };
 
-  public TectonHttpClient(String url, String apiKey) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    client =
-        new OkHttpClient.Builder()
-            .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .build();
-    isClosed = new AtomicBoolean(false);
-  }
-
   public TectonHttpClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
+    Dispatcher dispatcher = new Dispatcher();
+    dispatcher.setMaxRequests(tectonClientOptions.getMaxParallelRequests());
+
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder()
             .readTimeout(tectonClientOptions.getReadTimeout().getSeconds(), TimeUnit.SECONDS)
-            .connectTimeout(tectonClientOptions.getConnectTimeout().getSeconds(), TimeUnit.SECONDS);
+            .connectTimeout(tectonClientOptions.getConnectTimeout().getSeconds(), TimeUnit.SECONDS)
+            .dispatcher(dispatcher);
     ConnectionPool connectionPool =
         new ConnectionPool(
             tectonClientOptions.getMaxIdleConnections(),
@@ -76,9 +79,60 @@ public class TectonHttpClient {
     Call call = client.newCall(request);
     try {
       Response response = call.execute();
+      if (!response.isSuccessful()) {
+        parseErrorResponse(response);
+      }
       return new HttpResponse(response);
     } catch (Exception e) {
       throw new TectonServiceException(e.getMessage());
+    }
+  }
+
+  public List<HttpResponse> performParallelRequests(
+      String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
+      throws TectonClientException {
+
+    int numCalls = requestBodyList.size();
+    List<Call> calls = new ArrayList<>(numCalls);
+    List<HttpResponse> httpResponses = new ArrayList<>(numCalls);
+    CountDownLatch countDownLatch = new CountDownLatch(numCalls);
+
+    Callback callback =
+        new Callback() {
+          @Override
+          public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            throw new TectonClientException(TectonErrorMessage.ERROR_RESPONSE);
+          }
+
+          @Override
+          public void onResponse(@NotNull Call call, @NotNull Response response)
+              throws IOException {
+            try {
+              if (!response.isSuccessful()) {
+                parseErrorResponse(response);
+              }
+              httpResponses.add(calls.indexOf(call), new HttpResponse(response));
+            } catch (Exception e) {
+              throw new TectonServiceException(e.getMessage());
+            }
+          }
+        };
+
+    requestBodyList.forEach(
+        requestBody -> {
+          HttpRequest httpRequest =
+              new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
+          Request request = buildRequestWithDefaultHeaders(httpRequest);
+          Call call = client.newCall(request);
+          calls.add(call);
+          call.enqueue(callback);
+        });
+
+    try {
+      countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+      return httpResponses;
+    } catch (InterruptedException e) {
+      throw new TectonClientException(e.getMessage());
     }
   }
 
@@ -107,12 +161,16 @@ public class TectonHttpClient {
     return requestBuilder.build();
   }
 
-  public Duration getReadTimeout() {
+  Duration getReadTimeout() {
     return Duration.ofMillis(client.readTimeoutMillis());
   }
 
-  public Duration getConnectTimeout() {
+  Duration getConnectTimeout() {
     return Duration.ofMillis(client.connectTimeoutMillis());
+  }
+
+  int getMaxParallelRequests() {
+    return client.dispatcher().getMaxRequests();
   }
 
   private void validateClientParameters(String url, String apiKey) {
@@ -128,6 +186,19 @@ public class TectonHttpClient {
     } catch (Exception e) {
       throw new TectonClientException(TectonErrorMessage.INVALID_URL);
     }
+  }
+
+  private static void parseErrorResponse(Response response) {
+    // Parse error response and throw TectonServiceException
+    String errorMessage = response.message();
+    try {
+      ErrorResponseJson errorResponseJson = jsonAdapter.fromJson(response.body().string());
+      errorMessage = errorResponseJson.message;
+    } catch (Exception e) {
+      throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
+    }
+    throw new TectonServiceException(
+        String.format(TectonErrorMessage.ERROR_RESPONSE, response.code(), errorMessage));
   }
 
   public enum HttpMethod {
@@ -166,5 +237,11 @@ public class TectonHttpClient {
     public String getName() {
       return this.name;
     }
+  }
+
+  static class ErrorResponseJson {
+    String error;
+    int code;
+    String message;
   }
 }
