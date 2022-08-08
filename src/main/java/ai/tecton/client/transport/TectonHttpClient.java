@@ -92,25 +92,33 @@ public class TectonHttpClient {
       String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
       throws TectonClientException {
 
-    int numCalls = requestBodyList.size();
-    List<Call> calls = new ArrayList<>(numCalls);
-    List<HttpResponse> httpResponses = new ArrayList<>(numCalls);
-    CountDownLatch countDownLatch = new CountDownLatch(numCalls);
+    int numberOfCalls = requestBodyList.size();
+    List<HttpResponse> httpResponses = new ArrayList<>(numberOfCalls);
+
+    // Track order of calls to order the responses
+    List<Call> calls = new ArrayList<>(numberOfCalls);
+
+    // Initialize a countdown latch for numberOfCalls.
+    CountDownLatch countDownLatch = new CountDownLatch(numberOfCalls);
 
     Callback callback =
         new Callback() {
           @Override
           public void onFailure(@NotNull Call call, @NotNull IOException e) {
-            throw new TectonClientException(TectonErrorMessage.ERROR_RESPONSE);
+            throw new TectonClientException(
+                String.format(TectonErrorMessage.CALL_FAILURE, e.getMessage()));
           }
 
           @Override
           public void onResponse(@NotNull Call call, @NotNull Response response)
               throws IOException {
+            countDownLatch.countDown();
             try {
+              // On error response, immediately throw exception
               if (!response.isSuccessful()) {
                 parseErrorResponse(response);
               }
+              // Add response to corresponding index
               httpResponses.add(calls.indexOf(call), new HttpResponse(response));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
@@ -118,6 +126,7 @@ public class TectonHttpClient {
           }
         };
 
+    // Enqueue all calls
     requestBodyList.forEach(
         requestBody -> {
           HttpRequest httpRequest =
@@ -129,7 +138,8 @@ public class TectonHttpClient {
         });
 
     try {
-      countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+      // Countdown Latch waits until A)all calls have completed or B)specified timeout has elapsed
+      boolean completedAllCalls = countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
       return httpResponses;
     } catch (InterruptedException e) {
       throw new TectonClientException(e.getMessage());
