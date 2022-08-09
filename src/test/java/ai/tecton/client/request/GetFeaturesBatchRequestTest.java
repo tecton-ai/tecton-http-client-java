@@ -22,8 +22,6 @@ public class GetFeaturesBatchRequestTest {
   private static final String TEST_FEATURESERVICE_NAME = "testFSName";
   private static final String BATCH_ENDPOINT = "/api/v1/feature-service/get-features-batch";
   private static final String ENDPOINT = "/api/v1/feature-service/get-features";
-  private static final Set<MetadataOption> defaultMetadataOptions =
-      EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
   GetFeaturesBatchRequest getFeaturesBatchRequest;
   List<GetFeaturesRequestData> defaultFeatureRequestDataList;

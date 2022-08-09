@@ -13,8 +13,6 @@ public class GetFeaturesBatchRequest {
   public static final int DEFAULT_MICRO_BATCH_SIZE = 5;
 
   List<? extends AbstractGetFeaturesRequest> requestList;
-  List<String> requestBodyList;
-
   private final boolean isBatchRequest;
 
   GetFeaturesBatchRequest(
