@@ -4,7 +4,6 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
@@ -13,33 +12,28 @@ public class GetFeaturesBatchRequest {
   public static final int MAX_MICRO_BATCH_SIZE = 10;
   public static final int DEFAULT_MICRO_BATCH_SIZE = 5;
 
-  private List<GetFeaturesMicroBatchRequest> microBatchRequestList;
-  private List<GetFeaturesRequest> getFeaturesRequestList;
-  private boolean isBatchRequest;
+  List<? extends AbstractGetFeaturesRequest> requestList;
+  List<String> requestBodyList;
+
+  private final boolean isBatchRequest;
 
   GetFeaturesBatchRequest(
       List<GetFeaturesMicroBatchRequest> microBatchRequestList, boolean isBatchRequest) {
-    this.microBatchRequestList = microBatchRequestList;
-    this.getFeaturesRequestList = Collections.emptyList();
     this.isBatchRequest = isBatchRequest;
+    requestList = microBatchRequestList;
   }
 
   GetFeaturesBatchRequest(List<GetFeaturesRequest> getFeaturesRequestList) {
-    this.getFeaturesRequestList = getFeaturesRequestList;
-    this.microBatchRequestList = Collections.emptyList();
+    this.requestList = getFeaturesRequestList;
     this.isBatchRequest = false;
-  }
-
-  List<GetFeaturesMicroBatchRequest> getMicroBatchRequestList() {
-    return this.microBatchRequestList;
-  }
-
-  List<GetFeaturesRequest> getFeaturesRequestList() {
-    return this.getFeaturesRequestList;
   }
 
   boolean isBatchRequest() {
     return this.isBatchRequest;
+  }
+
+  public List<? extends AbstractGetFeaturesRequest> getRequestList() {
+    return this.requestList;
   }
 
   /**

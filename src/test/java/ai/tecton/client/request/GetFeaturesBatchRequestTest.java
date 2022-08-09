@@ -146,10 +146,10 @@ public class GetFeaturesBatchRequestTest {
             .build();
 
     Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(1, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
-    GetFeaturesRequest getFeaturesRequest = getFeaturesBatchRequest.getFeaturesRequestList().get(0);
+    GetFeaturesRequest getFeaturesRequest =
+        (GetFeaturesRequest) getFeaturesBatchRequest.getRequestList().get(0);
     checkGetFeaturesCommonFields(
         getFeaturesRequest,
         ENDPOINT,
@@ -172,11 +172,10 @@ public class GetFeaturesBatchRequestTest {
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(1, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
     GetFeaturesMicroBatchRequest microBatchRequest =
-        getFeaturesBatchRequest.getMicroBatchRequestList().get(0);
+        (GetFeaturesMicroBatchRequest) getFeaturesBatchRequest.getRequestList().get(0);
     checkGetFeaturesCommonFields(
         microBatchRequest,
         BATCH_ENDPOINT,
@@ -199,11 +198,10 @@ public class GetFeaturesBatchRequestTest {
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(2, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(2, getFeaturesBatchRequest.getRequestList().size());
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
-        getFeaturesBatchRequest.getMicroBatchRequestList();
+        (List<GetFeaturesMicroBatchRequest>) getFeaturesBatchRequest.getRequestList();
     Assert.assertEquals(5, microBatchRequestList.get(0).getFeaturesRequestDataList().size());
     Assert.assertEquals(1, microBatchRequestList.get(1).getFeaturesRequestDataList().size());
   }
@@ -224,11 +222,10 @@ public class GetFeaturesBatchRequestTest {
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(3, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(3, getFeaturesBatchRequest.getRequestList().size());
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
-        getFeaturesBatchRequest.getMicroBatchRequestList();
+        (List<GetFeaturesMicroBatchRequest>) getFeaturesBatchRequest.getRequestList();
     Assert.assertEquals(8, microBatchRequestList.get(0).getFeaturesRequestDataList().size());
     Assert.assertEquals(8, microBatchRequestList.get(1).getFeaturesRequestDataList().size());
     Assert.assertEquals(4, microBatchRequestList.get(2).getFeaturesRequestDataList().size());
@@ -249,8 +246,7 @@ public class GetFeaturesBatchRequestTest {
             .build();
 
     Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(20, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(20, getFeaturesBatchRequest.getRequestList().size());
   }
 
   @Test
@@ -267,11 +263,10 @@ public class GetFeaturesBatchRequestTest {
     String expected_json =
         "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\",\"metadata_options\":{\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true},\"request_data\":[{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Cummerata-Jones\"},\"request_context_map\":{\"amt\":61.06}},{\"join_key_map\":{\"user_id\":\"user_394495759023\",\"merchant\":\"fraud_Marks Inc\"},\"request_context_map\":{\"amt\":106.43}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Grimes LLC\"},\"request_context_map\":{\"amt\":24.95}},{\"join_key_map\":{\"user_id\":\"user_499975010057\",\"merchant\":\"fraud_Thiel Ltd\"},\"request_context_map\":{\"amt\":2.12}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Bins-Rice\"},\"request_context_map\":{\"amt\":68.31}}],\"workspace_name\":\"prod\"}}";
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
-    Assert.assertEquals(0, getFeaturesBatchRequest.getFeaturesRequestList().size());
-    Assert.assertEquals(1, getFeaturesBatchRequest.getMicroBatchRequestList().size());
+    Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
     GetFeaturesMicroBatchRequest microBatchRequest =
-        getFeaturesBatchRequest.getMicroBatchRequestList().get(0);
+        (GetFeaturesMicroBatchRequest) getFeaturesBatchRequest.getRequestList().get(0);
     Assert.assertEquals(expected_json, microBatchRequest.requestToJson());
   }
 
