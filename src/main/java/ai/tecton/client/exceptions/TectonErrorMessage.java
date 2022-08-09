@@ -21,6 +21,8 @@ public class TectonErrorMessage {
 
   public static final String INVALID_GET_FEATURE_REQUEST =
       "The parameters passed to the GetFeatureRequest are invalid. %s";
+  public static final String INVALID_GET_FEATURE_BATCH_REQUEST =
+      "The parameters passed to the GetFeaturesBatchRequest are invalid. %s";
   public static final String INVALID_GET_SERVICE_METADATA_REQUEST =
       "The parameters passed to the GetFeatureServiceMetadataRequest are invalid. %s";
   public static final String INVALID_RESPONSE_FORMAT = "Unable to parse JSON response from Tecton";
@@ -33,4 +35,8 @@ public class TectonErrorMessage {
   public static final String MISMATCHED_TYPE = "Invalid method used to access value of type %s";
   public static final String UNSUPPORTED_LIST_DATA_TYPE =
       "Unsupported data type detected for array feature values";
+  public static final String INVALID_MICRO_BATCH_SIZE =
+      "The microBatchSize is out of bounds and should be in the range [ %s , %s ]";
+  public static final String INVALID_REQUEST_DATA_LIST =
+      "The list of GetFeaturesRequestData objects cannot be null or empty";
 }

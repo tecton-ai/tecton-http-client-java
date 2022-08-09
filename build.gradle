@@ -26,6 +26,8 @@ dependencies {
     implementation group: 'com.squareup.moshi', name: 'moshi-adapters', version: '1.9.3'
     //StringUtils and Validation checks
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    //Collection operations such as Partition and Parallel Streams
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
     //JUnit tests
     testImplementation 'junit:junit:4.13.2'
     //Mock Server for OkHttp Testing
@@ -34,6 +36,7 @@ dependencies {
 
 //Package JAR with dependencies
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
@@ -45,9 +48,9 @@ test {
     testLogging {
         showStandardStreams = true
         events = [TestLogEvent.FAILED,
-                TestLogEvent.PASSED,
-                TestLogEvent.SKIPPED,
-                TestLogEvent.STANDARD_OUT]
+                  TestLogEvent.PASSED,
+                  TestLogEvent.SKIPPED,
+                  TestLogEvent.STANDARD_OUT]
         exceptionFormat = TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true
