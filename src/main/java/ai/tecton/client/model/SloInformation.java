@@ -1,24 +1,25 @@
 package ai.tecton.client.model;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class that represents SLO Info provided by Tecton when serving feature values. All values
  * returned are wrapped in {@link }
  */
 public class SloInformation {
-  Boolean sloEligible;
+  private Boolean sloEligible;
 
-  Double serverTimeSeconds;
+  private Double serverTimeSeconds;
 
-  Double sloServerTimeSeconds;
+  private Double sloServerTimeSeconds;
 
-  Integer storeResponseSizeBytes;
+  private Integer storeResponseSizeBytes;
 
-  List<SloIneligibilityReason> sloIneligibilityReasons;
+  private Set<SloIneligibilityReason> sloIneligibilityReasons;
 
-  Double storeMaxLatency;
+  private Double storeMaxLatency;
 
   /**
    * Returns true if the response was eligible for SLO, false otherwise.
@@ -34,8 +35,8 @@ public class SloInformation {
    *
    * @return List&lt;{@link SloInformation.SloIneligibilityReason}
    */
-  public List<SloIneligibilityReason> getSloIneligibilityReasons() {
-    return sloIneligibilityReasons;
+  public Set<SloIneligibilityReason> getSloIneligibilityReasons() {
+    return sloIneligibilityReasons == null ? Collections.emptySet() : sloIneligibilityReasons;
   }
 
   /**
@@ -82,5 +83,22 @@ public class SloInformation {
     DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED,
     REDIS_RESPONSE_SIZE_LIMIT_EXCEEDED,
     REDIS_LATENCY_LIMIT_EXCEEDED;
+  }
+
+  public static SloInformation buildSloInformation(
+      Boolean isSloEligible,
+      Double serverTimeSeconds,
+      Double sloServerTimeSeconds,
+      Integer storeResponseSizeBytes,
+      Set<SloIneligibilityReason> sloIneligibilityReasons,
+      Double storeMaxLatency) {
+    SloInformation sloInformation = new SloInformation();
+    sloInformation.sloEligible = isSloEligible;
+    sloInformation.serverTimeSeconds = serverTimeSeconds;
+    sloInformation.sloServerTimeSeconds = sloServerTimeSeconds;
+    sloInformation.sloIneligibilityReasons = sloIneligibilityReasons;
+    sloInformation.storeResponseSizeBytes = storeResponseSizeBytes;
+    sloInformation.storeMaxLatency = storeMaxLatency;
+    return sloInformation;
   }
 }

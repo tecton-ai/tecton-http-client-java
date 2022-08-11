@@ -42,7 +42,7 @@
         0,
         0,
         0,
-        "693",
+        "692",
         72.51429347826088,
         51.6095061728395,
         73.02609901628766,
@@ -226,7 +226,7 @@
     "batchSloInfo": {
       "sloEligible": true,
       "sloServerTimeSeconds": 0.048292505,
-      "serverTimeSeconds": 0.050455727
+      "serverTimeSeconds": 0.099455727
     }
   }
 }

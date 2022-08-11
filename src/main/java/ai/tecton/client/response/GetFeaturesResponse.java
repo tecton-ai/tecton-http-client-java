@@ -22,7 +22,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
   private List<FeatureValue> featureValues;
   private SloInformation sloInformation;
-  private final JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
+  private JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
 
   public GetFeaturesResponse(String response, Duration requestLatency)
       throws TectonClientException {
@@ -33,13 +33,10 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     buildResponseFromJson(response);
   }
 
-  GetFeaturesResponse(
-      List<FeatureValue> featureValues, SloInformation sloInformation, Duration requestLatency) {
+  // Package-Private constructor
+  GetFeaturesResponse(List<FeatureValue> featureValues, Duration requestLatency) {
     super(requestLatency);
     this.featureValues = featureValues;
-    this.sloInformation = sloInformation;
-    Moshi moshi = new Moshi.Builder().build();
-    jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
   }
 
   /**
@@ -100,10 +97,6 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     if (responseJson.metadata.sloInfo != null) {
       this.sloInformation = responseJson.metadata.sloInfo;
     }
-  }
-
-  void setFeatureValues(List<FeatureValue> featureValues) {
-    this.featureValues = featureValues;
   }
 
   void setSloInformation(SloInformation sloInformation) {

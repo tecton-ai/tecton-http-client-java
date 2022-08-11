@@ -26,13 +26,15 @@ public class GetFeaturesResponseTest {
   @Before
   public void setup() throws Exception {
     ClassLoader classLoader = getClass().getClassLoader();
-    String simpleInput = classLoader.getResource("response/sample_response.json").getFile();
+    String simpleInput = classLoader.getResource("response/single/sample_response.json").getFile();
     simpleResponse = new String(Files.readAllBytes(Paths.get(simpleInput)));
-    String nullValueInput = classLoader.getResource("response/sample_null_response.json").getFile();
+    String nullValueInput =
+        classLoader.getResource("response/single/sample_null_response.json").getFile();
     simpleResponseWithNulls = new String(Files.readAllBytes(Paths.get(nullValueInput)));
-    String sloInput = classLoader.getResource("response/sample_response_slo.json").getFile();
+    String sloInput = classLoader.getResource("response/single/sample_response_slo.json").getFile();
     responseWithSlo = new String(Files.readAllBytes(Paths.get(sloInput)));
-    String arrayInput = classLoader.getResource("response/sample_response_list.json").getFile();
+    String arrayInput =
+        classLoader.getResource("response/single/sample_response_list.json").getFile();
     responseWithArray = new String(Files.readAllBytes(Paths.get(arrayInput)));
   }
 
