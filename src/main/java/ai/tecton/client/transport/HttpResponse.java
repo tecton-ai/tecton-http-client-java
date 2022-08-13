@@ -17,7 +17,7 @@ public class HttpResponse {
   private final Headers headers;
   private final Duration requestDuration;
   private static final Moshi moshi = new Moshi.Builder().build();
-  private static final JsonAdapter<TectonHttpClient.ErrorResponseJson> jsonAdapter =
+  private static final JsonAdapter<TectonHttpClient.ErrorResponseJson> errorResponseJsonAdapter =
       moshi.adapter(TectonHttpClient.ErrorResponseJson.class);
 
   HttpResponse(Response response) throws Exception {
@@ -57,7 +57,8 @@ public class HttpResponse {
   private static String parseErrorResponse(String responseBody) {
     // Parse error response and extract error message
     try {
-      TectonHttpClient.ErrorResponseJson errorResponseJson = jsonAdapter.fromJson(responseBody);
+      TectonHttpClient.ErrorResponseJson errorResponseJson =
+          errorResponseJsonAdapter.fromJson(responseBody);
       return errorResponseJson.message;
     } catch (Exception e) {
       throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
