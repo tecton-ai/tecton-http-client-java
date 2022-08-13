@@ -1,7 +1,10 @@
 package ai.tecton.client.transport;
 
+import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.TectonErrorMessage;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 import java.time.Duration;
-import java.util.Objects;
 import java.util.Optional;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -13,15 +16,22 @@ public class HttpResponse {
   private final String body;
   private final Headers headers;
   private final Duration requestDuration;
+  private static final Moshi moshi = new Moshi.Builder().build();
+  private static final JsonAdapter<TectonHttpClient.ErrorResponseJson> jsonAdapter =
+      moshi.adapter(TectonHttpClient.ErrorResponseJson.class);
 
-  public HttpResponse(Response response) throws Exception {
+  HttpResponse(Response response) throws Exception {
     this.responseCode = response.code();
     this.headers = response.headers();
     this.requestDuration =
         Duration.ofMillis(response.receivedResponseAtMillis() - response.sentRequestAtMillis());
     this.isSuccessful = response.isSuccessful();
-    this.message = response.message();
-    this.body = (Objects.requireNonNull(response.body())).string();
+    this.body = response.body().string();
+    if (!this.isSuccessful) {
+      this.message = parseErrorResponse(this.body);
+    } else {
+      this.message = response.message();
+    }
   }
 
   public boolean isSuccessful() {
@@ -42,5 +52,15 @@ public class HttpResponse {
 
   public Optional<String> getResponseBody() {
     return Optional.ofNullable(this.body);
+  }
+
+  private static String parseErrorResponse(String responseBody) {
+    // Parse error response and extract error message
+    try {
+      TectonHttpClient.ErrorResponseJson errorResponseJson = jsonAdapter.fromJson(responseBody);
+      return errorResponseJson.message;
+    } catch (Exception e) {
+      throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
+    }
   }
 }
