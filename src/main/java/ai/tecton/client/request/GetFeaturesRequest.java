@@ -18,6 +18,16 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
   private final JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
 
+  /**
+   * Constructor that creates a new GetFeaturesRequest with specified parameters. {@code
+   * metadataOptions} will default to {@link RequestConstants#DEFAULT_METADATA_OPTIONS}
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vector is being
+   *     requested
+   * @param getFeaturesRequestData {@link GetFeaturesRequestData} object with joinKeyMap and/or
+   *     requestContextMap
+   */
   public GetFeaturesRequest(
       String workspaceName,
       String featureServiceName,
