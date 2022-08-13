@@ -1,15 +1,18 @@
 package ai.tecton.client.request;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
+import ai.tecton.client.request.GetFeaturesBatchRequest.GetFeaturesMicroBatchRequest;
 import ai.tecton.client.transport.TectonHttpClient;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -27,7 +30,7 @@ public class GetFeaturesBatchRequestTest {
   List<GetFeaturesRequestData> defaultFeatureRequestDataList;
 
   @Before
-  public void setup() throws IOException {
+  public void setup() {
     defaultFeatureRequestDataList = new ArrayList<>();
     GetFeaturesRequestData requestData = new GetFeaturesRequestData();
     requestData.addJoinKey("testKey", "testValue");
@@ -43,7 +46,7 @@ public class GetFeaturesBatchRequestTest {
               .featureServiceName(TEST_FEATURESERVICE_NAME)
               .build();
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
     }
   }
@@ -57,7 +60,7 @@ public class GetFeaturesBatchRequestTest {
               .featureServiceName(null)
               .build();
       fail();
-    } catch (NullPointerException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
@@ -130,21 +133,45 @@ public class GetFeaturesBatchRequestTest {
   }
 
   @Test
+  public void testDefaultBatchRequest_shouldCallGetFeaturesEndpoint() {
+    // GetFeaturesBatchRequest with 25 requestData should create 25 individual GetFeaturesRequest
+    // objects
+    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(25);
+    getFeaturesBatchRequest =
+        new GetFeaturesBatchRequest(TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, requestDataList);
+
+    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
+    List<GetFeaturesRequest> getFeaturesRequests =
+        (List<GetFeaturesRequest>) getFeaturesBatchRequest.getRequestList();
+    Assert.assertEquals(25, getFeaturesRequests.size());
+
+    // Check ordering of requests
+    List<GetFeaturesRequestData> actualRequestDataList =
+        getFeaturesRequests.stream()
+            .map(GetFeaturesRequest::getFeaturesRequestData)
+            .collect(Collectors.toList());
+    Assert.assertEquals(requestDataList, actualRequestDataList);
+  }
+
+  @Test
   public void testBatchRequestWithSingleRequestData_shouldCallGetFeaturesEndpoint() {
     // GetFeaturesBatchRequest with one requestData in the list should create one GetFeaturesRequest
     // that calls
     // /get-features endpoint
     getFeaturesBatchRequest =
-        new GetFeaturesBatchRequest.Builder()
-            .workspaceName(TEST_WORKSPACENAME)
-            .featureServiceName(TEST_FEATURESERVICE_NAME)
-            .requestDataList(defaultFeatureRequestDataList)
-            .microBatchSize(8)
-            .metadataOptions(MetadataOption.NAME, MetadataOption.SLO_INFO)
-            .build();
+        new GetFeaturesBatchRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            defaultFeatureRequestDataList,
+            RequestConstants.NONE_TIMEOUT,
+            new HashSet<>(
+                Arrays.asList(
+                    MetadataOption.NAME, MetadataOption.DATA_TYPE, MetadataOption.SLO_INFO)),
+            8);
 
-    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
+    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
+    Assert.assertEquals(RequestConstants.NONE_TIMEOUT, getFeaturesBatchRequest.getTimeout());
 
     GetFeaturesRequest getFeaturesRequest =
         (GetFeaturesRequest) getFeaturesBatchRequest.getRequestList().get(0);
@@ -155,10 +182,11 @@ public class GetFeaturesBatchRequestTest {
   }
 
   @Test
-  public void testBatchRequestWithTwoRequestData_shouldCallBatchEndpoint() {
-    // GetFeaturesBatchRequest with two requestData and default microBatchSize should create 1
+  public void testBatchRequestWithTwoRequestDataAndMicroBatchSize_shouldCallBatchEndpoint() {
+    // GetFeaturesBatchRequest with two requestData and microBatchSize = 5 should create 1
     // GetFeaturesMicroBatchRequest
     // with a requestDatalist of size 2
+    // ordering should be maintained
     GetFeaturesRequestData requestData = new GetFeaturesRequestData().addJoinKey("user", "123");
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
@@ -166,7 +194,8 @@ public class GetFeaturesBatchRequestTest {
             .featureServiceName(TEST_FEATURESERVICE_NAME)
             .requestDataList(defaultFeatureRequestDataList)
             .addRequestData(requestData)
-            .metadataOptions(MetadataOption.NAME, MetadataOption.SLO_INFO)
+            .metadataOptions(RequestConstants.DEFAULT_METADATA_OPTIONS)
+            .microBatchSize(5)
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
@@ -177,22 +206,27 @@ public class GetFeaturesBatchRequestTest {
     checkGetFeaturesCommonFields(
         microBatchRequest,
         BATCH_ENDPOINT,
-        EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE, MetadataOption.SLO_INFO));
+        EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE));
 
-    Assert.assertEquals(2, microBatchRequest.getFeaturesRequestDataList().size());
+    Assert.assertEquals(
+        defaultFeatureRequestDataList.size(), microBatchRequest.getFeaturesRequestData().size());
+    Assert.assertEquals(defaultFeatureRequestDataList, microBatchRequest.getFeaturesRequestData());
   }
 
   @Test
   public void testBatchRequestWithSixRequestData_shouldCallBatchEndpoint() {
-    // GetFeaturesBatchRequest with 6 requests should create 2 GetFeaturesMicroBatchRequests
+    // GetFeaturesBatchRequest with 6 requestData and microBatchSize=5 should create 2
+    // GetFeaturesMicroBatchRequests
     // with a requestDatalist of size 5 and 1 respectively
+    // ordering should be maintained
+
+    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(6);
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
             .workspaceName(TEST_WORKSPACENAME)
             .featureServiceName(TEST_FEATURESERVICE_NAME)
-            .requestDataList(defaultFeatureRequestDataList)
-            .requestDataList(generateRequestDataForSize(6))
-            .metadataOptions(MetadataOption.NAME, MetadataOption.SLO_INFO)
+            .requestDataList(requestDataList)
+            .microBatchSize(5)
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
@@ -200,8 +234,16 @@ public class GetFeaturesBatchRequestTest {
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
         (List<GetFeaturesMicroBatchRequest>) getFeaturesBatchRequest.getRequestList();
-    Assert.assertEquals(5, microBatchRequestList.get(0).getFeaturesRequestDataList().size());
-    Assert.assertEquals(1, microBatchRequestList.get(1).getFeaturesRequestDataList().size());
+    List<GetFeaturesRequestData> firstList = microBatchRequestList.get(0).getFeaturesRequestData();
+    List<GetFeaturesRequestData> secondList = microBatchRequestList.get(1).getFeaturesRequestData();
+
+    // Verify requestData sizes in each microbatch
+    Assert.assertEquals(5, firstList.size());
+    Assert.assertEquals(1, secondList.size());
+
+    // Verify request ordering
+    Assert.assertEquals(requestDataList.subList(0, 5), firstList);
+    Assert.assertEquals(requestDataList.subList(5, 6), secondList);
   }
 
   @Test
@@ -209,14 +251,14 @@ public class GetFeaturesBatchRequestTest {
     // GetFeaturesBatchRequest with 20 requests and microBatchSize of 8 should create 3
     // GetFeaturesMicroBatchRequests
     // with a requestDatalist of size 8,8 and 4 respectively
+    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(20);
+
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
             .workspaceName(TEST_WORKSPACENAME)
             .featureServiceName(TEST_FEATURESERVICE_NAME)
-            .requestDataList(defaultFeatureRequestDataList)
-            .requestDataList(generateRequestDataForSize(20))
+            .requestDataList(requestDataList)
             .microBatchSize(8)
-            .metadataOptions(MetadataOption.NAME, MetadataOption.SLO_INFO)
             .build();
 
     Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
@@ -224,9 +266,19 @@ public class GetFeaturesBatchRequestTest {
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
         (List<GetFeaturesMicroBatchRequest>) getFeaturesBatchRequest.getRequestList();
-    Assert.assertEquals(8, microBatchRequestList.get(0).getFeaturesRequestDataList().size());
-    Assert.assertEquals(8, microBatchRequestList.get(1).getFeaturesRequestDataList().size());
-    Assert.assertEquals(4, microBatchRequestList.get(2).getFeaturesRequestDataList().size());
+    List<GetFeaturesRequestData> first = microBatchRequestList.get(0).getFeaturesRequestData();
+    List<GetFeaturesRequestData> second = microBatchRequestList.get(1).getFeaturesRequestData();
+    List<GetFeaturesRequestData> third = microBatchRequestList.get(2).getFeaturesRequestData();
+
+    // Verify sizes of each microbatch
+    Assert.assertEquals(8, first.size());
+    Assert.assertEquals(8, second.size());
+    Assert.assertEquals(4, third.size());
+
+    // Verify request ordering
+    Assert.assertEquals(requestDataList.subList(0, 8), first);
+    Assert.assertEquals(requestDataList.subList(8, 16), second);
+    assertEquals(requestDataList.subList(16, 20), third);
   }
 
   @Test
@@ -234,14 +286,13 @@ public class GetFeaturesBatchRequestTest {
     // GetFeaturesBatchRequest with 20 requests and microBatchSize of 1 should create 20 individual
     // GetFeaturesRequests
     getFeaturesBatchRequest =
-        new GetFeaturesBatchRequest.Builder()
-            .workspaceName(TEST_WORKSPACENAME)
-            .featureServiceName(TEST_FEATURESERVICE_NAME)
-            .requestDataList(defaultFeatureRequestDataList)
-            .requestDataList(generateRequestDataForSize(20))
-            .microBatchSize(1)
-            .metadataOptions(MetadataOption.NAME, MetadataOption.SLO_INFO)
-            .build();
+        new GetFeaturesBatchRequest(
+            TEST_WORKSPACENAME,
+            TEST_FEATURESERVICE_NAME,
+            generateRequestDataForSize(20),
+            RequestConstants.NONE_TIMEOUT,
+            RequestConstants.DEFAULT_METADATA_OPTIONS,
+            1);
 
     Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(20, getFeaturesBatchRequest.getRequestList().size());
@@ -255,12 +306,12 @@ public class GetFeaturesBatchRequestTest {
             .requestDataList(generateRequestDataFromFile())
             .workspaceName("prod")
             .featureServiceName("fraud_detection_feature_service")
-            .metadataOptions(MetadataOption.ALL)
+            .metadataOptions(RequestConstants.ALL_METADATA_OPTIONS)
+            .microBatchSize(5)
             .build();
 
     String expected_json =
         "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\",\"metadata_options\":{\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true},\"request_data\":[{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Cummerata-Jones\"},\"request_context_map\":{\"amt\":61.06}},{\"join_key_map\":{\"user_id\":\"user_394495759023\",\"merchant\":\"fraud_Marks Inc\"},\"request_context_map\":{\"amt\":106.43}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Grimes LLC\"},\"request_context_map\":{\"amt\":24.95}},{\"join_key_map\":{\"user_id\":\"user_499975010057\",\"merchant\":\"fraud_Thiel Ltd\"},\"request_context_map\":{\"amt\":2.12}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Bins-Rice\"},\"request_context_map\":{\"amt\":68.31}}],\"workspace_name\":\"prod\"}}";
-    Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
     GetFeaturesMicroBatchRequest microBatchRequest =

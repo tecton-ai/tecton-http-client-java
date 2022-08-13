@@ -37,7 +37,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest("", TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
     }
   }
@@ -48,7 +48,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(TEST_WORKSPACENAME, "", defaultFeatureRequestData);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
@@ -59,7 +59,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(null, TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
       fail();
-    } catch (NullPointerException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
     }
   }
@@ -70,7 +70,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(TEST_WORKSPACENAME, null, defaultFeatureRequestData);
       fail();
-    } catch (NullPointerException e) {
+    } catch (TectonClientException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
@@ -146,7 +146,7 @@ public class GetFeaturesRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestData,
-            MetadataOption.ALL);
+            RequestConstants.ALL_METADATA_OPTIONS);
     Assert.assertEquals(4, getFeaturesRequest.getMetadataOptions().size());
     Set<MetadataOption> metadataOptionSet = getFeaturesRequest.getMetadataOptions();
     Set<MetadataOption> expectedSet =
@@ -166,8 +166,7 @@ public class GetFeaturesRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestData,
-            MetadataOption.DATA_TYPE,
-            MetadataOption.NAME);
+            RequestConstants.DEFAULT_METADATA_OPTIONS);
     Assert.assertEquals(2, getFeaturesRequest.getMetadataOptions().size());
     Set<MetadataOption> metadataOptionSet = getFeaturesRequest.getMetadataOptions();
     Set<MetadataOption> expectedSet =
@@ -183,8 +182,7 @@ public class GetFeaturesRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestData,
-            MetadataOption.NAME,
-            MetadataOption.SLO_INFO);
+            new HashSet<>(Arrays.asList(MetadataOption.NAME, MetadataOption.SLO_INFO)));
 
     Assert.assertEquals(3, getFeaturesRequest.getMetadataOptions().size());
 
@@ -214,7 +212,7 @@ public class GetFeaturesRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestData,
-            MetadataOption.ALL);
+            RequestConstants.ALL_METADATA_OPTIONS);
 
     Assert.assertEquals(4, getFeaturesRequest.getMetadataOptions().size());
 
