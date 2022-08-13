@@ -93,6 +93,13 @@ public class TectonClient {
         tectonHttpClient.performRequest(
             tectonRequest.getEndpoint(), tectonRequest.getMethod(), tectonRequest.requestToJson());
 
+    if (!httpResponse.isSuccessful()) {
+      throw new TectonServiceException(
+          String.format(
+              TectonErrorMessage.ERROR_RESPONSE,
+              httpResponse.getResponseCode(),
+              httpResponse.getMessage()));
+    }
     if (!httpResponse.getResponseBody().isPresent()) {
       throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
     }
