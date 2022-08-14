@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -176,9 +175,31 @@ public class TectonClientTest {
 
   @Test
   public void testErrorResponseWhenJoinKeyIsMissing() {
+
+    QueueDispatcher dispatcher =
+        new QueueDispatcher() {
+          @Override
+          public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+
+            switch (request.getSequenceNumber()) {
+              case 1:
+                return new MockResponse().setResponseCode(200);
+              case 2:
+                return new MockResponse().setResponseCode(200).setBody("version=9");
+              case 3:
+                return new MockResponse()
+                    .setResponseCode(200)
+                    .setBody(
+                        "{\\\"info\\\":{\\\"name\":\"Lucas Albuquerque\",\"age\":\"21\",\"gender\":\"male\"}}");
+            }
+            return new MockResponse().setResponseCode(400);
+          }
+        };
+
     String errorResponse =
         "{\"error\":\"Missing required join key: merchant\",\"code\":3,\"message\":\"Missing required join key: merchant\"}";
 
+    mockWebServer.setDispatcher(dispatcher);
     mockWebServer.enqueue(
         new MockResponse()
             .setResponseCode(400)

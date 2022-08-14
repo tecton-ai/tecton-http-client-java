@@ -6,13 +6,11 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -81,11 +79,21 @@ public class TectonHttpClient {
       String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
       throws TectonClientException {
 
+    // Initialize response list
     int numberOfCalls = requestBodyList.size();
-    List<HttpResponse> httpResponses = new ArrayList<>(numberOfCalls);
+    List<HttpResponse> httpResponses =
+        new ArrayList<>(Collections.nCopies(requestBodyList.size(), null));
 
-    // Track order of calls to order the responses
-    Map<Call, String> callToRequestMap = new HashMap<>(requestBodyList.size());
+    // Map request body to OkHttp Request
+    // ordering of requests is maintained
+    List<Request> requestList =
+        requestBodyList
+            .parallelStream()
+            .map(
+                requestBody ->
+                    new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody))
+            .map(this::buildRequestWithDefaultHeaders)
+            .collect(Collectors.toList());
 
     // Initialize a countdown latch for numberOfCalls.
     CountDownLatch countDownLatch = new CountDownLatch(numberOfCalls);
@@ -103,8 +111,7 @@ public class TectonHttpClient {
             countDownLatch.countDown();
             try {
               // Add response to corresponding index
-              httpResponses.add(
-                  requestBodyList.indexOf(callToRequestMap.get(call)), new HttpResponse(response));
+              httpResponses.set(requestList.indexOf(call.request()), new HttpResponse(response));
               response.close();
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
@@ -113,20 +120,15 @@ public class TectonHttpClient {
         };
 
     // Enqueue all calls
-    requestBodyList
+    requestList
         .parallelStream()
         .forEach(
-            requestBody -> {
-              HttpRequest httpRequest =
-                  new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
-              Request request = buildRequestWithDefaultHeaders(httpRequest);
-              Call call = client.newCall(request);
-              callToRequestMap.put(call, requestBody);
-              call.enqueue(callback);
+            request -> {
+              client.newCall(request).enqueue(callback);
             });
 
+    // Wait until A) all calls have completed or B) specified timeout has elapsed
     try {
-      // Countdown Latch waits until A) all calls have completed or B) specified timeout has elapsed
       boolean completedAllCalls = countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
       return httpResponses;
     } catch (InterruptedException e) {
