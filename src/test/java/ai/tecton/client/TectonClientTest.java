@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -176,6 +175,7 @@ public class TectonClientTest {
 
   @Test
   public void testErrorResponseWhenJoinKeyIsMissing() {
+
     String errorResponse =
         "{\"error\":\"Missing required join key: merchant\",\"code\":3,\"message\":\"Missing required join key: merchant\"}";
 
