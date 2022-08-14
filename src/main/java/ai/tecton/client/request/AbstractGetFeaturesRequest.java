@@ -9,21 +9,17 @@ import java.util.*;
 abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
 
   private static final HttpMethod httpMethod = HttpMethod.POST;
-
-  // Always include name and data_type in metadata options
-  static final Set<MetadataOption> defaultMetadataOptions =
-      EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
   final Set<MetadataOption> metadataOptions;
 
   AbstractGetFeaturesRequest(
       String workspaceName,
       String featureServiceName,
       String endpoint,
-      MetadataOption... metadataOptions)
+      Set<MetadataOption> metadataOptions)
       throws TectonClientException {
     super(endpoint, httpMethod, workspaceName, featureServiceName);
-    if (metadataOptions == null || metadataOptions.length == 0) {
-      this.metadataOptions = defaultMetadataOptions;
+    if (metadataOptions == null || metadataOptions.size() == 0) {
+      this.metadataOptions = RequestConstants.DEFAULT_METADATA_OPTIONS;
     } else {
       this.metadataOptions = getMetadataOptions(metadataOptions);
     }
@@ -33,19 +29,18 @@ abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
     return this.metadataOptions;
   }
 
-  static Set<MetadataOption> getMetadataOptions(MetadataOption... metadataOptions) {
-    List<MetadataOption> metadataOptionList = Arrays.asList(metadataOptions);
+  static Set<MetadataOption> getMetadataOptions(Set<MetadataOption> metadataOptions) {
     Set<MetadataOption> finalMetadataOptionSet;
-    if (metadataOptionList.contains(MetadataOption.ALL)) {
+    if (metadataOptions.contains(MetadataOption.ALL)) {
       // Add everything except ALL and NONE from MetadataOption EnumSet
-      finalMetadataOptionSet =
-          EnumSet.complementOf(EnumSet.of(MetadataOption.ALL, MetadataOption.NONE));
-    } else if (metadataOptionList.contains(MetadataOption.NONE)) {
-      finalMetadataOptionSet = EnumSet.noneOf(MetadataOption.class);
+      finalMetadataOptionSet = RequestConstants.ALL_METADATA_OPTIONS;
+    } else if (metadataOptions.contains(MetadataOption.NONE)) {
+      finalMetadataOptionSet = RequestConstants.NONE_METADATA_OPTIONS;
     } else {
-      finalMetadataOptionSet = EnumSet.copyOf(metadataOptionList);
+      finalMetadataOptionSet = metadataOptions;
     }
-    finalMetadataOptionSet.addAll(defaultMetadataOptions); // default metadata options
+    finalMetadataOptionSet.addAll(
+        RequestConstants.DEFAULT_METADATA_OPTIONS); // add default metadata options
     return finalMetadataOptionSet;
   }
 

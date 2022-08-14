@@ -19,6 +19,28 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
   private final GetFeaturesRequestData getFeaturesRequestData;
 
   /**
+   * Constructor that creates a new GetFeaturesRequest with specified parameters. {@code
+   * metadataOptions} will default to {@link RequestConstants#DEFAULT_METADATA_OPTIONS}
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vector is being
+   *     requested
+   * @param getFeaturesRequestData {@link GetFeaturesRequestData} object with joinKeyMap and/or
+   *     requestContextMap
+   */
+  public GetFeaturesRequest(
+      String workspaceName,
+      String featureServiceName,
+      GetFeaturesRequestData getFeaturesRequestData) {
+
+    super(workspaceName, featureServiceName, ENDPOINT, RequestConstants.DEFAULT_METADATA_OPTIONS);
+    validateRequestParameters(getFeaturesRequestData);
+    this.getFeaturesRequestData = getFeaturesRequestData;
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
+  }
+
+  /**
    * Constructor that creates a new GetFeaturesRequest with the specified parameters
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined
@@ -26,16 +48,17 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
    *     requested
    * @param getFeaturesRequestData {@link GetFeaturesRequestData} object with joinKeyMap and/or
    *     requestContextMap
-   * @param metadataOptions Options for retrieving additional metadata about the feature values.
-   *     Note if MetadataOption.ALL is included, all metadata will be requested. If
-   *     MetadataOption.NONE is included, all other arguments will be ignored. By default,
-   *     MetadataOption.NAME and MetadataOption.DATA_TYPE will be added to each request
+   * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+   *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+   *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+   *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+   *     be added to each request
    */
   public GetFeaturesRequest(
       String workspaceName,
       String featureServiceName,
       GetFeaturesRequestData getFeaturesRequestData,
-      MetadataOption... metadataOptions) {
+      Set<MetadataOption> metadataOptions) {
 
     super(workspaceName, featureServiceName, ENDPOINT, metadataOptions);
     validateRequestParameters(getFeaturesRequestData);
