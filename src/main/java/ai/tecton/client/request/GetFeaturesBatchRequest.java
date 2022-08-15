@@ -3,43 +3,222 @@ package ai.tecton.client.request;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 
+/**
+ * A class that represents a batch request to retrieve a list of feature vectors from the feature
+ * server, for a given workspaceName and featureServiceName. The class can be used to make parallel
+ * requests to retrieve multiple feature vectors from the feature server API. The actual number of
+ * concurrent calls depends on the ConnectionPool size and {@code maxParallelRequests}
+ * configurations in the {@link ai.tecton.client.TectonClientOptions}.
+ *
+ * <p>GetFeaturesBatchRequest uses either the /get-features or the /get-features-batch endpoint
+ * depending on the configuration {@code microBatchSize}. By default, the microBatchSize is set to
+ * {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}. It can be configured to any value in the
+ * range [ 1, {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+ *
+ * <p>For a GetFeaturesBatchRequest with a {@link GetFeaturesRequestData} of size {@code n} and a
+ * {@code microBatchSize} of 1, the client enqueues {@code n} HTTP calls to be sent parallely to the
+ * /get-features endpoint. The client waits until all calls are complete or a specific time
+ * (configured with {@code timeout}) has elapsed and returns a {@link List} of {@link
+ * ai.tecton.client.response.GetFeaturesResponse} objects of size {@code n}.
+ *
+ * <p>For a GetFeaturesBatchRequest with a {@link GetFeaturesRequestData} of size {@code n} and a
+ * {@code microBatchSize} of k where k is in the range [ 1, {@value
+ * RequestConstants#MAX_MICRO_BATCH_SIZE} ], the client enqueues Math.ceil(n/k) microbatch requests
+ * to be sent parallely to the /get-features-batch endpoint, waits until all microbatch requests are
+ * complete or a specific configured timeout has elapsed and returns a {@link List} of {@link
+ * ai.tecton.client.response.GetFeaturesResponse} objects of size {@code n}.
+ */
 public class GetFeaturesBatchRequest {
-  public static final int MAX_MICRO_BATCH_SIZE = 10;
-  public static final int DEFAULT_MICRO_BATCH_SIZE = 5;
 
-  private List<GetFeaturesMicroBatchRequest> microBatchRequestList;
-  private List<GetFeaturesRequest> getFeaturesRequestList;
-  private boolean isBatchRequest;
+  private List<? extends AbstractGetFeaturesRequest> requestList;
+  private final boolean isBatchRequest;
+  private final Duration timeout;
+  private static final String ENDPOINT = "/api/v1/feature-service/get-features-batch";
+  private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
+      null;
 
-  GetFeaturesBatchRequest(
-      List<GetFeaturesMicroBatchRequest> microBatchRequestList, boolean isBatchRequest) {
-    this.microBatchRequestList = microBatchRequestList;
-    this.getFeaturesRequestList = Collections.emptyList();
-    this.isBatchRequest = isBatchRequest;
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
+   * metadataOptions} defaults to {@link RequestConstants#DEFAULT_METADATA_OPTIONS} , {@code
+   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * timeout} defaults to None
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @throws TectonClientException when workspacename or featureServiceName is empty or null
+   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
+   *     null/empty elements)
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        RequestConstants.DEFAULT_METADATA_OPTIONS,
+        RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
+        RequestConstants.NONE_TIMEOUT);
   }
 
-  GetFeaturesBatchRequest(List<GetFeaturesRequest> getFeaturesRequestList) {
-    this.getFeaturesRequestList = getFeaturesRequestList;
-    this.microBatchRequestList = Collections.emptyList();
-    this.isBatchRequest = false;
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
+   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * timeout} defaults to None
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+   *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+   *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+   *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+   *     be added to each request
+   * @throws TectonClientException when workspaceName or featureServiceName is empty or null
+   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
+   *     null/empty elements)
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        metadataOptions,
+        RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
+        RequestConstants.NONE_TIMEOUT);
   }
 
-  List<GetFeaturesMicroBatchRequest> getMicroBatchRequestList() {
-    return this.microBatchRequestList;
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters.{@code
+   * timeout} defaults to None.
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+   *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+   *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+   *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+   *     be added to each request
+   * @param microBatchSize an int value between 1 and {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
+   *     multiple micro batches of this size and executes them parallely. By default, the
+   *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @throws TectonClientException when workspaceName or featureServiceName is empty or null
+   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
+   *     null/empty elements)
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions,
+      int microBatchSize) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        metadataOptions,
+        microBatchSize,
+        RequestConstants.NONE_TIMEOUT);
   }
 
-  List<GetFeaturesRequest> getFeaturesRequestList() {
-    return this.getFeaturesRequestList;
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions metadataOptions A {@link Set} of {@link MetadataOption} for retrieving
+   *     additional metadata about the feature values. Use {@link
+   *     RequestConstants#ALL_METADATA_OPTIONS} to request all metadata and {@link
+   *     RequestConstants#NONE_METADATA_OPTIONS} to request no metadata respectively. By default,
+   *     {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will be added to each request
+   * @param microBatchSize an int value between 1 and {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
+   *     multiple micro batches of this size and executes them parallely. By default, the
+   *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @param timeout The max time in {@link Duration} for which the client waits for the batch
+   *     requests to complete before canceling the operation and returning the partial list of
+   *     results.
+   * @throws TectonClientException when workspacename or featureServiceName is empty or null
+   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
+   *     null/empty elements)
+   * @throws TectonClientException when the microBatchSize is out of bounds of [ 1, {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions,
+      int microBatchSize,
+      Duration timeout) {
+    validateParameters(workspaceName, featureServiceName, requestDataList, microBatchSize);
+    this.timeout = timeout;
+
+    if (microBatchSize > 1 && requestDataList.size() > 1) {
+      // For batch requests, partition the requestDataList into n sublists of size
+      // microBatchSize and create GetFeaturesMicroBatchRequest for each
+      this.requestList =
+          ListUtils.partition(requestDataList, microBatchSize)
+              .parallelStream()
+              .map(
+                  requestData ->
+                      new GetFeaturesMicroBatchRequest(
+                          workspaceName, featureServiceName, requestData, metadataOptions))
+              .collect(Collectors.toList());
+      this.isBatchRequest = true;
+      Moshi moshi = new Moshi.Builder().build();
+      jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
+    } else {
+      // For microBatchSize=1, create a List of individual GetFeaturesRequest objects
+      this.requestList =
+          requestDataList
+              .parallelStream()
+              .map(
+                  requestData ->
+                      new GetFeaturesRequest(
+                          workspaceName, featureServiceName, requestData, metadataOptions))
+              .collect(Collectors.toList());
+      this.isBatchRequest = false;
+    }
+  }
+
+  List<? extends AbstractGetFeaturesRequest> getRequestList() {
+    return this.requestList;
+  }
+
+  Duration getTimeout() {
+    return timeout;
   }
 
   boolean isBatchRequest() {
-    return this.isBatchRequest;
+    return isBatchRequest;
   }
 
   /**
@@ -50,8 +229,9 @@ public class GetFeaturesBatchRequest {
     private String workspaceName;
     private String featureServiceName;
     private List<GetFeaturesRequestData> requestDataList;
-    MetadataOption[] metadataOptionList;
-    private int microBatchSize = DEFAULT_MICRO_BATCH_SIZE;
+    private Set<MetadataOption> metadataOptionList = RequestConstants.DEFAULT_METADATA_OPTIONS;
+    private int microBatchSize = RequestConstants.DEFAULT_MICRO_BATCH_SIZE;
+    private Duration timeout;
 
     /** Constructs an empty Builder */
     public Builder() {
@@ -91,9 +271,6 @@ public class GetFeaturesBatchRequest {
      */
     public Builder requestDataList(List<GetFeaturesRequestData> requestDataList)
         throws TectonClientException {
-      if (requestDataList == null || requestDataList.isEmpty()) {
-        throw new TectonClientException(TectonErrorMessage.INVALID_REQUEST_DATA_LIST);
-      }
       this.requestDataList = requestDataList;
       return this;
     }
@@ -113,14 +290,14 @@ public class GetFeaturesBatchRequest {
     /**
      * Setter for {@link MetadataOption}
      *
-     * @param metadataOptions {@link MetadataOption} object with options for retrieving additional
-     *     metadata about the feature values. Note if MetadataOption.ALL is included, all metadata
-     *     will be requested. If MetadataOption.NONE is included, all other arguments will be
-     *     ignored. By default, MetadataOption.NAME and MetadataOption.DATA_TYPE will be added to
-     *     each request
+     * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+     *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+     *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+     *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+     *     be added to each request
      * @return this Builder
      */
-    public Builder metadataOptions(MetadataOption... metadataOptions) {
+    public Builder metadataOptions(Set<MetadataOption> metadataOptions) {
       this.metadataOptionList = metadataOptions;
       return this;
     }
@@ -128,20 +305,27 @@ public class GetFeaturesBatchRequest {
     /**
      * Setter for microBatchSize
      *
-     * @param microBatchSize an int value between 1 and {@value #MAX_MICRO_BATCH_SIZE}. The client
-     *     splits the GetFeaturesBatchRequest into multiple micro batches of this size and executes
-     *     them parallely. By default, the microBatchSize is set to {@value
-     *     #DEFAULT_MICRO_BATCH_SIZE} for best performance.
+     * @param microBatchSize an int value between 1 and {@value
+     *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest
+     *     into multiple micro batches of this size and executes them parallely. By default, the
+     *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
      * @return this Builder
      * @throws TectonClientException when the microBatchSize is out of bounds of [ 1, {@value
-     *     #MAX_MICRO_BATCH_SIZE} ]
+     *     RequestConstants#MAX_MICRO_BATCH_SIZE} ]
      */
     public Builder microBatchSize(int microBatchSize) throws TectonClientException {
-      if (microBatchSize > MAX_MICRO_BATCH_SIZE || microBatchSize < 1) {
-        throw new TectonClientException(
-            String.format(TectonErrorMessage.INVALID_MICRO_BATCH_SIZE, 1, MAX_MICRO_BATCH_SIZE));
-      }
       this.microBatchSize = microBatchSize;
+      return this;
+    }
+
+    /**
+     * @param timeout The max time in {@link Duration} for which the client waits for the batch
+     *     requests to complete before canceling the operation and returning the partial list of
+     *     results.
+     * @return this Builder
+     */
+    public Builder timeout(Duration timeout) {
+      this.timeout = timeout;
       return this;
     }
 
@@ -150,41 +334,111 @@ public class GetFeaturesBatchRequest {
      * builder
      *
      * @return {@link GetFeaturesBatchRequest} object
-     * @throws TectonClientException when requestDataList is invalid ( when any joinKeyMap or
-     *     requestContextMap is null or empty)
+     * @throws TectonClientException when requestDataList is invalid ( when the requestDataList is
+     *     null or empty, or any joinKeyMap or requestContextMap is null or empty)
+     * @throws TectonClientException when microBatchSize is out of bounds of [1, {@value
+     *     RequestConstants#MAX_MICRO_BATCH_SIZE}
      */
     public GetFeaturesBatchRequest build() throws TectonClientException {
-      AbstractTectonRequest.validateRequestParameters(workspaceName, featureServiceName);
-      requestDataList
-          .parallelStream()
-          .forEach(AbstractGetFeaturesRequest::validateRequestParameters);
-      // For microBatchSize=1, create a List of individual GetFeaturesRequest objects to call the
-      // /get-features endpoint
-      if (microBatchSize == 1 || requestDataList.size() == 1) {
-        List<GetFeaturesRequest> getFeaturesRequestList =
-            requestDataList
-                .parallelStream()
-                .map(
-                    requestData ->
-                        new GetFeaturesRequest(
-                            this.workspaceName,
-                            this.featureServiceName,
-                            requestData,
-                            metadataOptionList))
-                .collect(Collectors.toList());
-        return new GetFeaturesBatchRequest(getFeaturesRequestList);
-      } else {
-        // For microBatchSize > 1, partition the requestDataList into n sublists of size
-        // microBatchSize and create GetFeaturesMicroBatchRequest for each
-        List<GetFeaturesMicroBatchRequest> microBatchRequestList =
-            ListUtils.partition(requestDataList, microBatchSize)
-                .parallelStream()
-                .map(
-                    requestData ->
-                        new GetFeaturesMicroBatchRequest(
-                            workspaceName, featureServiceName, requestData, metadataOptionList))
-                .collect(Collectors.toList());
-        return new GetFeaturesBatchRequest(microBatchRequestList, true);
+      return new GetFeaturesBatchRequest(
+          workspaceName,
+          featureServiceName,
+          requestDataList,
+          metadataOptionList,
+          microBatchSize,
+          timeout);
+    }
+  }
+
+  // Validate request parameters
+  private static void validateParameters(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      int microBatchSize) {
+    AbstractTectonRequest.validateRequestParameters(workspaceName, featureServiceName);
+    if (requestDataList == null || requestDataList.isEmpty()) {
+      throw new TectonClientException(TectonErrorMessage.INVALID_REQUEST_DATA_LIST);
+    }
+    requestDataList.parallelStream().forEach(AbstractGetFeaturesRequest::validateRequestParameters);
+    if (microBatchSize > RequestConstants.MAX_MICRO_BATCH_SIZE || microBatchSize < 1) {
+      throw new TectonClientException(
+          String.format(
+              TectonErrorMessage.INVALID_MICRO_BATCH_SIZE,
+              1,
+              RequestConstants.MAX_MICRO_BATCH_SIZE));
+    }
+  }
+
+  // Moshi JSON Classes
+  static class GetFeaturesMicroBatchRequest extends AbstractGetFeaturesRequest {
+
+    private final List<GetFeaturesRequestData> requestDataList;
+
+    GetFeaturesMicroBatchRequest(
+        String workspaceName,
+        String featureServiceName,
+        List<GetFeaturesRequestData> requestDataList,
+        Set<MetadataOption> metadataOptions) {
+      super(workspaceName, featureServiceName, ENDPOINT, metadataOptions);
+      this.requestDataList = requestDataList;
+    }
+
+    // Moshi JSON classes
+    static class GetFeaturesRequestBatchJson {
+      GetFeaturesBatchFields params;
+
+      GetFeaturesRequestBatchJson(GetFeaturesBatchFields params) {
+        this.params = params;
+      }
+    }
+
+    static class GetFeaturesBatchFields {
+      String feature_service_name;
+      String workspace_name;
+      List<RequestDataField> request_data;
+      Map<String, Boolean> metadata_options;
+    }
+
+    static class RequestDataField {
+      Map<String, String> join_key_map;
+      Map<String, Object> request_context_map;
+    }
+
+    List<GetFeaturesRequestData> getFeaturesRequestData() {
+      return this.requestDataList;
+    }
+
+    // Convert MicroBatch Request to JSON String
+    @Override
+    public String requestToJson() {
+      GetFeaturesBatchFields getFeaturesFields = new GetFeaturesBatchFields();
+      getFeaturesFields.feature_service_name = this.getFeatureServiceName();
+      getFeaturesFields.workspace_name = this.getWorkspaceName();
+      getFeaturesFields.request_data = new ArrayList<>(this.requestDataList.size());
+      this.requestDataList.forEach(
+          requestData -> {
+            RequestDataField requestDataField = new RequestDataField();
+            if (!requestData.isEmptyJoinKeyMap()) {
+              requestDataField.join_key_map = requestData.getJoinKeyMap();
+            }
+            if (!requestData.isEmptyRequestContextMap()) {
+              requestDataField.request_context_map = requestData.getRequestContextMap();
+            }
+            getFeaturesFields.request_data.add(requestDataField);
+          });
+      if (!metadataOptions.isEmpty()) {
+        getFeaturesFields.metadata_options =
+            metadataOptions.stream()
+                .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
+      }
+      GetFeaturesRequestBatchJson getFeaturesRequestJson =
+          new GetFeaturesRequestBatchJson(getFeaturesFields);
+      try {
+        return jsonAdapter.toJson(getFeaturesRequestJson);
+      } catch (Exception e) {
+        throw new TectonClientException(
+            String.format(TectonErrorMessage.INVALID_GET_FEATURE_BATCH_REQUEST, e.getMessage()));
       }
     }
   }
