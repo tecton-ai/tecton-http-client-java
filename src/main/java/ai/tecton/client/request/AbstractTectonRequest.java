@@ -61,8 +61,12 @@ public abstract class AbstractTectonRequest {
 
   public abstract String requestToJson();
 
-  private void validateRequestParameters(String workspaceName, String featureServiceName) {
-    Validate.notEmpty(workspaceName, TectonErrorMessage.INVALID_WORKSPACENAME);
-    Validate.notEmpty(featureServiceName, TectonErrorMessage.INVALID_FEATURESERVICENAME);
+  static void validateRequestParameters(String workspaceName, String featureServiceName) {
+    try {
+      Validate.notEmpty(workspaceName, TectonErrorMessage.INVALID_WORKSPACENAME);
+      Validate.notEmpty(featureServiceName, TectonErrorMessage.INVALID_FEATURESERVICENAME);
+    } catch (Exception e) {
+      throw new TectonClientException(e.getMessage());
+    }
   }
 }
