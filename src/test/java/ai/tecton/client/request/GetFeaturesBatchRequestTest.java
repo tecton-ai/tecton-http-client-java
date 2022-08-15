@@ -163,7 +163,6 @@ public class GetFeaturesBatchRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestDataList,
-            RequestConstants.NONE_TIMEOUT,
             new HashSet<>(
                 Arrays.asList(
                     MetadataOption.NAME, MetadataOption.DATA_TYPE, MetadataOption.SLO_INFO)),
@@ -290,7 +289,6 @@ public class GetFeaturesBatchRequestTest {
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
             generateRequestDataForSize(20),
-            RequestConstants.NONE_TIMEOUT,
             RequestConstants.DEFAULT_METADATA_OPTIONS,
             1);
 

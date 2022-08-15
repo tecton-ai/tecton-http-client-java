@@ -49,9 +49,9 @@ public class GetFeaturesBatchRequest {
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
-   * timeout} defaults to None, {@code metadataOptions} defaults to {@link
-   * RequestConstants#DEFAULT_METADATA_OPTIONS} and {@code microBatchSize} defaults to {@value
-   * RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * metadataOptions} defaults to {@link RequestConstants#DEFAULT_METADATA_OPTIONS} , {@code
+   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * timeout} defaults to None
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined
    * @param featureServiceName Name of the Feature Service for which the feature vectors are being
@@ -70,54 +70,21 @@ public class GetFeaturesBatchRequest {
         workspaceName,
         featureServiceName,
         requestDataList,
-        RequestConstants.NONE_TIMEOUT,
         RequestConstants.DEFAULT_METADATA_OPTIONS,
-        RequestConstants.DEFAULT_MICRO_BATCH_SIZE);
+        RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
+        RequestConstants.NONE_TIMEOUT);
   }
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
-   * metadataOptions} defaults to {@link RequestConstants#DEFAULT_METADATA_OPTIONS} and {@code
-   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * timeout} defaults to None
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined
    * @param featureServiceName Name of the Feature Service for which the feature vectors are being
    *     requested
    * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
    *     and/or requestContextMap
-   * @param timeout The max time in {@link Duration} for which the client waits for the batch
-   *     requests to complete before canceling the operation and returning the partial list of
-   *     results.
-   * @throws TectonClientException when workspacename or featureServiceName is empty or null
-   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
-   *     null/empty elements)
-   */
-  public GetFeaturesBatchRequest(
-      String workspaceName,
-      String featureServiceName,
-      List<GetFeaturesRequestData> requestDataList,
-      Duration timeout) {
-    this(
-        workspaceName,
-        featureServiceName,
-        requestDataList,
-        timeout,
-        RequestConstants.DEFAULT_METADATA_OPTIONS,
-        RequestConstants.DEFAULT_MICRO_BATCH_SIZE);
-  }
-
-  /**
-   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters.{@code
-   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
-   *
-   * @param workspaceName Name of the workspace in which the Feature Service is defined
-   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
-   *     requested
-   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
-   *     and/or requestContextMap
-   * @param timeout The max time in {@link Duration} for which the client waits for the batch
-   *     requests to complete before canceling the operation and returning the partial list of
-   *     results.
    * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
    *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
    *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
@@ -131,15 +98,51 @@ public class GetFeaturesBatchRequest {
       String workspaceName,
       String featureServiceName,
       List<GetFeaturesRequestData> requestDataList,
-      Duration timeout,
       Set<MetadataOption> metadataOptions) {
     this(
         workspaceName,
         featureServiceName,
         requestDataList,
-        timeout,
         metadataOptions,
-        RequestConstants.DEFAULT_MICRO_BATCH_SIZE);
+        RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
+        RequestConstants.NONE_TIMEOUT);
+  }
+
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters.{@code
+   * timeout} defaults to None.
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+   *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+   *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+   *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+   *     be added to each request
+   * @param microBatchSize an int value between 1 and {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
+   *     multiple micro batches of this size and executes them parallely. By default, the
+   *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @throws TectonClientException when workspaceName or featureServiceName is empty or null
+   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
+   *     null/empty elements)
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions,
+      int microBatchSize) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        metadataOptions,
+        microBatchSize,
+        RequestConstants.NONE_TIMEOUT);
   }
 
   /**
@@ -150,9 +153,6 @@ public class GetFeaturesBatchRequest {
    *     requested
    * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
    *     and/or requestContextMap
-   * @param timeout The max time in {@link Duration} for which the client waits for the batch
-   *     requests to complete before canceling the operation and returning the partial list of
-   *     results.
    * @param metadataOptions metadataOptions A {@link Set} of {@link MetadataOption} for retrieving
    *     additional metadata about the feature values. Use {@link
    *     RequestConstants#ALL_METADATA_OPTIONS} to request all metadata and {@link
@@ -162,6 +162,9 @@ public class GetFeaturesBatchRequest {
    *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
    *     multiple micro batches of this size and executes them parallely. By default, the
    *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @param timeout The max time in {@link Duration} for which the client waits for the batch
+   *     requests to complete before canceling the operation and returning the partial list of
+   *     results.
    * @throws TectonClientException when workspacename or featureServiceName is empty or null
    * @throws TectonClientException when requestDataList is invalid (null/empty or contains
    *     null/empty elements)
@@ -172,9 +175,9 @@ public class GetFeaturesBatchRequest {
       String workspaceName,
       String featureServiceName,
       List<GetFeaturesRequestData> requestDataList,
-      Duration timeout,
       Set<MetadataOption> metadataOptions,
-      int microBatchSize) {
+      int microBatchSize,
+      Duration timeout) {
     validateParameters(workspaceName, featureServiceName, requestDataList, microBatchSize);
     this.timeout = timeout;
 
@@ -341,9 +344,9 @@ public class GetFeaturesBatchRequest {
           workspaceName,
           featureServiceName,
           requestDataList,
-          timeout,
           metadataOptionList,
-          microBatchSize);
+          microBatchSize,
+          timeout);
     }
   }
 
