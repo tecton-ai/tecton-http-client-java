@@ -2,6 +2,7 @@ package ai.tecton.client.response;
 
 import ai.tecton.client.model.SloInformation;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,6 +10,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +20,7 @@ public class GetFeaturesBatchResponseTest {
   private String batchResponse2;
   private String batchResponse3;
   GetFeaturesBatchResponse batchResponse;
-  Map<String, Duration> responseToDurationMap;
+  List<Pair<String, Duration>> responseDurationPair;
 
   @Before
   public void setup() throws IOException {
@@ -29,13 +31,13 @@ public class GetFeaturesBatchResponseTest {
     batchResponse2 = new String(Files.readAllBytes(Paths.get(inputFile)));
     inputFile = classLoader.getResource("response/batch/batch3.json").getFile();
     batchResponse3 = new String(Files.readAllBytes(Paths.get(inputFile)));
-    responseToDurationMap = new HashMap<>();
+    responseDurationPair = new ArrayList<>();
   }
 
   @Test
   public void testSingleMicroBatchResponseWithoutSloInfo() {
-    responseToDurationMap.put(batchResponse1, Duration.ofMillis(10));
-    batchResponse = new GetFeaturesBatchResponse(responseToDurationMap, true);
+    responseDurationPair.add(Pair.of(batchResponse1, Duration.ofMillis(10)));
+    batchResponse = new GetFeaturesBatchResponse(responseDurationPair, true);
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
     // Verify that there are 5 GetFeaturesResponse objects, each with a feature vector of 14
     // features
@@ -53,8 +55,8 @@ public class GetFeaturesBatchResponseTest {
 
   @Test
   public void testSingleMicroBatchResponseWithSloInfo() {
-    responseToDurationMap.put(batchResponse2, Duration.ofMillis(10));
-    batchResponse = new GetFeaturesBatchResponse(responseToDurationMap, true);
+    responseDurationPair.add(Pair.of(batchResponse2, Duration.ofMillis(10)));
+    batchResponse = new GetFeaturesBatchResponse(responseDurationPair, true);
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
     // Verify that there are 5 GetFeaturesResponse objects, each with a feature vector of 14
     // features
@@ -74,11 +76,11 @@ public class GetFeaturesBatchResponseTest {
   }
 
   @Test
-  public void testMultipleMicroBatchResponsesWithSlo() {
-    responseToDurationMap.put(batchResponse2, Duration.ofMillis(10));
-    responseToDurationMap.put(batchResponse3, Duration.ofMillis(8));
+  public void testMultipleMicroBatchResponsesWithSloWithError() {
+    responseDurationPair.add(Pair.of(batchResponse2, Duration.ofMillis(10)));
+    responseDurationPair.add(Pair.of(batchResponse3, Duration.ofMillis(8)));
 
-    batchResponse = new GetFeaturesBatchResponse(responseToDurationMap, true);
+    batchResponse = new GetFeaturesBatchResponse(responseDurationPair, true);
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
     Assert.assertEquals(12, featureVectorList.size());
     checkBatchResultOrdering(featureVectorList);
@@ -98,32 +100,40 @@ public class GetFeaturesBatchResponseTest {
 
   @Test
   public void testMultipleSingleGetFeatures() throws Exception {
-    Map<String, Duration> singGetFeaturesResponse = new HashMap<>();
-    URL url = getClass().getClassLoader().getResource("response/single");
-    Path path = Paths.get(url.toURI());
-    Files.walk(path, 1)
-        .forEach(
-            file -> {
-              try {
-                singGetFeaturesResponse.put(
-                    new String(Files.readAllBytes(file)), Duration.ofMillis(10));
-              } catch (IOException ignored) {
-              }
-            });
+    responseDurationPair = readAllResponsesFromDirectory("response/single");
     GetFeaturesBatchResponse batchResponse =
-        new GetFeaturesBatchResponse(singGetFeaturesResponse, false);
+        new GetFeaturesBatchResponse(responseDurationPair, false);
     // Verify 4 GetFeaturesResponse in the list, each with a different feature vector size
     Assert.assertEquals(4, batchResponse.getBatchResponseList().size());
     List<Integer> featureVectorSizes = Arrays.asList(14, 5, 3, 5);
     List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
     IntStream.range(0, featureVectorSizes.size())
         .forEach(
-            i -> {
-              Assert.assertEquals(
-                  featureVectorSizes.get(i).intValue(),
-                  responseList.get(i).getFeatureValues().size());
-            });
+            i ->
+                Assert.assertEquals(
+                    featureVectorSizes.get(i).intValue(),
+                    responseList.get(i).getFeatureValues().size()));
 
+    // Assert batch slo info is empty
+    Assert.assertFalse(batchResponse.getBatchSloInformation().isPresent());
+  }
+
+  @Test
+  public void testSingleGetFeaturesWithError() throws Exception {
+
+    responseDurationPair = readAllResponsesFromDirectory("response/single");
+
+    // Add two error responses to the map
+    responseDurationPair.add(Pair.of(null, Duration.ofMillis(10)));
+    responseDurationPair.add(Pair.of(null, Duration.ofMillis(15)));
+
+    GetFeaturesBatchResponse batchResponse =
+        new GetFeaturesBatchResponse(responseDurationPair, false);
+    // Verify 6 GetFeaturesResponse in the list, 4 non-null and last two indices with null responses
+    List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
+    Assert.assertEquals(6, responseList.size());
+    responseList.subList(0, 4).forEach(Assert::assertNotNull);
+    responseList.subList(4, 6).forEach(Assert::assertNull);
     // Assert batch slo info is empty
     Assert.assertFalse(batchResponse.getBatchSloInformation().isPresent());
   }
@@ -159,9 +169,27 @@ public class GetFeaturesBatchResponseTest {
         .parallel()
         .forEach(
             i -> {
-              Assert.assertEquals(
-                  valuesInOrder.get(i),
-                  batchResponse.get(i).getFeatureValuesAsMap().get(featureName).int64value());
+              Long actualValue =
+                  batchResponse.get(i).getFeatureValuesAsMap().get(featureName).int64value();
+              Assert.assertEquals(valuesInOrder.get(i), actualValue);
             });
+  }
+
+  private List<Pair<String, Duration>> readAllResponsesFromDirectory(String directoryPath)
+      throws IOException, URISyntaxException {
+    List<Pair<String, Duration>> singGetFeaturesResponse = new ArrayList<>();
+    URL url = getClass().getClassLoader().getResource(directoryPath);
+    Path path = Paths.get(url.toURI());
+    Files.walk(path, 1)
+        .sorted()
+        .forEach(
+            file -> {
+              try {
+                singGetFeaturesResponse.add(
+                    Pair.of(new String(Files.readAllBytes(file)), Duration.ofMillis(25)));
+              } catch (IOException ignored) {
+              }
+            });
+    return singGetFeaturesResponse;
   }
 }

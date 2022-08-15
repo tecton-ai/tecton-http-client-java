@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * A class that represents the response from the HTTP API for when fetching batch features. The
@@ -20,37 +21,47 @@ import java.util.stream.IntStream;
  * present.
  */
 public class GetFeaturesBatchResponse {
-  private List<GetFeaturesResponse> batchResponseList;
+  private final List<GetFeaturesResponse> batchResponseList;
+
   private SloInformation batchSloInfo;
   private Duration requestLatency;
 
   public GetFeaturesBatchResponse(
-      Map<String, Duration> responseListWithLatency, boolean isBatchRequest) {
+      List<Pair<String, Duration>> responseListWithLatency, boolean isBatchRequest) {
 
     if (isBatchRequest) {
-      // Extract List<GetFeaturesResponse> from list of batch response strings
+      // Serialize list of response JSON into a list of GetFeaturesMicroBatchResponse objects
       List<GetFeaturesMicroBatchResponse> microBatchResponses =
           responseListWithLatency
-              .entrySet()
               .parallelStream()
               .map(entry -> new GetFeaturesMicroBatchResponse(entry.getKey(), entry.getValue()))
               .collect(Collectors.toList());
+
+      // Concatenate list of GetFeaturesResponse objects from each microbatch into a single list
+      // Maintain ordering
       this.batchResponseList =
-          microBatchResponses.stream()
+          microBatchResponses
+              .parallelStream()
               .map(microBatch -> microBatch.microBatchResponseList)
-              .flatMap(Collection::stream)
+              .flatMap(List::stream)
               .collect(Collectors.toList());
+
       // Compute Batch SLO Information
-      List<SloInformation> batchSloInfoList =
+      List<SloInformation> microBatchSloInfoList =
           microBatchResponses.stream()
-              .map(GetFeaturesMicroBatchResponse::getMicroBatchSloInformation)
+              .filter(
+                  microBatchResponse ->
+                      microBatchResponse.getMicroBatchSloInformation().isPresent())
+              .map(microBatchResponse -> microBatchResponse.getMicroBatchSloInformation().get())
               .collect(Collectors.toList());
-      this.batchSloInfo = computeBatchSloInfo(batchSloInfoList).orElse(null);
+
+      if (!microBatchSloInfoList.isEmpty()) {
+        this.batchSloInfo = computeBatchSloInfo(microBatchSloInfoList);
+      }
     } else {
-      // Extract List<GetFeaturesResponse> from list of response strings
+      // Serialize list of JSON responses to a list of GetFeaturesResponse objects
       this.batchResponseList =
           responseListWithLatency
-              .entrySet()
               .parallelStream()
               .map(
                   entry ->
@@ -59,7 +70,11 @@ public class GetFeaturesBatchResponse {
                           : new GetFeaturesResponse(entry.getKey(), entry.getValue()))
               .collect(Collectors.toList());
     }
-    this.requestLatency = Collections.max(responseListWithLatency.values());
+
+    // TODO do we need this at the batch response level?
+    this.requestLatency =
+        Collections.max(
+            responseListWithLatency.stream().map(Pair::getValue).collect(Collectors.toList()));
   }
 
   /**
@@ -70,6 +85,16 @@ public class GetFeaturesBatchResponse {
    */
   public List<GetFeaturesResponse> getBatchResponseList() {
     return batchResponseList;
+  }
+
+  /**
+   * Returns the response time (network latency + online store latency) as provided by the
+   * underlying Http Client
+   *
+   * @return response time as {@link java.time.Duration}
+   */
+  public Duration getRequestLatency() {
+    return this.requestLatency;
   }
 
   /**
@@ -94,8 +119,8 @@ public class GetFeaturesBatchResponse {
       buildResponseFromJson(response);
     }
 
-    SloInformation getMicroBatchSloInformation() {
-      return this.microBatchSloInfo;
+    Optional<SloInformation> getMicroBatchSloInformation() {
+      return Optional.ofNullable(this.microBatchSloInfo);
     }
 
     // Moshi Json Classes
@@ -166,49 +191,45 @@ public class GetFeaturesBatchResponse {
   }
 
   // Compute Batch SLO Information
-  Optional<SloInformation> computeBatchSloInfo(List<SloInformation> batchSloInformation) {
+  SloInformation computeBatchSloInfo(List<SloInformation> batchSloInformation) {
     batchSloInformation.removeAll(Collections.singleton(null));
-    if (!batchSloInformation.isEmpty()) {
 
-      boolean isSloEligibleBatch =
-          batchSloInformation.stream()
-              .noneMatch(
-                  sloInfo -> sloInfo.isSloEligible().isPresent() && !sloInfo.isSloEligible().get());
+    boolean isSloEligibleBatch =
+        batchSloInformation.stream()
+            .noneMatch(
+                sloInfo -> sloInfo.isSloEligible().isPresent() && !sloInfo.isSloEligible().get());
 
-      Double maxSloServerTimeSeconds =
-          getMaxValueFromOptionalList(
-              batchSloInformation.stream()
-                  .map(SloInformation::getSloServerTimeSeconds)
-                  .collect(Collectors.toList()));
+    Double maxSloServerTimeSeconds =
+        getMaxValueFromOptionalList(
+            batchSloInformation.stream()
+                .map(SloInformation::getSloServerTimeSeconds)
+                .collect(Collectors.toList()));
 
-      Double storeMaxLatency =
-          getMaxValueFromOptionalList(
-              batchSloInformation.stream()
-                  .map(SloInformation::getStoreMaxLatency)
-                  .collect(Collectors.toList()));
+    Double storeMaxLatency =
+        getMaxValueFromOptionalList(
+            batchSloInformation.stream()
+                .map(SloInformation::getStoreMaxLatency)
+                .collect(Collectors.toList()));
 
-      Double maxServerTimeSeconds =
-          getMaxValueFromOptionalList(
-              batchSloInformation.stream()
-                  .map(SloInformation::getServerTimeSeconds)
-                  .collect(Collectors.toList()));
+    Double maxServerTimeSeconds =
+        getMaxValueFromOptionalList(
+            batchSloInformation.stream()
+                .map(SloInformation::getServerTimeSeconds)
+                .collect(Collectors.toList()));
 
-      Set<SloInformation.SloIneligibilityReason> sloIneligibilityReasons =
-          batchSloInformation.stream()
-              .map(SloInformation::getSloIneligibilityReasons)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
+    Set<SloInformation.SloIneligibilityReason> sloIneligibilityReasons =
+        batchSloInformation.stream()
+            .map(SloInformation::getSloIneligibilityReasons)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
 
-      return Optional.of(
-          SloInformation.buildSloInformation(
-              isSloEligibleBatch,
-              maxServerTimeSeconds,
-              maxSloServerTimeSeconds,
-              null,
-              sloIneligibilityReasons,
-              storeMaxLatency));
-    }
-    return Optional.empty();
+    return SloInformation.buildSloInformation(
+        isSloEligibleBatch,
+        maxServerTimeSeconds,
+        maxSloServerTimeSeconds,
+        null,
+        sloIneligibilityReasons,
+        storeMaxLatency);
   }
 
   private Double getMaxValueFromOptionalList(List<Optional<Double>> values) {
