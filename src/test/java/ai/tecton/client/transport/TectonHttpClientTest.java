@@ -1,6 +1,7 @@
 package ai.tecton.client.transport;
 
 import ai.tecton.client.TectonClientOptions;
+import ai.tecton.client.request.RequestConstants;
 import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
 import java.io.IOException;
 import java.time.Duration;
@@ -134,7 +135,8 @@ public class TectonHttpClientTest {
     List<String> requestList = prepareRequests(10);
     requestList.addAll(Arrays.asList("", "", ""));
     List<HttpResponse> httpResponses =
-        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofSeconds(50));
+        httpClient.performParallelRequests(
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
 
     // Verify that first 10 responses are successful and last 3 responses are errors
     httpResponses.subList(0, 10).forEach(response -> Assert.assertTrue(response.isSuccessful()));
