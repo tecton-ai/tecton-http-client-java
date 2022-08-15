@@ -2,6 +2,7 @@ package ai.tecton.client.model;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -39,7 +40,7 @@ public class FeatureValue {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
       }
-    } catch (Exception ignored) {
+    } catch (ParseException ignored) {
     }
 
     // Create Value using valueType
