@@ -42,7 +42,10 @@ public class GetFeaturesBatchRequest {
 
   private List<? extends AbstractGetFeaturesRequest> requestList;
   private final boolean isBatchRequest;
-  private Duration timeout;
+  private final Duration timeout;
+  private static final String ENDPOINT = "/api/v1/feature-service/get-features-batch";
+  private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
+      null;
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
@@ -187,6 +190,8 @@ public class GetFeaturesBatchRequest {
                           workspaceName, featureServiceName, requestData, metadataOptions))
               .collect(Collectors.toList());
       this.isBatchRequest = true;
+      Moshi moshi = new Moshi.Builder().build();
+      jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
     } else {
       // For microBatchSize=1, create a List of individual GetFeaturesRequest objects
       this.requestList =
@@ -201,15 +206,15 @@ public class GetFeaturesBatchRequest {
     }
   }
 
-  public List<? extends AbstractGetFeaturesRequest> getRequestList() {
+  List<? extends AbstractGetFeaturesRequest> getRequestList() {
     return this.requestList;
   }
 
-  public Duration getTimeout() {
+  Duration getTimeout() {
     return timeout;
   }
 
-  public boolean isBatchRequest() {
+  boolean isBatchRequest() {
     return isBatchRequest;
   }
 
@@ -310,6 +315,12 @@ public class GetFeaturesBatchRequest {
       return this;
     }
 
+    /**
+     * @param timeout The max time in {@link Duration} for which the client waits for the batch
+     *     requests to complete before canceling the operation and returning the partial list of
+     *     results.
+     * @return this Builder
+     */
     public Builder timeout(Duration timeout) {
       this.timeout = timeout;
       return this;
@@ -359,9 +370,6 @@ public class GetFeaturesBatchRequest {
   // Moshi JSON Classes
   static class GetFeaturesMicroBatchRequest extends AbstractGetFeaturesRequest {
 
-    private static final String ENDPOINT = "/api/v1/feature-service/get-features-batch";
-
-    private final JsonAdapter<GetFeaturesRequestBatchJson> jsonAdapter;
     private final List<GetFeaturesRequestData> requestDataList;
 
     GetFeaturesMicroBatchRequest(
@@ -371,8 +379,6 @@ public class GetFeaturesBatchRequest {
         Set<MetadataOption> metadataOptions) {
       super(workspaceName, featureServiceName, ENDPOINT, metadataOptions);
       this.requestDataList = requestDataList;
-      Moshi moshi = new Moshi.Builder().build();
-      jsonAdapter = moshi.adapter(GetFeaturesRequestBatchJson.class);
     }
 
     // Moshi JSON classes
