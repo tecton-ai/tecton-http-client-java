@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.Optional;
 import okhttp3.Headers;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class HttpResponse {
   private final boolean isSuccessful;
@@ -19,12 +20,16 @@ public class HttpResponse {
       moshi.adapter(TectonHttpClient.ErrorResponseJson.class);
 
   HttpResponse(Response response) throws Exception {
+    this(response, response.body());
+  }
+
+  HttpResponse(Response response, ResponseBody responseBody) throws Exception {
     this.responseCode = response.code();
     this.headers = response.headers();
     this.requestDuration =
         Duration.ofMillis(response.receivedResponseAtMillis() - response.sentRequestAtMillis());
     this.isSuccessful = response.isSuccessful();
-    this.body = response.body().string();
+    this.body = responseBody.string();
     if (!this.isSuccessful) {
       this.message = parseErrorResponse(this.body, response.message());
     } else {
