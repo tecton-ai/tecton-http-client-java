@@ -4,8 +4,7 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import ai.tecton.client.utils.TestUtils;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,30 +17,17 @@ import org.junit.Test;
 public class GetFeaturesResponseTest {
 
   GetFeaturesResponse getFeaturesResponse;
-  String simpleResponse;
-  String responseWithSlo;
-  String responseWithArray;
-  String simpleResponseWithNulls;
+  List<String> sampleResponses;
 
   @Before
   public void setup() throws Exception {
-    ClassLoader classLoader = getClass().getClassLoader();
-    String simpleInput = classLoader.getResource("response/single/sample_response.json").getFile();
-    simpleResponse = new String(Files.readAllBytes(Paths.get(simpleInput)));
-    String nullValueInput =
-        classLoader.getResource("response/single/sample_null_response.json").getFile();
-    simpleResponseWithNulls = new String(Files.readAllBytes(Paths.get(nullValueInput)));
-    String sloInput = classLoader.getResource("response/single/sample_response_slo.json").getFile();
-    responseWithSlo = new String(Files.readAllBytes(Paths.get(sloInput)));
-    String arrayInput =
-        classLoader.getResource("response/single/sample_response_list.json").getFile();
-    responseWithArray = new String(Files.readAllBytes(Paths.get(arrayInput)));
+    sampleResponses = TestUtils.readAllFilesInDirectory("response/single", "json");
   }
 
   @Test
   public void testSimpleResponse() {
     Duration duration = Duration.ofMillis(10);
-    getFeaturesResponse = new GetFeaturesResponse(simpleResponse, duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(1), duration);
 
     Assert.assertEquals(duration, getFeaturesResponse.getRequestLatency());
     Assert.assertFalse(getFeaturesResponse.getSloInformation().isPresent());
@@ -51,7 +37,7 @@ public class GetFeaturesResponseTest {
   @Test
   public void testSimpleResponseWithNulls() {
     Duration duration = Duration.ofMillis(10);
-    getFeaturesResponse = new GetFeaturesResponse(simpleResponseWithNulls, duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(0), duration);
     Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
     Map<String, FeatureValue> featureValueMap = getFeaturesResponse.getFeatureValuesAsMap();
 
@@ -69,7 +55,7 @@ public class GetFeaturesResponseTest {
   @Test
   public void testSloresponse() {
     Duration duration = Duration.ofMillis(10);
-    getFeaturesResponse = new GetFeaturesResponse(responseWithSlo, duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(3), duration);
     checkFeatureValues(getFeaturesResponse.getFeatureValuesAsMap());
     SloInformation sloInfo = getFeaturesResponse.getSloInformation().get();
 
@@ -101,7 +87,7 @@ public class GetFeaturesResponseTest {
     expectedStringArray.add(null);
     List<Long> expectedLongArray = Collections.singletonList(0L);
 
-    getFeaturesResponse = new GetFeaturesResponse(responseWithArray, duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(2), duration);
     Assert.assertNotNull(getFeaturesResponse);
     Assert.assertEquals(3, getFeaturesResponse.getFeatureValues().size());
 
