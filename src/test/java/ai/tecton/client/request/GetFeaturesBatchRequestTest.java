@@ -140,7 +140,6 @@ public class GetFeaturesBatchRequestTest {
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest(TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, requestDataList);
 
-    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
     List<GetFeaturesRequest> getFeaturesRequests =
         (List<GetFeaturesRequest>) getFeaturesBatchRequest.getRequestList();
     Assert.assertEquals(25, getFeaturesRequests.size());
@@ -169,7 +168,6 @@ public class GetFeaturesBatchRequestTest {
             8);
 
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
-    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(RequestConstants.NONE_TIMEOUT, getFeaturesBatchRequest.getTimeout());
 
     GetFeaturesRequest getFeaturesRequest =
@@ -197,7 +195,6 @@ public class GetFeaturesBatchRequestTest {
             .microBatchSize(5)
             .build();
 
-    Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
     GetFeaturesMicroBatchRequest microBatchRequest =
@@ -228,7 +225,6 @@ public class GetFeaturesBatchRequestTest {
             .microBatchSize(5)
             .build();
 
-    Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(2, getFeaturesBatchRequest.getRequestList().size());
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
@@ -260,7 +256,6 @@ public class GetFeaturesBatchRequestTest {
             .microBatchSize(8)
             .build();
 
-    Assert.assertTrue(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(3, getFeaturesBatchRequest.getRequestList().size());
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
@@ -292,7 +287,6 @@ public class GetFeaturesBatchRequestTest {
             RequestConstants.DEFAULT_METADATA_OPTIONS,
             1);
 
-    Assert.assertFalse(getFeaturesBatchRequest.isBatchRequest());
     Assert.assertEquals(20, getFeaturesBatchRequest.getRequestList().size());
   }
 

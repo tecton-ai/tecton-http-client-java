@@ -5,11 +5,16 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
+import ai.tecton.client.request.GetFeaturesBatchRequest;
 import ai.tecton.client.request.GetFeaturesRequest;
 import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
+import ai.tecton.client.response.GetFeaturesBatchResponse;
 import ai.tecton.client.response.GetFeaturesResponse;
 import ai.tecton.client.transport.HttpResponse;
 import ai.tecton.client.transport.TectonHttpClient;
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A client for interacting with the Tecton FeatureService API. The client provides several methods
@@ -85,6 +90,25 @@ public class TectonClient {
     HttpResponse httpResponse = getHttpResponse(getFeatureServiceMetadataRequest);
     return new GetFeatureServiceMetadataResponse(
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+  }
+
+  public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest) {
+    List<String> requestList =
+        batchRequest.getRequestList().stream()
+            .map(AbstractTectonRequest::requestToJson)
+            .collect(Collectors.toList());
+
+    long start = System.currentTimeMillis();
+    List<HttpResponse> httpResponseList =
+        tectonHttpClient.performParallelRequests(
+            batchRequest.getEndpoint(),
+            batchRequest.getMethod(),
+            requestList,
+            batchRequest.getTimeout());
+    long stop = System.currentTimeMillis();
+    Duration totalTime = Duration.ofMillis(stop - start);
+    return new GetFeaturesBatchResponse(
+        httpResponseList, totalTime, batchRequest.getMicroBatchSize());
   }
 
   private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {

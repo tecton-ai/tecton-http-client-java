@@ -3,6 +3,7 @@ package ai.tecton.client.request;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
+import ai.tecton.client.transport.TectonHttpClient;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.time.Duration;
@@ -41,11 +42,13 @@ import org.apache.commons.collections4.ListUtils;
 public class GetFeaturesBatchRequest {
 
   private List<? extends AbstractGetFeaturesRequest> requestList;
-  private final boolean isBatchRequest;
+  private final int microBatchSize;
   private final Duration timeout;
-  private static final String ENDPOINT = "/api/v1/feature-service/get-features-batch";
+  private static final String BATCH_ENDPOINT = "/api/v1/feature-service/get-features-batch";
   private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
       null;
+  private String endpoint;
+  private TectonHttpClient.HttpMethod method;
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
@@ -192,9 +195,11 @@ public class GetFeaturesBatchRequest {
                       new GetFeaturesMicroBatchRequest(
                           workspaceName, featureServiceName, requestData, metadataOptions))
               .collect(Collectors.toList());
-      this.isBatchRequest = true;
+      this.microBatchSize = microBatchSize;
       Moshi moshi = new Moshi.Builder().build();
       jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
+      this.endpoint = BATCH_ENDPOINT;
+      this.method = TectonHttpClient.HttpMethod.POST;
     } else {
       // For microBatchSize=1, create a List of individual GetFeaturesRequest objects
       this.requestList =
@@ -205,20 +210,30 @@ public class GetFeaturesBatchRequest {
                       new GetFeaturesRequest(
                           workspaceName, featureServiceName, requestData, metadataOptions))
               .collect(Collectors.toList());
-      this.isBatchRequest = false;
+      this.microBatchSize = microBatchSize;
+      this.endpoint = GetFeaturesRequest.ENDPOINT;
+      this.method = TectonHttpClient.HttpMethod.POST;
     }
   }
 
-  List<? extends AbstractGetFeaturesRequest> getRequestList() {
+  public List<? extends AbstractGetFeaturesRequest> getRequestList() {
     return this.requestList;
   }
 
-  Duration getTimeout() {
+  public Duration getTimeout() {
     return timeout;
   }
 
-  boolean isBatchRequest() {
-    return isBatchRequest;
+  public int getMicroBatchSize() {
+    return this.microBatchSize;
+  }
+
+  public TectonHttpClient.HttpMethod getMethod() {
+    return method;
+  }
+
+  public String getEndpoint() {
+    return endpoint;
   }
 
   /**
@@ -380,7 +395,7 @@ public class GetFeaturesBatchRequest {
         String featureServiceName,
         List<GetFeaturesRequestData> requestDataList,
         Set<MetadataOption> metadataOptions) {
-      super(workspaceName, featureServiceName, ENDPOINT, metadataOptions);
+      super(workspaceName, featureServiceName, BATCH_ENDPOINT, metadataOptions);
       this.requestDataList = requestDataList;
     }
 

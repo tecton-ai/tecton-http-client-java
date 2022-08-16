@@ -4,8 +4,6 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
-import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureMetadata;
-import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureVectorJson;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.io.IOException;
@@ -20,9 +18,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GetFeaturesResponse extends AbstractTectonResponse {
 
-  private List<FeatureValue> featureValues;
+  private final List<FeatureValue> featureValues;
   private SloInformation sloInformation;
-  private JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
+
+  private final JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
+  private static final String NAME = "Name";
+  private static final String DATA_TYPE = "Data Type";
 
   public GetFeaturesResponse(String response, Duration requestLatency)
       throws TectonClientException {
@@ -37,6 +38,8 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
   GetFeaturesResponse(List<FeatureValue> featureValues, Duration requestLatency) {
     super(requestLatency);
     this.featureValues = featureValues;
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
   }
 
   /**
@@ -69,12 +72,22 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
   }
 
   static class GetFeaturesResponseJson {
-    FeatureVectorJson result;
+    Result result;
     ResponseMetadata metadata;
+
+    static class Result {
+      List<Object> features;
+    }
 
     static class ResponseMetadata {
       List<FeatureMetadata> features;
       SloInformation sloInfo;
+    }
+
+    static class FeatureMetadata {
+      String name;
+      String effectiveTime;
+      ResponseDataType dataType = new ResponseDataType();
     }
   }
 
@@ -87,12 +100,21 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
     }
     List<Object> featureVector = responseJson.result.features;
-    List<FeatureMetadata> featureMetadata = responseJson.metadata.features;
+    List<GetFeaturesResponseJson.FeatureMetadata> featureMetadata = responseJson.metadata.features;
+
+    validateResponse(featureVector, featureMetadata);
 
     // Construct Feature Value object from response
-    this.featureValues =
-        GetFeaturesResponseUtils.constructFeatureVector(featureVector, featureMetadata);
-
+    for (int i = 0; i < responseJson.result.features.size(); i++) {
+      FeatureValue value =
+          new FeatureValue(
+              featureVector.get(i),
+              featureMetadata.get(i).name,
+              featureMetadata.get(i).dataType.getDataType(),
+              featureMetadata.get(i).dataType.getListElementType(),
+              featureMetadata.get(i).effectiveTime);
+      this.featureValues.add(value);
+    }
     // Construct Slo Info if present
     if (responseJson.metadata.sloInfo != null) {
       this.sloInformation = responseJson.metadata.sloInfo;
@@ -101,5 +123,24 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
   void setSloInformation(SloInformation sloInformation) {
     this.sloInformation = sloInformation;
+  }
+
+  private void validateResponse(
+      List<Object> featureVector, List<GetFeaturesResponseJson.FeatureMetadata> featureMetadata) {
+    if (featureVector.isEmpty()) {
+      throw new TectonClientException(TectonErrorMessage.EMPTY_FEATURE_VECTOR);
+    }
+    for (GetFeaturesResponseJson.FeatureMetadata metadata : featureMetadata) {
+      if (StringUtils.isEmpty(metadata.name)) {
+        throw new TectonClientException(
+            String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, NAME));
+      }
+      if (StringUtils.isEmpty(metadata.dataType.type)) {
+        {
+          throw new TectonClientException(
+              String.format(TectonErrorMessage.MISSING_EXPECTED_METADATA, DATA_TYPE));
+        }
+      }
+    }
   }
 }

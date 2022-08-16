@@ -6,6 +6,7 @@ import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
 import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureMetadata;
 import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureVectorJson;
+import ai.tecton.client.transport.HttpResponse;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * A class that represents the response from the HTTP API for when fetching batch features. The
@@ -25,56 +25,41 @@ public class GetFeaturesBatchResponse {
 
   private SloInformation batchSloInfo;
   private Duration requestLatency;
+  private static JsonAdapter<GetFeaturesMicroBatchResponse.GetFeaturesBatchResponseJson>
+      jsonAdapter;
 
   public GetFeaturesBatchResponse(
-      List<Pair<String, Duration>> responseListWithLatency, boolean isBatchRequest) {
+      List<HttpResponse> httpResponseList, Duration totalDuration, int microBatchSize) {
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesMicroBatchResponse.GetFeaturesBatchResponseJson.class);
 
-    if (isBatchRequest) {
-      // Serialize list of response JSON into a list of GetFeaturesMicroBatchResponse objects
-      List<GetFeaturesMicroBatchResponse> microBatchResponses =
-          responseListWithLatency
-              .parallelStream()
-              .map(entry -> new GetFeaturesMicroBatchResponse(entry.getKey(), entry.getValue()))
-              .collect(Collectors.toList());
+    // Serialize list of HttpResponse into list of GetFeaturesMicroBatchResponse
+    List<GetFeaturesMicroBatchResponse> microBatchResponses =
+        httpResponseList
+            .parallelStream()
+            .map(httpResponse -> parseSingleHttpResponse(httpResponse, microBatchSize))
+            .collect(Collectors.toList());
 
-      // Concatenate list of GetFeaturesResponse objects from each microbatch into a single list
-      // Maintain ordering
-      this.batchResponseList =
-          microBatchResponses
-              .parallelStream()
-              .map(microBatch -> microBatch.microBatchResponseList)
-              .flatMap(List::stream)
-              .collect(Collectors.toList());
+    // Concatenate list of GetFeaturesResponse objects from each microbatch into a single list
+    // Maintain ordering
+    this.batchResponseList =
+        microBatchResponses
+            .parallelStream()
+            .map(microBatch -> microBatch.microBatchResponseList)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
 
-      // Compute Batch SLO Information
-      List<SloInformation> microBatchSloInfoList =
-          microBatchResponses.stream()
-              .filter(
-                  microBatchResponse ->
-                      microBatchResponse.getMicroBatchSloInformation().isPresent())
-              .map(microBatchResponse -> microBatchResponse.getMicroBatchSloInformation().get())
-              .collect(Collectors.toList());
-
-      if (!microBatchSloInfoList.isEmpty()) {
-        this.batchSloInfo = computeBatchSloInfo(microBatchSloInfoList);
-      }
-    } else {
-      // Serialize list of JSON responses to a list of GetFeaturesResponse objects
-      this.batchResponseList =
-          responseListWithLatency
-              .parallelStream()
-              .map(
-                  entry ->
-                      entry.getKey() == null
-                          ? null
-                          : new GetFeaturesResponse(entry.getKey(), entry.getValue()))
-              .collect(Collectors.toList());
+    // Compute Batch SLO Information, if present
+    List<SloInformation> microBatchSloInfoList =
+        microBatchResponses.stream()
+            .filter(
+                microBatchResponse -> microBatchResponse.getMicroBatchSloInformation().isPresent())
+            .map(microBatchResponse -> microBatchResponse.getMicroBatchSloInformation().get())
+            .collect(Collectors.toList());
+    if (!microBatchSloInfoList.isEmpty()) {
+      this.batchSloInfo = computeBatchSloInfo(microBatchSloInfoList);
     }
-
-    // TODO do we need this at the batch response level?
-    this.requestLatency =
-        Collections.max(
-            responseListWithLatency.stream().map(Pair::getValue).collect(Collectors.toList()));
+    this.requestLatency = totalDuration;
   }
 
   /**
@@ -107,16 +92,41 @@ public class GetFeaturesBatchResponse {
     return Optional.ofNullable(this.batchSloInfo);
   }
 
+  // Parse a single HttpResponse and extract GetFeaturesResponse, SloInformation
+  private GetFeaturesMicroBatchResponse parseSingleHttpResponse(
+      HttpResponse httpResponse, int microBatchSize) {
+    // Null HttpResponse represents a timeout and so all the individual responses in the microbatch
+    // will be null
+    if (httpResponse == null)
+      return new GetFeaturesMicroBatchResponse(Collections.nCopies(microBatchSize, null), null);
+    // Response is not null, but response body is empty.
+    if (!httpResponse.getResponseBody().isPresent()) {
+      throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
+    }
+    String responseJson = httpResponse.getResponseBody().get();
+    if (microBatchSize == 1) {
+      return new GetFeaturesMicroBatchResponse(
+          Collections.singletonList(
+              new GetFeaturesResponse(responseJson, httpResponse.getRequestDuration())),
+          null);
+    } else {
+      return new GetFeaturesMicroBatchResponse(responseJson, httpResponse.getRequestDuration());
+    }
+  }
+
   private static class GetFeaturesMicroBatchResponse extends AbstractTectonResponse {
     private List<GetFeaturesResponse> microBatchResponseList;
     private SloInformation microBatchSloInfo;
-    private final JsonAdapter<GetFeaturesBatchResponseJson> jsonAdapter;
 
     GetFeaturesMicroBatchResponse(String response, Duration requestLatency) {
       super(requestLatency);
-      Moshi moshi = new Moshi.Builder().build();
-      jsonAdapter = moshi.adapter(GetFeaturesBatchResponseJson.class);
       buildResponseFromJson(response);
+    }
+
+    GetFeaturesMicroBatchResponse(
+        List<GetFeaturesResponse> microBatchResponseList, Duration requestDuration) {
+      super(requestDuration);
+      this.microBatchResponseList = microBatchResponseList;
     }
 
     Optional<SloInformation> getMicroBatchSloInformation() {
