@@ -81,8 +81,7 @@ public class TectonHttpClient {
 
     // Initialize response list
     int numberOfCalls = requestBodyList.size();
-    List<HttpResponse> httpResponses =
-        new ArrayList<>(Collections.nCopies(requestBodyList.size(), null));
+    List<HttpResponse> httpResponses = new ArrayList<>(Collections.nCopies(numberOfCalls, null));
 
     // Map request body to OkHttp Request
     // ordering of requests is maintained
@@ -108,13 +107,15 @@ public class TectonHttpClient {
 
           @Override
           public void onResponse(Call call, Response response) {
-            countDownLatch.countDown();
-            try {
+            try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
-              httpResponses.set(requestList.indexOf(call.request()), new HttpResponse(response));
-              response.close();
+              httpResponses.set(
+                  requestList.indexOf(call.request()), new HttpResponse(response, responseBody));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
+            } finally {
+              Objects.requireNonNull(response.body()).close();
+              countDownLatch.countDown();
             }
           }
         };
@@ -224,11 +225,5 @@ public class TectonHttpClient {
     public String getName() {
       return this.name;
     }
-  }
-
-  static class ErrorResponseJson {
-    String error;
-    int code;
-    String message;
   }
 }
