@@ -1,5 +1,7 @@
 package ai.tecton.client.transport;
 
+import ai.tecton.client.TectonClientOptions;
+import java.time.Duration;
 import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
@@ -20,14 +22,16 @@ public class TectonHttpClientTest {
     endpoint = "/api/v1/feature-service/get-features";
     apiKey = "12345";
     body = "{}";
-    httpClient = new TectonHttpClient(url, apiKey);
+    httpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
   }
 
   @Test
   public void testDefaultHttpClient() {
-    TectonHttpClient httpClient = new TectonHttpClient(url, apiKey);
-    Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
-    Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
+    TectonHttpClient httpClient =
+        new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
+    Assert.assertEquals(2, httpClient.getConnectTimeout().getSeconds());
+    Assert.assertEquals(2, httpClient.getReadTimeout().getSeconds());
+    Assert.assertEquals(5, httpClient.getMaxParallelRequests());
     Assert.assertFalse(httpClient.isClosed());
   }
 
@@ -49,5 +53,20 @@ public class TectonHttpClientTest {
     Assert.assertEquals(
         "Tecton-key " + apiKey,
         request.headers().get(TectonHttpClient.HttpHeader.AUTHORIZATION.getName()));
+  }
+
+  @Test
+  public void testClientWithTectonOptions() {
+    TectonClientOptions tectonClientOptions =
+        new TectonClientOptions.Builder()
+            .maxParallelRequests(20)
+            .readTimeout(Duration.ofSeconds(10))
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+    TectonHttpClient tectonHttpClient = new TectonHttpClient(url, apiKey, tectonClientOptions);
+
+    Assert.assertEquals(10, tectonHttpClient.getReadTimeout().getSeconds());
+    Assert.assertEquals(10, tectonHttpClient.getConnectTimeout().getSeconds());
+    Assert.assertEquals(20, tectonHttpClient.getMaxParallelRequests());
   }
 }

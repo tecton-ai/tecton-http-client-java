@@ -10,9 +10,6 @@ import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
 import ai.tecton.client.response.GetFeaturesResponse;
 import ai.tecton.client.transport.HttpResponse;
 import ai.tecton.client.transport.TectonHttpClient;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import java.io.IOException;
 
 /**
  * A client for interacting with the Tecton FeatureService API. The client provides several methods
@@ -26,8 +23,6 @@ import java.io.IOException;
 public class TectonClient {
 
   private final TectonHttpClient tectonHttpClient;
-  Moshi moshi = new Moshi.Builder().build();
-  private final JsonAdapter<ErrorResponseJson> jsonAdapter = moshi.adapter(ErrorResponseJson.class);
 
   /**
    * Constructor for a simple Tecton Client
@@ -38,7 +33,8 @@ public class TectonClient {
    *     with an API key</a> for more information
    */
   public TectonClient(String url, String apiKey) {
-    this.tectonHttpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions());
+    this.tectonHttpClient =
+        new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
   }
 
   /**
@@ -97,33 +93,16 @@ public class TectonClient {
         tectonHttpClient.performRequest(
             tectonRequest.getEndpoint(), tectonRequest.getMethod(), tectonRequest.requestToJson());
 
-    if (httpResponse.isSuccessful()) {
-      if (!httpResponse.getResponseBody().isPresent()) {
-        throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
-      }
-      return httpResponse;
-    } else {
-      // Parse error response and throw TectonServiceException
-      String errorMessage = httpResponse.getMessage();
-      if (httpResponse.getResponseBody().isPresent()) {
-        try {
-          ErrorResponseJson errorResponseJson =
-              jsonAdapter.fromJson(httpResponse.getResponseBody().get());
-          errorMessage = errorResponseJson.message;
-        } catch (IOException e) {
-          throw new TectonClientException(TectonErrorMessage.INVALID_RESPONSE_FORMAT);
-        } catch (Exception ignored) {
-        }
-      }
+    if (!httpResponse.isSuccessful()) {
       throw new TectonServiceException(
           String.format(
-              TectonErrorMessage.ERROR_RESPONSE, httpResponse.getResponseCode(), errorMessage));
+              TectonErrorMessage.ERROR_RESPONSE,
+              httpResponse.getResponseCode(),
+              httpResponse.getMessage()));
     }
-  }
-
-  static class ErrorResponseJson {
-    String error;
-    int code;
-    String message;
+    if (!httpResponse.getResponseBody().isPresent()) {
+      throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
+    }
+    return httpResponse;
   }
 }

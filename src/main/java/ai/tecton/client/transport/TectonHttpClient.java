@@ -4,11 +4,13 @@ import ai.tecton.client.TectonClientOptions;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
+import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -20,7 +22,6 @@ public class TectonHttpClient {
   private final OkHttpClient client;
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
-  private static final int TIMEOUT = 5;
 
   private static final Map<String, String> defaultHeaders =
       new HashMap<String, String>() {
@@ -30,24 +31,17 @@ public class TectonHttpClient {
         }
       };
 
-  public TectonHttpClient(String url, String apiKey) {
-    validateClientParameters(url, apiKey);
-    this.apiKey = apiKey;
-    client =
-        new OkHttpClient.Builder()
-            .readTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
-            .build();
-    isClosed = new AtomicBoolean(false);
-  }
-
   public TectonHttpClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
+    Dispatcher dispatcher = new Dispatcher();
+    dispatcher.setMaxRequests(tectonClientOptions.getMaxParallelRequests());
+
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder()
             .readTimeout(tectonClientOptions.getReadTimeout().getSeconds(), TimeUnit.SECONDS)
-            .connectTimeout(tectonClientOptions.getConnectTimeout().getSeconds(), TimeUnit.SECONDS);
+            .connectTimeout(tectonClientOptions.getConnectTimeout().getSeconds(), TimeUnit.SECONDS)
+            .dispatcher(dispatcher);
     ConnectionPool connectionPool =
         new ConnectionPool(
             tectonClientOptions.getMaxIdleConnections(),
@@ -74,11 +68,72 @@ public class TectonHttpClient {
         new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
     Request request = buildRequestWithDefaultHeaders(httpRequest);
     Call call = client.newCall(request);
-    try {
-      Response response = call.execute();
+    try (Response response = call.execute()) {
       return new HttpResponse(response);
     } catch (Exception e) {
-      throw new TectonServiceException(e.getMessage());
+      throw new TectonClientException(e.getMessage());
+    }
+  }
+
+  public List<HttpResponse> performParallelRequests(
+      String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
+      throws TectonClientException {
+
+    // Initialize response list
+    int numberOfCalls = requestBodyList.size();
+    List<HttpResponse> httpResponses = new ArrayList<>(Collections.nCopies(numberOfCalls, null));
+
+    // Map request body to OkHttp Request
+    // ordering of requests is maintained
+    List<Request> requestList =
+        requestBodyList
+            .parallelStream()
+            .map(
+                requestBody ->
+                    new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody))
+            .map(this::buildRequestWithDefaultHeaders)
+            .collect(Collectors.toList());
+
+    // Initialize a countdown latch for numberOfCalls.
+    CountDownLatch countDownLatch = new CountDownLatch(numberOfCalls);
+
+    Callback callback =
+        new Callback() {
+          @Override
+          public void onFailure(Call call, IOException e) {
+            throw new TectonClientException(
+                String.format(TectonErrorMessage.CALL_FAILURE, e.getMessage()));
+          }
+
+          @Override
+          public void onResponse(Call call, Response response) {
+            try (ResponseBody responseBody = response.body()) {
+              // Add response to corresponding index
+              httpResponses.set(
+                  requestList.indexOf(call.request()), new HttpResponse(response, responseBody));
+            } catch (Exception e) {
+              throw new TectonServiceException(e.getMessage());
+            } finally {
+              Objects.requireNonNull(response.body()).close();
+              countDownLatch.countDown();
+            }
+          }
+        };
+
+    // Enqueue all calls
+    requestList
+        .parallelStream()
+        .forEach(
+            request -> {
+              client.newCall(request).enqueue(callback);
+            });
+
+    // Wait until A) all calls have completed or B) specified timeout has elapsed
+    try {
+      boolean completedAllCalls = countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+      return httpResponses;
+    } catch (InterruptedException e) {
+      throw new TectonClientException(e.getMessage());
     }
   }
 
@@ -107,12 +162,16 @@ public class TectonHttpClient {
     return requestBuilder.build();
   }
 
-  public Duration getReadTimeout() {
+  Duration getReadTimeout() {
     return Duration.ofMillis(client.readTimeoutMillis());
   }
 
-  public Duration getConnectTimeout() {
+  Duration getConnectTimeout() {
     return Duration.ofMillis(client.connectTimeoutMillis());
+  }
+
+  int getMaxParallelRequests() {
+    return client.dispatcher().getMaxRequests();
   }
 
   private void validateClientParameters(String url, String apiKey) {
