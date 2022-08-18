@@ -85,6 +85,7 @@ public class SloInformation {
     REDIS_LATENCY_LIMIT_EXCEEDED;
   }
 
+  // A static builder for SloInformation
   public static SloInformation buildSloInformation(
       Boolean isSloEligible,
       Double serverTimeSeconds,

@@ -2,6 +2,7 @@ package ai.tecton.client.response;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
+import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
 import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureMetadata;
@@ -19,6 +20,13 @@ import java.util.stream.IntStream;
  * A class that represents the response from the HTTP API for when fetching batch features. The
  * class provides methods to access the list of feature vector returned, along with its metadata, if
  * present.
+ *
+ * <p>The {@link List} of {@link GetFeaturesResponse} objects represents the list of response, each
+ * of which encapsulates a feature vector and its metadata. Note: The list may contain nulls for any
+ * request that was never completed, due to a timeout.
+ *
+ * <p>The batchSloInformation is only present for batch requests to the /get-features-batch endpoint
+ * (i.e. microBatchSize&gt;1)
  */
 public class GetFeaturesBatchResponse {
   private final List<GetFeaturesResponse> batchResponseList;
@@ -93,16 +101,26 @@ public class GetFeaturesBatchResponse {
   }
 
   // Parse a single HttpResponse and extract GetFeaturesResponse, SloInformation
+  // This method is called parallely for all responses in the list
   private GetFeaturesMicroBatchResponse parseSingleHttpResponse(
       HttpResponse httpResponse, int microBatchSize) {
     // Null HttpResponse represents a timeout and so all the individual responses in the microbatch
     // will be null
     if (httpResponse == null)
       return new GetFeaturesMicroBatchResponse(Collections.nCopies(microBatchSize, null), null);
+    // For an error response, throw TectonServiceException
+    if (!httpResponse.isSuccessful()) {
+      throw new TectonServiceException(
+          String.format(
+              TectonErrorMessage.ERROR_RESPONSE,
+              httpResponse.getResponseCode(),
+              httpResponse.getMessage()));
+    }
     // Response is not null, but response body is empty.
     if (!httpResponse.getResponseBody().isPresent()) {
       throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
     }
+
     String responseJson = httpResponse.getResponseBody().get();
     if (microBatchSize == 1) {
       return new GetFeaturesMicroBatchResponse(
