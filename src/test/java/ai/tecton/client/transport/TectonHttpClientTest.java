@@ -1,8 +1,21 @@
 package ai.tecton.client.transport;
 
 import ai.tecton.client.TectonClientOptions;
+import ai.tecton.client.request.RequestConstants;
+import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,21 +29,43 @@ public class TectonHttpClientTest {
 
   private static final String POST = "POST";
 
+  private String baseUrlString;
+  private static final String ERROR_RESPONSE = "Error Response Message";
+  private static final HttpMethod method = HttpMethod.POST;
+
   @Before
-  public void setup() {
+  public void setup() throws IOException {
     url = "http://test-url.com";
     endpoint = "/api/v1/feature-service/get-features";
     apiKey = "12345";
     body = "{}";
     httpClient = new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
+
+    MockWebServer mockWebServer = new MockWebServer();
+    mockWebServer.start();
+    HttpUrl baseUrl = mockWebServer.url("");
+    this.baseUrlString = baseUrl.url().toString();
+
+    Dispatcher dispatcher =
+        new Dispatcher() {
+          @Override
+          public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+            if (request.getBodySize() == 0) {
+              return new MockResponse().setResponseCode(400).setBody(ERROR_RESPONSE);
+            }
+            // Randomly assign
+            return new MockResponse().setResponseCode(200).setBody(request.getBody());
+          }
+        };
+    mockWebServer.setDispatcher(dispatcher);
   }
 
   @Test
   public void testDefaultHttpClient() {
     TectonHttpClient httpClient =
         new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
-    Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
-    Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
+    Assert.assertEquals(2, httpClient.getConnectTimeout().getSeconds());
+    Assert.assertEquals(2, httpClient.getReadTimeout().getSeconds());
     Assert.assertEquals(5, httpClient.getMaxParallelRequests());
     Assert.assertFalse(httpClient.isClosed());
   }
@@ -68,5 +103,64 @@ public class TectonHttpClientTest {
     Assert.assertEquals(10, tectonHttpClient.getReadTimeout().getSeconds());
     Assert.assertEquals(10, tectonHttpClient.getConnectTimeout().getSeconds());
     Assert.assertEquals(20, tectonHttpClient.getMaxParallelRequests());
+  }
+
+  @Test
+  public void testParallelRequestsWithDefaultClient() {
+
+    httpClient =
+        new TectonHttpClient(
+            this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
+    // Prepare 10 requests and call client
+    List<String> requestList = prepareRequests(100);
+    List<HttpResponse> httpResponses =
+        httpClient.performParallelRequests(
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
+
+    List<String> responseList =
+        httpResponses.stream()
+            .map(httpResponse -> httpResponse.getResponseBody().get())
+            .collect(Collectors.toList());
+
+    // Verify request and response ordering
+    Assert.assertEquals(requestList, responseList);
+  }
+
+  @Test
+  public void testParallelRequestsWithPartialErrorResponses() {
+
+    httpClient =
+        new TectonHttpClient(
+            this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
+    // Prepare 10 valid requests and add 3 empty strings
+    List<String> requestList = prepareRequests(100);
+    requestList.addAll(Arrays.asList("", "", ""));
+    List<HttpResponse> httpResponses =
+        httpClient.performParallelRequests(
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
+
+    // Verify that first 10 responses are successful and last 3 responses are errors
+    httpResponses.subList(0, 100).forEach(response -> Assert.assertTrue(response.isSuccessful()));
+    httpResponses
+        .subList(100, 103)
+        .forEach(response -> Assert.assertFalse(response.isSuccessful()));
+  }
+
+  @Test
+  public void testParallelRequestWithTimeout() {
+    httpClient =
+        new TectonHttpClient(
+            this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
+    List<String> requestList = prepareRequests(100);
+    List<HttpResponse> httpResponses =
+        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofMillis(10));
+    // 100 requests with a default maxParallelRequests is not expected to complete in 10 ms
+    long numSuccessfulCalls = httpResponses.stream().filter(Objects::nonNull).count();
+    Assert.assertTrue(numSuccessfulCalls < 100);
+  }
+
+  private List<String> prepareRequests(int size) {
+    // Request body will be a string representation of sequential Integer values
+    return IntStream.range(0, size).mapToObj(String::valueOf).collect(Collectors.toList());
   }
 }
