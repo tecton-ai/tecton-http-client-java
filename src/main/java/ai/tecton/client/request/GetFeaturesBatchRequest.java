@@ -199,7 +199,6 @@ public class GetFeaturesBatchRequest {
       Moshi moshi = new Moshi.Builder().build();
       jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
       this.endpoint = BATCH_ENDPOINT;
-      this.method = TectonHttpClient.HttpMethod.POST;
     } else {
       // For microBatchSize=1, create a List of individual GetFeaturesRequest objects
       this.requestList =
@@ -212,8 +211,8 @@ public class GetFeaturesBatchRequest {
               .collect(Collectors.toList());
       this.microBatchSize = microBatchSize;
       this.endpoint = GetFeaturesRequest.ENDPOINT;
-      this.method = TectonHttpClient.HttpMethod.POST;
     }
+    this.method = TectonHttpClient.HttpMethod.POST;
   }
 
   /**
