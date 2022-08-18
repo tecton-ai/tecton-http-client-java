@@ -112,9 +112,10 @@ public class TectonHttpClientTest {
         new TectonHttpClient(
             this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
     // Prepare 10 requests and call client
-    List<String> requestList = prepareRequests(10);
+    List<String> requestList = prepareRequests(100);
     List<HttpResponse> httpResponses =
-        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofSeconds(60));
+        httpClient.performParallelRequests(
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
 
     List<String> responseList =
         httpResponses.stream()
@@ -132,15 +133,17 @@ public class TectonHttpClientTest {
         new TectonHttpClient(
             this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
     // Prepare 10 valid requests and add 3 empty strings
-    List<String> requestList = prepareRequests(10);
+    List<String> requestList = prepareRequests(100);
     requestList.addAll(Arrays.asList("", "", ""));
     List<HttpResponse> httpResponses =
         httpClient.performParallelRequests(
             endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
 
     // Verify that first 10 responses are successful and last 3 responses are errors
-    httpResponses.subList(0, 10).forEach(response -> Assert.assertTrue(response.isSuccessful()));
-    httpResponses.subList(10, 13).forEach(response -> Assert.assertFalse(response.isSuccessful()));
+    httpResponses.subList(0, 100).forEach(response -> Assert.assertTrue(response.isSuccessful()));
+    httpResponses
+        .subList(100, 103)
+        .forEach(response -> Assert.assertFalse(response.isSuccessful()));
   }
 
   @Test
@@ -150,8 +153,8 @@ public class TectonHttpClientTest {
             this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
     List<String> requestList = prepareRequests(100);
     List<HttpResponse> httpResponses =
-        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofMillis(100));
-    // 50 requests with a default maxParallelRequests is not expected to complete in 100 ms
+        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofMillis(10));
+    // 100 requests with a default maxParallelRequests is not expected to complete in 10 ms
     long numSuccessfulCalls = httpResponses.stream().filter(Objects::nonNull).count();
     Assert.assertTrue(numSuccessfulCalls < 100);
   }
