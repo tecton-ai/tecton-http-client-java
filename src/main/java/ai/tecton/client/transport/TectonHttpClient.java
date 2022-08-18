@@ -173,7 +173,7 @@ public class TectonHttpClient {
   }
 
   int getMaxParallelRequests() {
-    return client.dispatcher().getMaxRequests();
+    return client.dispatcher().getMaxRequestsPerHost();
   }
 
   private void validateClientParameters(String url, String apiKey) {
