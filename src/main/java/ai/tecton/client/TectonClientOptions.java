@@ -24,8 +24,8 @@ import java.time.Duration;
  */
 public class TectonClientOptions {
 
-  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(5);
-  private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(5);
+  private static final Duration DEFAULT_READ_TIMEOUT = Duration.ofSeconds(2);
+  private static final Duration DEFAULT_CONNECT_TIMEOUT = Duration.ofSeconds(2);
   private static final int DEFAULT_MAX_IDLE_CONNECTIONS = 5;
   private static final Duration DEFAULT_KEEPALIVE_DURATION = Duration.ofMinutes(5);
   private static final int DEFAULT_MAX_PARALLEL_REQUESTS = 5;

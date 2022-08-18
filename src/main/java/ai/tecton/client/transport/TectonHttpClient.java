@@ -226,10 +226,4 @@ public class TectonHttpClient {
       return this.name;
     }
   }
-
-  static class ErrorResponseJson {
-    String error;
-    int code;
-    String message;
-  }
 }

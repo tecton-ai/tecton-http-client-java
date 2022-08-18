@@ -29,8 +29,8 @@ public class TectonHttpClientTest {
   public void testDefaultHttpClient() {
     TectonHttpClient httpClient =
         new TectonHttpClient(url, apiKey, new TectonClientOptions.Builder().build());
-    Assert.assertEquals(5, httpClient.getConnectTimeout().getSeconds());
-    Assert.assertEquals(5, httpClient.getReadTimeout().getSeconds());
+    Assert.assertEquals(2, httpClient.getConnectTimeout().getSeconds());
+    Assert.assertEquals(2, httpClient.getReadTimeout().getSeconds());
     Assert.assertEquals(5, httpClient.getMaxParallelRequests());
     Assert.assertFalse(httpClient.isClosed());
   }
