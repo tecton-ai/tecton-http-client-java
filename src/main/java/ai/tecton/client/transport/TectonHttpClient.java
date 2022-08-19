@@ -35,7 +35,7 @@ public class TectonHttpClient {
     validateClientParameters(url, apiKey);
     this.apiKey = apiKey;
     Dispatcher dispatcher = new Dispatcher();
-    dispatcher.setMaxRequestsPerHost(tectonClientOptions.getMaxParallelRequests());
+    dispatcher.setMaxRequests(tectonClientOptions.getMaxParallelRequests());
 
     OkHttpClient.Builder builder =
         new OkHttpClient.Builder()
