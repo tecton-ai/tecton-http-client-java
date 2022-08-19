@@ -40,7 +40,6 @@ public class FeatureValue {
         this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
       }
     } catch (Exception e) {
-      System.out.println("Exception for feature: " + featureNamespace + "." + featureName);
       throw new TectonClientException(TectonErrorMessage.UNKNOWN_DATETIME_FORMAT);
     }
 

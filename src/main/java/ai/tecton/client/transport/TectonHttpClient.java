@@ -134,8 +134,6 @@ public class TectonHttpClient {
       return httpResponses;
     } catch (InterruptedException e) {
       throw new TectonClientException(e.getMessage());
-    } finally {
-      client.dispatcher().cancelAll();
     }
   }
 
