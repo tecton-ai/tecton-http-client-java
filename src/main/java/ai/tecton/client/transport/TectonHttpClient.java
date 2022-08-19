@@ -101,8 +101,7 @@ public class TectonHttpClient {
         new Callback() {
           @Override
           public void onFailure(Call call, IOException e) {
-            throw new TectonClientException(
-                String.format(TectonErrorMessage.CALL_FAILURE, e.getMessage()));
+            // Call failures could be due to a call being in-flight when timeout has elapsed
           }
 
           @Override
@@ -134,8 +133,6 @@ public class TectonHttpClient {
       return httpResponses;
     } catch (InterruptedException e) {
       throw new TectonClientException(e.getMessage());
-    } finally {
-      client.dispatcher().cancelAll();
     }
   }
 
