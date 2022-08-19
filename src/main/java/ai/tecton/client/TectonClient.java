@@ -67,9 +67,6 @@ public class TectonClient {
    */
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest)
       throws TectonClientException, TectonServiceException {
-    if (tectonHttpClient.isClosed()) {
-      throw new TectonClientException(TectonErrorMessage.CLOSED_CLIENT);
-    }
     HttpResponse httpResponse = getHttpResponse(getFeaturesRequest);
     return new GetFeaturesResponse(
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
@@ -90,9 +87,6 @@ public class TectonClient {
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
       GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest)
       throws TectonClientException, TectonServiceException {
-    if (tectonHttpClient.isClosed()) {
-      throw new TectonClientException(TectonErrorMessage.CLOSED_CLIENT);
-    }
     HttpResponse httpResponse = getHttpResponse(getFeatureServiceMetadataRequest);
     return new GetFeatureServiceMetadataResponse(
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
@@ -111,9 +105,6 @@ public class TectonClient {
    */
   public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest)
       throws TectonClientException, TectonServiceException {
-    if (tectonHttpClient.isClosed()) {
-      throw new TectonClientException(TectonErrorMessage.CLOSED_CLIENT);
-    }
     // Serialize batch request into list of JSON request
     List<String> requestList =
         batchRequest.getRequestList().stream()
@@ -134,23 +125,6 @@ public class TectonClient {
     // Deserialize list of JSON responses into a GetFeaturesBatchResponse
     return new GetFeaturesBatchResponse(
         httpResponseList, totalTime, batchRequest.getMicroBatchSize());
-  }
-
-  /**
-   * Releases all resources (connection pool, threads) held by the Tecton Client. Once the client is
-   * closed, all future calls will fail.
-   */
-  public void close() {
-    this.tectonHttpClient.close();
-  }
-
-  /**
-   * Returns true if the Tecton Client has been closed, false otherwise
-   *
-   * @return boolean
-   */
-  public boolean isClosed() {
-    return tectonHttpClient.isClosed();
   }
 
   private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {
