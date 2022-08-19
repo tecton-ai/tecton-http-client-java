@@ -216,14 +216,30 @@ public class GetFeaturesBatchRequest {
     }
   }
 
+  /**
+   * Return Batch Request List
+   *
+   * @return {@link List of {@link AbstractGetFeaturesRequest} representing the list of batch
+   *     request}
+   */
   public List<? extends AbstractGetFeaturesRequest> getRequestList() {
     return this.requestList;
   }
 
+  /**
+   * Getter for timeout
+   *
+   * @return timeout in {@link Duration}
+   */
   public Duration getTimeout() {
     return timeout;
   }
 
+  /**
+   * Getter for microBatchSize
+   *
+   * @return microBatchSize ( {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} if not set
+   */
   public int getMicroBatchSize() {
     return this.microBatchSize;
   }

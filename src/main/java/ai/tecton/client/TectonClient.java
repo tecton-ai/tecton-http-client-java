@@ -78,10 +78,10 @@ public class TectonClient {
    *
    * @param getFeatureServiceMetadataRequest A {@link GetFeatureServiceMetadataRequest} object with
    *     the request parameters
-   * @return {@link GetFeatureServiceMetadataResponse} object representing the response * from the
+   * @return {@link GetFeatureServiceMetadataResponse} object representing the response from the
    *     HTTP API
    * @throws TectonClientException when the client encounters an error while building the request or
-   *     * parsing the response
+   *     parsing the response
    * @throws TectonServiceException when the client receives an error response from the HTTP API
    */
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
@@ -92,12 +92,26 @@ public class TectonClient {
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
   }
 
-  public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest) {
+  /**
+   * Makes a batch request to retrieve a list of feature vector and metadata for a given workspace
+   * and feature service
+   *
+   * @param batchRequest The {@link GetFeaturesRequest} object with the request parameters
+   * @return {@link GetFeaturesBatchResponse} object wih the list of feature vector and metadata (if
+   *     requested)
+   * @throws TectonClientException when the client encounters an error while building the request or
+   *     parsing the response
+   * @throws TectonServiceException when the client receives an error response from the HTTP API
+   */
+  public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest)
+      throws TectonClientException, TectonServiceException {
+    // Serialize batch request into list of JSON request
     List<String> requestList =
         batchRequest.getRequestList().stream()
             .map(AbstractTectonRequest::requestToJson)
             .collect(Collectors.toList());
 
+    // Perform parallel batch call
     long start = System.currentTimeMillis();
     List<HttpResponse> httpResponseList =
         tectonHttpClient.performParallelRequests(
@@ -107,6 +121,8 @@ public class TectonClient {
             batchRequest.getTimeout());
     long stop = System.currentTimeMillis();
     Duration totalTime = Duration.ofMillis(stop - start);
+
+    // Deserialize list of JSON responses into a GetFeaturesBatchResponse
     return new GetFeaturesBatchResponse(
         httpResponseList, totalTime, batchRequest.getMicroBatchSize());
   }
