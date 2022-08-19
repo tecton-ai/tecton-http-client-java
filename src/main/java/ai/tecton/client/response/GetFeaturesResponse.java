@@ -20,6 +20,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
   private final List<FeatureValue> featureValues;
   private SloInformation sloInformation;
+
   private final JsonAdapter<GetFeaturesResponseJson> jsonAdapter;
   private static final String NAME = "Name";
   private static final String DATA_TYPE = "Data Type";
@@ -31,6 +32,14 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
     this.featureValues = new ArrayList<>();
     buildResponseFromJson(response);
+  }
+
+  // Package-Private constructor
+  GetFeaturesResponse(List<FeatureValue> featureValues, Duration requestLatency) {
+    super(requestLatency);
+    this.featureValues = featureValues;
+    Moshi moshi = new Moshi.Builder().build();
+    jsonAdapter = moshi.adapter(GetFeaturesResponseJson.class);
   }
 
   /**
@@ -110,6 +119,10 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     if (responseJson.metadata.sloInfo != null) {
       this.sloInformation = responseJson.metadata.sloInfo;
     }
+  }
+
+  void setSloInformation(SloInformation sloInformation) {
+    this.sloInformation = sloInformation;
   }
 
   private void validateResponse(

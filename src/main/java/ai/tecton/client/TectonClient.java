@@ -5,11 +5,16 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
+import ai.tecton.client.request.GetFeaturesBatchRequest;
 import ai.tecton.client.request.GetFeaturesRequest;
 import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
+import ai.tecton.client.response.GetFeaturesBatchResponse;
 import ai.tecton.client.response.GetFeaturesResponse;
 import ai.tecton.client.transport.HttpResponse;
 import ai.tecton.client.transport.TectonHttpClient;
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A client for interacting with the Tecton FeatureService API. The client provides several methods
@@ -73,10 +78,10 @@ public class TectonClient {
    *
    * @param getFeatureServiceMetadataRequest A {@link GetFeatureServiceMetadataRequest} object with
    *     the request parameters
-   * @return {@link GetFeatureServiceMetadataResponse} object representing the response * from the
+   * @return {@link GetFeatureServiceMetadataResponse} object representing the response from the
    *     HTTP API
    * @throws TectonClientException when the client encounters an error while building the request or
-   *     * parsing the response
+   *     parsing the response
    * @throws TectonServiceException when the client receives an error response from the HTTP API
    */
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
@@ -85,6 +90,41 @@ public class TectonClient {
     HttpResponse httpResponse = getHttpResponse(getFeatureServiceMetadataRequest);
     return new GetFeatureServiceMetadataResponse(
         httpResponse.getResponseBody().get(), httpResponse.getRequestDuration());
+  }
+
+  /**
+   * Makes a batch request to retrieve a list of feature vector and metadata for a given workspace
+   * and feature service
+   *
+   * @param batchRequest The {@link GetFeaturesRequest} object with the request parameters
+   * @return {@link GetFeaturesBatchResponse} object wih the list of feature vector and metadata (if
+   *     requested)
+   * @throws TectonClientException when the client encounters an error while building the request or
+   *     parsing the response
+   * @throws TectonServiceException when the client receives an error response from the HTTP API
+   */
+  public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest)
+      throws TectonClientException, TectonServiceException {
+    // Serialize batch request into list of JSON request
+    List<String> requestList =
+        batchRequest.getRequestList().stream()
+            .map(AbstractTectonRequest::requestToJson)
+            .collect(Collectors.toList());
+
+    // Perform parallel batch call
+    long start = System.currentTimeMillis();
+    List<HttpResponse> httpResponseList =
+        tectonHttpClient.performParallelRequests(
+            batchRequest.getEndpoint(),
+            batchRequest.getMethod(),
+            requestList,
+            batchRequest.getTimeout());
+    long stop = System.currentTimeMillis();
+    Duration totalTime = Duration.ofMillis(stop - start);
+
+    // Deserialize list of JSON responses into a GetFeaturesBatchResponse
+    return new GetFeaturesBatchResponse(
+        httpResponseList, totalTime, batchRequest.getMicroBatchSize());
   }
 
   private HttpResponse getHttpResponse(AbstractTectonRequest tectonRequest) {

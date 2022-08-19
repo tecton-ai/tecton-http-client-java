@@ -1,24 +1,40 @@
 package ai.tecton.client.model;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class that represents SLO Info provided by Tecton when serving feature values. All values
  * returned are wrapped in {@link }
  */
 public class SloInformation {
-  Boolean sloEligible;
+  private Boolean sloEligible;
 
-  Double serverTimeSeconds;
+  private Double serverTimeSeconds;
 
-  Double sloServerTimeSeconds;
+  private Double sloServerTimeSeconds;
 
-  Integer storeResponseSizeBytes;
+  private Integer storeResponseSizeBytes;
 
-  List<SloIneligibilityReason> sloIneligibilityReasons;
+  private Set<SloIneligibilityReason> sloIneligibilityReasons;
 
-  Double storeMaxLatency;
+  private Double storeMaxLatency;
+
+  public SloInformation(
+      Boolean isSloEligible,
+      Double serverTimeSeconds,
+      Double sloServerTimeSeconds,
+      Integer storeResponseSizeBytes,
+      Set<SloIneligibilityReason> sloIneligibilityReasons,
+      Double storeMaxLatency) {
+    this.sloEligible = isSloEligible;
+    this.serverTimeSeconds = serverTimeSeconds;
+    this.sloServerTimeSeconds = sloServerTimeSeconds;
+    this.sloIneligibilityReasons = sloIneligibilityReasons;
+    this.storeResponseSizeBytes = storeResponseSizeBytes;
+    this.storeMaxLatency = storeMaxLatency;
+  }
 
   /**
    * Returns true if the response was eligible for SLO, false otherwise.
@@ -34,8 +50,8 @@ public class SloInformation {
    *
    * @return List&lt;{@link SloInformation.SloIneligibilityReason}
    */
-  public List<SloIneligibilityReason> getSloIneligibilityReasons() {
-    return sloIneligibilityReasons;
+  public Set<SloIneligibilityReason> getSloIneligibilityReasons() {
+    return sloIneligibilityReasons == null ? Collections.emptySet() : sloIneligibilityReasons;
   }
 
   /**
@@ -82,5 +98,55 @@ public class SloInformation {
     DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED,
     REDIS_RESPONSE_SIZE_LIMIT_EXCEEDED,
     REDIS_LATENCY_LIMIT_EXCEEDED;
+  }
+
+  // A static builder for SloInformation
+  public static class Builder {
+    Boolean isSloEligible;
+    Double serverTimeSeconds;
+    Double sloServerTimeSeconds;
+    Integer storeResponseSizeByte;
+    Set<SloIneligibilityReason> sloIneligibilityReasons;
+    Double storeMaxLatency;
+
+    public Builder isSloEligible(boolean isSloEligible) {
+      this.isSloEligible = isSloEligible;
+      return this;
+    }
+
+    public Builder serverTimeSeconds(Double serverTimeSeconds) {
+      this.serverTimeSeconds = serverTimeSeconds;
+      return this;
+    }
+
+    public Builder sloServerTimeSeconds(Double sloServerTimeSeconds) {
+      this.sloServerTimeSeconds = sloServerTimeSeconds;
+      return this;
+    }
+
+    public Builder storeResponseSizeBytes(Integer storeResponseSizeByte) {
+      this.storeResponseSizeByte = storeResponseSizeByte;
+      return this;
+    }
+
+    public Builder sloIneligibilityReasons(Set<SloIneligibilityReason> sloIneligibilityReasons) {
+      this.sloIneligibilityReasons = sloIneligibilityReasons;
+      return this;
+    }
+
+    public Builder storeMaxLatency(Double storeMaxLatency) {
+      this.storeMaxLatency = storeMaxLatency;
+      return this;
+    }
+
+    public SloInformation build() {
+      return new SloInformation(
+          this.isSloEligible,
+          this.serverTimeSeconds,
+          this.sloServerTimeSeconds,
+          this.storeResponseSizeByte,
+          this.sloIneligibilityReasons,
+          this.storeMaxLatency);
+    }
   }
 }

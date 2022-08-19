@@ -2,7 +2,6 @@ package ai.tecton.client.model;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
@@ -14,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class FeatureValue {
 
-  private static final SimpleDateFormat dateFormat =
+  private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
   private final String featureNamespace;
@@ -40,7 +39,8 @@ public class FeatureValue {
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
       }
-    } catch (ParseException ignored) {
+    } catch (Exception e) {
+      throw new TectonClientException(TectonErrorMessage.UNKNOWN_DATETIME_FORMAT);
     }
 
     // Create Value using valueType
