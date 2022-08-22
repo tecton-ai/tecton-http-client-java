@@ -61,8 +61,8 @@ public class TectonClient {
    *
    * @param getFeaturesRequest A {@link GetFeaturesRequest} object with the request parameters
    * @return {@link GetFeaturesResponse} object representing the response from the HTTP API
-   * @throws TectonClientException when the client encounters an error while building the request or
-   *     parsing the response
+   * @throws TectonClientException when the client is already closed or encounters an error while
+   *     building the request or parsing the response
    * @throws TectonServiceException when the client receives an error response from the HTTP API
    */
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest)
@@ -83,8 +83,8 @@ public class TectonClient {
    *     the request parameters
    * @return {@link GetFeatureServiceMetadataResponse} object representing the response from the
    *     HTTP API
-   * @throws TectonClientException when the client encounters an error while building the request or
-   *     parsing the response
+   * @throws TectonClientException when the client is already closed or encounters an error while
+   *     building the request or parsing the response
    * @throws TectonServiceException when the client receives an error response from the HTTP API
    */
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
@@ -105,8 +105,8 @@ public class TectonClient {
    * @param batchRequest The {@link GetFeaturesRequest} object with the request parameters
    * @return {@link GetFeaturesBatchResponse} object wih the list of feature vector and metadata (if
    *     requested)
-   * @throws TectonClientException when the client encounters an error while building the request or
-   *     parsing the response
+   * @throws TectonClientException when the client is already closed or the client encounters an
+   *     error while building the request or parsing the response
    * @throws TectonServiceException when the client receives an error response from the HTTP API
    */
   public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest)
@@ -141,7 +141,9 @@ public class TectonClient {
    * closed, all future calls will fail.
    */
   public void close() {
-    this.tectonHttpClient.close();
+    if (!this.isClosed()) {
+      this.tectonHttpClient.close();
+    }
   }
 
   /**

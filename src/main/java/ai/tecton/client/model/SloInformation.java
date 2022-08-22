@@ -21,6 +21,21 @@ public class SloInformation {
 
   private Double storeMaxLatency;
 
+  public SloInformation(
+      Boolean isSloEligible,
+      Double serverTimeSeconds,
+      Double sloServerTimeSeconds,
+      Integer storeResponseSizeBytes,
+      Set<SloIneligibilityReason> sloIneligibilityReasons,
+      Double storeMaxLatency) {
+    this.sloEligible = isSloEligible;
+    this.serverTimeSeconds = serverTimeSeconds;
+    this.sloServerTimeSeconds = sloServerTimeSeconds;
+    this.sloIneligibilityReasons = sloIneligibilityReasons;
+    this.storeResponseSizeBytes = storeResponseSizeBytes;
+    this.storeMaxLatency = storeMaxLatency;
+  }
+
   /**
    * Returns true if the response was eligible for SLO, false otherwise.
    *
@@ -86,20 +101,52 @@ public class SloInformation {
   }
 
   // A static builder for SloInformation
-  public static SloInformation buildSloInformation(
-      Boolean isSloEligible,
-      Double serverTimeSeconds,
-      Double sloServerTimeSeconds,
-      Integer storeResponseSizeBytes,
-      Set<SloIneligibilityReason> sloIneligibilityReasons,
-      Double storeMaxLatency) {
-    SloInformation sloInformation = new SloInformation();
-    sloInformation.sloEligible = isSloEligible;
-    sloInformation.serverTimeSeconds = serverTimeSeconds;
-    sloInformation.sloServerTimeSeconds = sloServerTimeSeconds;
-    sloInformation.sloIneligibilityReasons = sloIneligibilityReasons;
-    sloInformation.storeResponseSizeBytes = storeResponseSizeBytes;
-    sloInformation.storeMaxLatency = storeMaxLatency;
-    return sloInformation;
+  public static class Builder {
+    Boolean isSloEligible;
+    Double serverTimeSeconds;
+    Double sloServerTimeSeconds;
+    Integer storeResponseSizeByte;
+    Set<SloIneligibilityReason> sloIneligibilityReasons;
+    Double storeMaxLatency;
+
+    public Builder isSloEligible(boolean isSloEligible) {
+      this.isSloEligible = isSloEligible;
+      return this;
+    }
+
+    public Builder serverTimeSeconds(Double serverTimeSeconds) {
+      this.serverTimeSeconds = serverTimeSeconds;
+      return this;
+    }
+
+    public Builder sloServerTimeSeconds(Double sloServerTimeSeconds) {
+      this.sloServerTimeSeconds = sloServerTimeSeconds;
+      return this;
+    }
+
+    public Builder storeResponseSizeBytes(Integer storeResponseSizeByte) {
+      this.storeResponseSizeByte = storeResponseSizeByte;
+      return this;
+    }
+
+    public Builder sloIneligibilityReasons(Set<SloIneligibilityReason> sloIneligibilityReasons) {
+      this.sloIneligibilityReasons = sloIneligibilityReasons;
+      return this;
+    }
+
+    public Builder storeMaxLatency(Double storeMaxLatency) {
+      this.storeMaxLatency = storeMaxLatency;
+      return this;
+    }
+
+    public SloInformation build() {
+      return new SloInformation(
+          this.isSloEligible,
+          this.serverTimeSeconds,
+          this.sloServerTimeSeconds,
+          this.storeResponseSizeByte,
+          this.sloIneligibilityReasons,
+          this.storeMaxLatency);
+    }
   }
 }

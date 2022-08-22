@@ -251,13 +251,13 @@ public class GetFeaturesBatchResponse {
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-    return SloInformation.buildSloInformation(
-        isSloEligibleBatch,
-        maxServerTimeSeconds,
-        maxSloServerTimeSeconds,
-        null,
-        sloIneligibilityReasons,
-        storeMaxLatency);
+    return new SloInformation.Builder()
+        .isSloEligible(isSloEligibleBatch)
+        .serverTimeSeconds(maxServerTimeSeconds)
+        .sloServerTimeSeconds(maxSloServerTimeSeconds)
+        .sloIneligibilityReasons(sloIneligibilityReasons)
+        .storeMaxLatency(storeMaxLatency)
+        .build();
   }
 
   private Double getMaxValueFromOptionalList(List<Optional<Double>> values) {
