@@ -5,12 +5,9 @@ import static org.mockito.Mockito.when;
 
 import ai.tecton.client.model.SloInformation;
 import ai.tecton.client.transport.HttpResponse;
+import ai.tecton.client.utils.TestUtils;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -19,27 +16,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class GetFeaturesBatchResponseTest {
-  private String batchResponse1;
-  private String batchResponse2;
-  private String batchResponse3;
   GetFeaturesBatchResponse batchResponse;
-  List<HttpResponse> httpResponseList;
+  List<String> batchResponses;
 
   @Before
-  public void setup() throws IOException {
-    ClassLoader classLoader = getClass().getClassLoader();
-    String inputFile = classLoader.getResource("response/batch/batch1.json").getFile();
-    batchResponse1 = new String(Files.readAllBytes(Paths.get(inputFile)));
-    inputFile = classLoader.getResource("response/batch/batch2.json").getFile();
-    batchResponse2 = new String(Files.readAllBytes(Paths.get(inputFile)));
-    inputFile = classLoader.getResource("response/batch/batch3.json").getFile();
-    batchResponse3 = new String(Files.readAllBytes(Paths.get(inputFile)));
+  public void setup() throws IOException, URISyntaxException {
+    batchResponses = TestUtils.readAllFilesInDirectory("response/batch", "json");
   }
 
   @Test
   public void testSingleMicroBatchResponseWithoutSloInfo() {
     List<HttpResponse> httpResponseList =
-        generateHttpResponseList(Collections.singletonList(batchResponse1));
+        generateHttpResponseList(Collections.singletonList(batchResponses.get(0)));
     batchResponse = new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(25), 10);
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
     // Verify that there are 5 GetFeaturesResponse objects, each with a feature vector of 14
@@ -61,7 +49,7 @@ public class GetFeaturesBatchResponseTest {
   @Test
   public void testSingleMicroBatchResponseWithSloInfo() {
     List<HttpResponse> httpResponseList =
-        generateHttpResponseList(Collections.singletonList(batchResponse2));
+        generateHttpResponseList(Collections.singletonList(batchResponses.get(1)));
     batchResponse = new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(25), 8);
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
     // Verify that there are 5 GetFeaturesResponse objects, each with a feature vector of 14
@@ -84,7 +72,7 @@ public class GetFeaturesBatchResponseTest {
   @Test
   public void testMultipleMicroBatchResponsesWithSlo() {
     List<HttpResponse> httpResponseList =
-        generateHttpResponseList(Arrays.asList(batchResponse2, batchResponse3));
+        generateHttpResponseList(Arrays.asList(batchResponses.get(1), batchResponses.get(2)));
     batchResponse = new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(25), 10);
 
     List<GetFeaturesResponse> featureVectorList = batchResponse.getBatchResponseList();
@@ -106,7 +94,8 @@ public class GetFeaturesBatchResponseTest {
 
   @Test
   public void testMultipleSingleGetFeatures() throws Exception {
-    List<String> singleVectorResponseList = readAllResponsesFromDirectory("response/single");
+    List<String> singleVectorResponseList =
+        TestUtils.readAllFilesInDirectory("response/single", "json");
     List<HttpResponse> httpResponseList = generateHttpResponseList(singleVectorResponseList);
     GetFeaturesBatchResponse batchResponse =
         new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(10), 1);
@@ -128,7 +117,8 @@ public class GetFeaturesBatchResponseTest {
   @Test
   public void testSingleGetFeaturesWithNulls() throws Exception {
 
-    List<String> singleVectorResponseList = readAllResponsesFromDirectory("response/single");
+    List<String> singleVectorResponseList =
+        TestUtils.readAllFilesInDirectory("response/single", "json");
     List<HttpResponse> httpResponseList = generateHttpResponseList(singleVectorResponseList);
 
     // Add two null httpResponse to the list, corresponding to timeouts
@@ -181,23 +171,6 @@ public class GetFeaturesBatchResponseTest {
                   batchResponse.get(i).getFeatureValuesAsMap().get(featureName).int64value();
               Assert.assertEquals(valuesInOrder.get(i), actualValue);
             });
-  }
-
-  private List<String> readAllResponsesFromDirectory(String directoryPath)
-      throws IOException, URISyntaxException {
-    List<String> singGetFeaturesResponse = new ArrayList<>();
-    URL url = getClass().getClassLoader().getResource(directoryPath);
-    Path path = Paths.get(url.toURI());
-    Files.walk(path, 1)
-        .sorted()
-        .forEach(
-            file -> {
-              try {
-                singGetFeaturesResponse.add(new String(Files.readAllBytes(file)));
-              } catch (IOException ignored) {
-              }
-            });
-    return singGetFeaturesResponse;
   }
 
   private List<HttpResponse> generateHttpResponseList(List<String> responseJsonList) {

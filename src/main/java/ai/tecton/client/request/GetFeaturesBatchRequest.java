@@ -262,7 +262,7 @@ public class GetFeaturesBatchRequest {
     private List<GetFeaturesRequestData> requestDataList;
     private Set<MetadataOption> metadataOptionList = RequestConstants.DEFAULT_METADATA_OPTIONS;
     private int microBatchSize = RequestConstants.DEFAULT_MICRO_BATCH_SIZE;
-    private Duration timeout;
+    private Duration timeout = RequestConstants.NONE_TIMEOUT;
 
     /** Constructs an empty Builder */
     public Builder() {

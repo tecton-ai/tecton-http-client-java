@@ -1,0 +1,136 @@
+{
+  "result": [
+    {
+      "features": [
+        false,
+        0,
+        0.008849557522123894,
+        0.00716974368166338,
+        "676",
+        84.34679758308162,
+        59.505714285714284,
+        83.73443237907208,
+        27918.79000000002,
+        416.53999999999996,
+        84822.98000000001,
+        "346",
+        "10196",
+        "30552"
+      ]
+    }
+  ],
+  "metadata": {
+    "features": [
+      {
+        "name": "transaction_amount_is_higher_than_average.transaction_amount_is_higher_than_average",
+        "dataType": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_1d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_30d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_90d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_distinct_merchant_transaction_count_30d.distinct_merchant_transaction_count_30d",
+        "effectiveTime": "2022-08-16T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1d_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1h_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_3d_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1d_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1h_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_3d_10m",
+        "effectiveTime": "2022-08-16T22:30:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_1d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_30d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_90d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      }
+    ],
+    "sloInfo": [
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.023151386,
+        "dynamodbResponseSizeBytes": 31607,
+        "serverTimeSeconds": 0.024568279
+      }
+    ],
+    "batchSloInfo": {
+      "sloEligible": true,
+      "sloServerTimeSeconds": 0.023151386,
+      "serverTimeSeconds": 0.024957837
+    }
+  }
+}

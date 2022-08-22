@@ -6,7 +6,10 @@ import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
 import java.util.*;
 
-abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
+/**
+ * Parent class for GetFeaturesRequest and GetFeaturesBatchRequest and extends AbstractTectonRequest
+ */
+public abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
 
   private static final HttpMethod httpMethod = HttpMethod.POST;
   final Set<MetadataOption> metadataOptions;

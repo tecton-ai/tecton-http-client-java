@@ -8,13 +8,10 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.request.GetFeaturesBatchRequest.GetFeaturesMicroBatchRequest;
 import ai.tecton.client.transport.TectonHttpClient;
-import java.io.File;
+import ai.tecton.client.utils.TestUtils;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -136,7 +133,7 @@ public class GetFeaturesBatchRequestTest {
   public void testDefaultBatchRequest_shouldCallGetFeaturesEndpoint() {
     // GetFeaturesBatchRequest with 25 requestData should create 25 individual GetFeaturesRequest
     // objects
-    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(25);
+    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(25);
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest(TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, requestDataList);
 
@@ -216,7 +213,7 @@ public class GetFeaturesBatchRequestTest {
     // with a requestDatalist of size 5 and 1 respectively
     // ordering should be maintained
 
-    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(6);
+    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(6);
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
             .workspaceName(TEST_WORKSPACENAME)
@@ -246,7 +243,7 @@ public class GetFeaturesBatchRequestTest {
     // GetFeaturesBatchRequest with 20 requests and microBatchSize of 8 should create 3
     // GetFeaturesMicroBatchRequests
     // with a requestDatalist of size 8,8 and 4 respectively
-    List<GetFeaturesRequestData> requestDataList = generateRequestDataForSize(20);
+    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(20);
 
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
@@ -283,7 +280,7 @@ public class GetFeaturesBatchRequestTest {
         new GetFeaturesBatchRequest(
             TEST_WORKSPACENAME,
             TEST_FEATURESERVICE_NAME,
-            generateRequestDataForSize(20),
+            TestUtils.generateRequestDataForSize(20),
             RequestConstants.DEFAULT_METADATA_OPTIONS,
             1);
 
@@ -295,7 +292,7 @@ public class GetFeaturesBatchRequestTest {
 
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
-            .requestDataList(generateRequestDataFromFile())
+            .requestDataList(TestUtils.generateFraudRequestDataFromFile("request/input.csv"))
             .workspaceName("prod")
             .featureServiceName("fraud_detection_feature_service")
             .metadataOptions(RequestConstants.ALL_METADATA_OPTIONS)
@@ -320,32 +317,5 @@ public class GetFeaturesBatchRequestTest {
     Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
     Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
     Assert.assertEquals(metadataOptions, getFeaturesRequest.getMetadataOptions());
-  }
-
-  private List<GetFeaturesRequestData> generateRequestDataForSize(int size) {
-    List<GetFeaturesRequestData> requestDataList = new ArrayList<>();
-    for (int i = 0; i < size; i++) {
-      String key = RandomStringUtils.randomAlphanumeric(5);
-      String val = RandomStringUtils.randomAlphanumeric(5);
-      requestDataList.add(new GetFeaturesRequestData().addJoinKey(key, val));
-    }
-    return requestDataList;
-  }
-
-  private List<GetFeaturesRequestData> generateRequestDataFromFile() throws IOException {
-    List<GetFeaturesRequestData> requestDataList = new ArrayList<>();
-    File file = new File(getClass().getClassLoader().getResource("request/input.csv").getFile());
-    String content = new String(Files.readAllBytes(file.toPath()));
-    Arrays.asList(StringUtils.split(content, "\n"))
-        .forEach(
-            row -> {
-              String[] vals = StringUtils.split(row, ",");
-              requestDataList.add(
-                  new GetFeaturesRequestData()
-                      .addJoinKey("user_id", vals[0])
-                      .addJoinKey("merchant", vals[2])
-                      .addRequestContext("amt", Double.parseDouble(vals[1])));
-            });
-    return requestDataList;
   }
 }

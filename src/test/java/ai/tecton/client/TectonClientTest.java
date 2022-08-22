@@ -6,18 +6,17 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.model.*;
-import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
-import ai.tecton.client.request.GetFeaturesRequest;
-import ai.tecton.client.request.GetFeaturesRequestData;
+import ai.tecton.client.request.*;
 import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
+import ai.tecton.client.response.GetFeaturesBatchResponse;
 import ai.tecton.client.response.GetFeaturesResponse;
+import ai.tecton.client.utils.TestUtils;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.IntStream;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -33,9 +32,11 @@ public class TectonClientTest {
   private static final String FEATURE_SERVICE_NAME = "fraud_detection_feature_service";
   private static final String WORKSPACE_NAME = "prod";
   TectonClient tectonClient;
+  List<String> sampleResponses = new ArrayList<>();
+  List<String> sampleBatchResponses = new ArrayList<>();
 
   @Before
-  public void setup() throws IOException {
+  public void setup() throws IOException, URISyntaxException {
     this.url = "https://test-url.com";
     this.apiKey = "12345";
     mockWebServer = new MockWebServer();
@@ -43,6 +44,8 @@ public class TectonClientTest {
     HttpUrl baseUrl = mockWebServer.url("");
     classLoader = getClass().getClassLoader();
     tectonClient = new TectonClient(baseUrl.url().toString(), "12345");
+    sampleResponses = TestUtils.readAllFilesInDirectory("mocktest/getfeatures", "json");
+    sampleBatchResponses = TestUtils.readAllFilesInDirectory("mocktest/getfeaturesbatch", "json");
   }
 
   @Test
@@ -78,9 +81,7 @@ public class TectonClientTest {
   @Test
   public void testGetFeatureRequestAndResponse() throws IOException {
     // Test Setup
-    String responseFile = classLoader.getResource("mocktest/sampleFeatureResponse1.json").getFile();
-    String responseBody = new String(Files.readAllBytes(Paths.get(responseFile)));
-    mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody));
+    mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(sampleResponses.get(0)));
 
     // Create Request Data
     GetFeaturesRequestData requestData =
@@ -122,7 +123,7 @@ public class TectonClientTest {
   public void testMetadataRequestAndResponse() throws IOException {
     // Test setup
     String responseFile =
-        classLoader.getResource("mocktest/sampleMetadataResponse1.json").getFile();
+        classLoader.getResource("mocktest/metadata/sampleMetadataResponse1.json").getFile();
     String responseBody = new String(Files.readAllBytes(Paths.get(responseFile)));
     mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(responseBody));
 
@@ -246,5 +247,82 @@ public class TectonClientTest {
     } catch (TectonServiceException e) {
       Assert.assertEquals(expectedMessage, e.getMessage());
     }
+  }
+
+  @Test
+  public void testParallelGetFeaturesCall() {
+    sampleResponses.forEach(
+        sampleResponse ->
+            mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(sampleResponse)));
+
+    // Create request with 3 request data in the list
+    GetFeaturesBatchRequest batchRequest =
+        new GetFeaturesBatchRequest.Builder()
+            .addRequestData(
+                new GetFeaturesRequestData()
+                    .addJoinKey("user_id", "111")
+                    .addRequestContext("amount", 55.0))
+            .addRequestData(
+                new GetFeaturesRequestData()
+                    .addJoinKey("user_id", "222")
+                    .addRequestContext("amount", 155.0))
+            .addRequestData(
+                new GetFeaturesRequestData()
+                    .addJoinKey("user_id", "333")
+                    .addRequestContext("amount", 1000.0))
+            .featureServiceName("fraud_detection_feature_service")
+            .workspaceName("prod")
+            .metadataOptions(RequestConstants.ALL_METADATA_OPTIONS)
+            .build();
+
+    Assert.assertEquals(1, batchRequest.getMicroBatchSize());
+    GetFeaturesBatchResponse batchResponse = tectonClient.getFeaturesBatch(batchRequest);
+    List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
+
+    Assert.assertEquals(3, responseList.size());
+
+    IntStream.range(0, sampleResponses.size())
+        .forEach(
+            i -> {
+              GetFeaturesResponse getFeaturesResponse = responseList.get(i);
+              Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+              Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
+            });
+
+    Assert.assertFalse(batchResponse.getBatchSloInformation().isPresent());
+  }
+
+  @Test
+  public void testGetFeaturesBatchCall() throws IOException {
+    sampleBatchResponses.forEach(
+        sampleResponse ->
+            mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(sampleResponse)));
+
+    // Create request with 3 request data in the list
+    List<GetFeaturesRequestData> requestDataList =
+        TestUtils.generateFraudRequestDataFromFile("mocktest/getfeaturesbatch/input.csv");
+    GetFeaturesBatchRequest batchRequest =
+        new GetFeaturesBatchRequest(
+            "prod",
+            "fraud_detection_feature_service",
+            requestDataList,
+            RequestConstants.ALL_METADATA_OPTIONS,
+            3);
+
+    Assert.assertEquals(3, batchRequest.getMicroBatchSize());
+    GetFeaturesBatchResponse batchResponse = tectonClient.getFeaturesBatch(batchRequest);
+    List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
+
+    Assert.assertEquals(7, responseList.size());
+
+    IntStream.range(0, 7)
+        .forEach(
+            i -> {
+              GetFeaturesResponse getFeaturesResponse = responseList.get(i);
+              Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+              Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
+            });
+
+    Assert.assertTrue(batchResponse.getBatchSloInformation().isPresent());
   }
 }
