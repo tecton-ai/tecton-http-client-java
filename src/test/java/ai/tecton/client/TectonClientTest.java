@@ -250,23 +250,6 @@ public class TectonClientTest {
   }
 
   @Test
-  public void testClosedClient() {
-    Assert.assertFalse(tectonClient.isClosed());
-    tectonClient.close();
-    Assert.assertTrue(tectonClient.isClosed());
-    try {
-      GetFeaturesResponse response =
-          tectonClient.getFeatures(
-              new GetFeaturesRequest(
-                  WORKSPACE_NAME,
-                  FEATURE_SERVICE_NAME,
-                  new GetFeaturesRequestData().addJoinKey("testKey", "testValue")));
-      fail();
-    } catch (TectonClientException e) {
-      Assert.assertEquals(TectonErrorMessage.CLOSED_CLIENT, e.getMessage());
-    }
-  }
-
   public void testParallelGetFeaturesCall() {
     sampleResponses.forEach(
         sampleResponse ->

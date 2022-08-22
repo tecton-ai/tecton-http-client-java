@@ -64,9 +64,6 @@ public class TectonHttpClient {
   }
 
   public HttpResponse performRequest(String endpoint, HttpMethod method, String requestBody) {
-    if (this.isClosed()) {
-      throw new TectonClientException(TectonErrorMessage.CLOSED_CLIENT);
-    }
     HttpRequest httpRequest =
         new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
     Request request = buildRequestWithDefaultHeaders(httpRequest);
@@ -81,10 +78,6 @@ public class TectonHttpClient {
   public List<HttpResponse> performParallelRequests(
       String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
       throws TectonClientException {
-    if (this.isClosed()) {
-      throw new TectonClientException(TectonErrorMessage.CLOSED_CLIENT);
-    }
-
     // Initialize response list
     int numberOfCalls = requestBodyList.size();
     List<HttpResponse> httpResponses = new ArrayList<>(Collections.nCopies(numberOfCalls, null));
