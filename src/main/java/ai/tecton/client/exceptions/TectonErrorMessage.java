@@ -10,8 +10,6 @@ public class TectonErrorMessage {
   public static final String INVALID_KEY_VALUE = "Key/Value cannot be null or empty";
 
   public static final String CALL_FAILURE = "Unable to perform call. %s";
-  public static final String CLOSED_CLIENT =
-      "Unable to perform request. The client has already been closed";
   public static final String ERROR_RESPONSE =
       "Received Error Response from Tecton wih code %s and error message: %s";
 
