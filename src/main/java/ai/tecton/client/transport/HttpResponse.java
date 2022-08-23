@@ -10,11 +10,11 @@ import okhttp3.ResponseBody;
 
 public class HttpResponse {
   private final boolean isSuccessful;
-  private final int responseCode;
+  private int responseCode;
   private final String message;
-  private final String body;
-  private final Headers headers;
-  private final Duration requestDuration;
+  private String body;
+  private Headers headers;
+  private Duration requestDuration;
   private static final Moshi moshi = new Moshi.Builder().build();
   private static final JsonAdapter<ErrorResponseJson> errorResponseJsonAdapter =
       moshi.adapter(ErrorResponseJson.class);
@@ -39,6 +39,11 @@ public class HttpResponse {
     } else {
       this.message = response.message();
     }
+  }
+
+  HttpResponse(String errorMessage) {
+    this.isSuccessful = false;
+    this.message = errorMessage;
   }
 
   public boolean isSuccessful() {

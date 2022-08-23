@@ -5,6 +5,7 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -79,8 +80,7 @@ public class TectonHttpClient {
       String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
       throws TectonClientException {
     // Initialize response list
-    int numberOfCalls = requestBodyList.size();
-    List<HttpResponse> httpResponses = new ArrayList<>(Collections.nCopies(numberOfCalls, null));
+    ParallelCallHandler parallelCallHandler = new ParallelCallHandler(requestBodyList.size());
 
     // Map request body to OkHttp Request
     // ordering of requests is maintained
@@ -94,20 +94,25 @@ public class TectonHttpClient {
             .collect(Collectors.toList());
 
     // Initialize a countdown latch for numberOfCalls.
-    CountDownLatch countDownLatch = new CountDownLatch(numberOfCalls);
+    CountDownLatch countDownLatch = new CountDownLatch(requestBodyList.size());
 
     Callback callback =
         new Callback() {
           @Override
           public void onFailure(Call call, IOException e) {
-            // Call failures could be due to a call being in-flight when timeout has elapsed
+            // On timeout, executor rejects all pending calls. This could lead to an
+            // InterruptedIOException for in-flight calls, which is expected.
+            // Only log failures for other call failures such as network issues
+            if (!(e instanceof InterruptedIOException)) {
+              parallelCallHandler.logCallFailure(e.getMessage());
+            }
           }
 
           @Override
           public void onResponse(Call call, Response response) {
             try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
-              httpResponses.set(
+              parallelCallHandler.set(
                   requestList.indexOf(call.request()), new HttpResponse(response, responseBody));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
@@ -129,7 +134,12 @@ public class TectonHttpClient {
     // Wait until A) all calls have completed or B) specified timeout has elapsed
     try {
       boolean completedAllCalls = countDownLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
-      return httpResponses;
+      if (!parallelCallHandler.failureMessageList.isEmpty()) {
+        throw new TectonClientException(
+            String.format(
+                TectonErrorMessage.CALL_FAILURE, parallelCallHandler.failureMessageList.get(0)));
+      }
+      return parallelCallHandler.responseList;
     } catch (InterruptedException e) {
       throw new TectonClientException(e.getMessage());
     }
@@ -222,6 +232,26 @@ public class TectonHttpClient {
 
     public String getName() {
       return this.name;
+    }
+  }
+
+  static class ParallelCallHandler {
+    List<HttpResponse> responseList;
+    List<String> failureMessageList;
+
+    ParallelCallHandler(int numberOfCalls) {
+      this.responseList = new ArrayList<>(Collections.nCopies(numberOfCalls, null));
+      this.failureMessageList = new ArrayList<>(numberOfCalls);
+    }
+
+    void set(int index, HttpResponse httpResponse) {
+      this.responseList.set(index, httpResponse);
+    }
+
+    void logCallFailure(String failureMessage) {
+      // Log all call failure messages. Currently we only use one but this can be useful for error
+      // handling per call in future
+      this.failureMessageList.add(failureMessage);
     }
   }
 }
