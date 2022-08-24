@@ -9,7 +9,7 @@ import java.util.Set;
 
 public final class RequestConstants {
 
-  public static final int MAX_MICRO_BATCH_SIZE = 10;
+  public static final int MAX_MICRO_BATCH_SIZE = 5;
   public static final int DEFAULT_MICRO_BATCH_SIZE = 1;
   public static final Duration NONE_TIMEOUT = Duration.ofMillis(Long.MAX_VALUE);
   public static Set<MetadataOption> DEFAULT_METADATA_OPTIONS =

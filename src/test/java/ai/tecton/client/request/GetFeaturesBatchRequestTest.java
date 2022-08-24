@@ -120,12 +120,12 @@ public class GetFeaturesBatchRequestTest {
               .workspaceName(TEST_WORKSPACENAME)
               .featureServiceName(TEST_FEATURESERVICE_NAME)
               .requestDataList(defaultFeatureRequestDataList)
-              .microBatchSize(15)
+              .microBatchSize(10)
               .build();
       fail();
     } catch (TectonClientException e) {
       Assert.assertEquals(
-          String.format(TectonErrorMessage.INVALID_MICRO_BATCH_SIZE, 1, 10), e.getMessage());
+          String.format(TectonErrorMessage.INVALID_MICRO_BATCH_SIZE, 1, 5), e.getMessage());
     }
   }
 
@@ -162,7 +162,7 @@ public class GetFeaturesBatchRequestTest {
             new HashSet<>(
                 Arrays.asList(
                     MetadataOption.NAME, MetadataOption.DATA_TYPE, MetadataOption.SLO_INFO)),
-            8);
+            4);
 
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
     Assert.assertEquals(RequestConstants.NONE_TIMEOUT, getFeaturesBatchRequest.getTimeout());
@@ -240,36 +240,38 @@ public class GetFeaturesBatchRequestTest {
 
   @Test
   public void testBatchRequestWithTwentyRequestData_shouldCallBatchEndpoint() {
-    // GetFeaturesBatchRequest with 20 requests and microBatchSize of 8 should create 3
+    // GetFeaturesBatchRequest with 18 requests and microBatchSize of 5 should create 4
     // GetFeaturesMicroBatchRequests
-    // with a requestDatalist of size 8,8 and 4 respectively
-    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(20);
+    // with a requestDatalist of size of 5,5,5,3 respectively
+    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(18);
 
     getFeaturesBatchRequest =
         new GetFeaturesBatchRequest.Builder()
             .workspaceName(TEST_WORKSPACENAME)
             .featureServiceName(TEST_FEATURESERVICE_NAME)
             .requestDataList(requestDataList)
-            .microBatchSize(8)
+            .microBatchSize(5)
             .build();
 
-    Assert.assertEquals(3, getFeaturesBatchRequest.getRequestList().size());
+    Assert.assertEquals(4, getFeaturesBatchRequest.getRequestList().size());
 
     List<GetFeaturesMicroBatchRequest> microBatchRequestList =
         (List<GetFeaturesMicroBatchRequest>) getFeaturesBatchRequest.getRequestList();
     List<GetFeaturesRequestData> first = microBatchRequestList.get(0).getFeaturesRequestData();
     List<GetFeaturesRequestData> second = microBatchRequestList.get(1).getFeaturesRequestData();
     List<GetFeaturesRequestData> third = microBatchRequestList.get(2).getFeaturesRequestData();
+    List<GetFeaturesRequestData> fourth = microBatchRequestList.get(3).getFeaturesRequestData();
 
     // Verify sizes of each microbatch
-    Assert.assertEquals(8, first.size());
-    Assert.assertEquals(8, second.size());
-    Assert.assertEquals(4, third.size());
+    Assert.assertEquals(5, first.size());
+    Assert.assertEquals(5, second.size());
+    Assert.assertEquals(5, third.size());
+    Assert.assertEquals(3, fourth.size());
 
     // Verify request ordering
-    Assert.assertEquals(requestDataList.subList(0, 8), first);
-    Assert.assertEquals(requestDataList.subList(8, 16), second);
-    assertEquals(requestDataList.subList(16, 20), third);
+    Assert.assertEquals(requestDataList.subList(0, 5), first);
+    Assert.assertEquals(requestDataList.subList(5, 10), second);
+    assertEquals(requestDataList.subList(10, 15), third);
   }
 
   @Test
