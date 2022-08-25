@@ -53,7 +53,7 @@ public class GetFeaturesBatchRequest {
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
    * metadataOptions} defaults to {@link RequestConstants#DEFAULT_METADATA_OPTIONS} , {@code
-   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * microBatchSize} defaults to {@link RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
    * timeout} defaults to None
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined
@@ -112,7 +112,7 @@ public class GetFeaturesBatchRequest {
   }
 
   /**
-   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters.{@code
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
    * timeout} defaults to None.
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined

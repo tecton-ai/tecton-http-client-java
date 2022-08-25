@@ -9,17 +9,17 @@ import java.time.Duration;
  * <ul>
  *   <li><a
  *       href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/read-timeout/">Read
- *       Timeout</a>
+ *       Timeout</a> - Default = 5s
  *   <li><a
  *       href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/-builder/connect-timeout/">Connect
- *       Timeout</a>
+ *       Timeout</a> - Default = 5s
  *   <li><a href="https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html/">Max Idle
- *       Connections</a>
+ *       Connections</a> - Default = 5
  *   <li><a href="https://square.github.io/okhttp/3.x/okhttp/okhttp3/ConnectionPool.html/">Keep
- *       Alive Duration</a>
+ *       Alive Duration</a> - Default = 5mins
  *   <li><a
  *       href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-dispatcher/max-requests-per-host//">Max
- *       Parallel Requests</a>
+ *       Parallel Requests</a> - Default = 5
  * </ul>
  */
 public class TectonClientOptions {
@@ -40,7 +40,7 @@ public class TectonClientOptions {
    * Constructor that instantiates a TectonClientOptions with default configurations
    *
    * <p>Read Timeout = 5 seconds, Connect Timeout = 5 seconds, Max Idle Connections = 5, Keep Alive
-   * * Duration = 5 minutes, Max Parallel Requests = 5
+   * Duration = 5 minutes, Max Parallel Requests = 5
    */
   public TectonClientOptions() {
     this.readTimeout = DEFAULT_READ_TIMEOUT;
