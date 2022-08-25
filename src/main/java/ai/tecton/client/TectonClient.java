@@ -129,7 +129,7 @@ public class TectonClient {
 
   /**
    * Releases all resources (connection pool, threads) held by the Tecton Client. Once the client is
-   * closed, all future calls will fail.
+   * closed, all future calls with the client will fail.
    */
   public void close() {
     if (!this.isClosed()) {
