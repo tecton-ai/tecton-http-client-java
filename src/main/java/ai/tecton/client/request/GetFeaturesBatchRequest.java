@@ -23,8 +23,8 @@ import org.apache.commons.collections4.ListUtils;
  *
  * <p>GetFeaturesBatchRequest uses either the /get-features or the /get-features-batch endpoint
  * depending on the configuration {@code microBatchSize}. By default, the microBatchSize is set to
- * {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}. It can be configured to any value in the
- * range [ 1, {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+ * {@link RequestConstants#DEFAULT_MICRO_BATCH_SIZE}. It can be configured to any value in the range
+ * [ 1, {@link RequestConstants#MAX_MICRO_BATCH_SIZE} ]
  *
  * <p>For a GetFeaturesBatchRequest with a {@link GetFeaturesRequestData} of size {@code n} and a
  * {@code microBatchSize} of 1, the client enqueues {@code n} HTTP calls to be sent parallely to the
@@ -33,7 +33,7 @@ import org.apache.commons.collections4.ListUtils;
  * ai.tecton.client.response.GetFeaturesResponse} objects of size {@code n}.
  *
  * <p>For a GetFeaturesBatchRequest with a {@link GetFeaturesRequestData} of size {@code n} and a
- * {@code microBatchSize} of k where k is in the range [ 1, {@value
+ * {@code microBatchSize} of k where k is in the range [ 1, {@link
  * RequestConstants#MAX_MICRO_BATCH_SIZE} ], the client enqueues Math.ceil(n/k) microbatch requests
  * to be sent parallely to the /get-features-batch endpoint, waits until all microbatch requests are
  * complete or a specific configured timeout has elapsed and returns a {@link List} of {@link
@@ -80,7 +80,7 @@ public class GetFeaturesBatchRequest {
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
-   * microBatchSize} defaults to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
+   * microBatchSize} defaults to {@link RequestConstants#DEFAULT_MICRO_BATCH_SIZE} and {@code
    * timeout} defaults to None
    *
    * @param workspaceName Name of the workspace in which the Feature Service is defined
