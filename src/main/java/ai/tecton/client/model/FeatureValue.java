@@ -82,9 +82,8 @@ public class FeatureValue {
   }
 
   /**
-   * Returns the feature status of the feature value.
-   * PRESENT if the feature value is retrieved and present in the online store or
-   * MISSING_DATA if the feature value is missing or outside TTL
+   * Returns the feature status of the feature value. PRESENT if the feature value is retrieved and
+   * present in the online store or MISSING_DATA if the feature value is missing or outside TTL
    *
    * @return Optional&lt;String&gt; of the feature value statuse {@link java.util.Optional}.
    */

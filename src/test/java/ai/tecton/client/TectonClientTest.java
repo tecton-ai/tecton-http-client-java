@@ -112,8 +112,7 @@ public class TectonClientTest {
     Assert.assertEquals("amt_sum_1h_10m", sampleFeatureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, sampleFeatureValue.getValueType());
     Assert.assertEquals(new Double(5817.029999999999), sampleFeatureValue.float64Value());
-    Assert.assertEquals(
-        "PRESENT", sampleFeatureValue.getFeatureStatus().get());
+    Assert.assertEquals("PRESENT", sampleFeatureValue.getFeatureStatus().get());
 
     Assert.assertTrue(response.getSloInformation().isPresent());
     SloInformation sloInfo = response.getSloInformation().get();
@@ -288,7 +287,7 @@ public class TectonClientTest {
             i -> {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
-              for(FeatureValue value : getFeaturesResponse.getFeatureValues()) {
+              for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
@@ -325,7 +324,7 @@ public class TectonClientTest {
             i -> {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
-              for(FeatureValue value : getFeaturesResponse.getFeatureValues()) {
+              for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());

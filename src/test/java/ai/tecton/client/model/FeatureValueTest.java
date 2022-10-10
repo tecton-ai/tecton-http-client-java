@@ -24,7 +24,8 @@ public class FeatureValueTest {
   @Test
   public void testStringValue() {
     FeatureValue featureValue =
-        new FeatureValue("stringValue", testName, ValueType.STRING, Optional.empty(), null, "PRESENT");
+        new FeatureValue(
+            "stringValue", testName, ValueType.STRING, Optional.empty(), null, "PRESENT");
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
@@ -54,7 +55,12 @@ public class FeatureValueTest {
   public void testEffectiveTime() {
     FeatureValue featureValue =
         new FeatureValue(
-            "testVal", testName, ValueType.STRING, Optional.empty(), "2021-08-21T01:23:58Z", "PRESENT");
+            "testVal",
+            testName,
+            ValueType.STRING,
+            Optional.empty(),
+            "2021-08-21T01:23:58Z",
+            "PRESENT");
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
     Assert.assertEquals("2021-08-21T01:23:58Z", featureValue.getEffectiveTime().get().toString());
   }
@@ -63,7 +69,8 @@ public class FeatureValueTest {
   public void testStringList() {
     List<String> fruits = new ArrayList<>(Arrays.asList("apple", "mango", "kiwi", "orange"));
     FeatureValue featureValue =
-        new FeatureValue(fruits, testName, ValueType.ARRAY, Optional.of(ValueType.STRING), null, "PRESENT");
+        new FeatureValue(
+            fruits, testName, ValueType.ARRAY, Optional.of(ValueType.STRING), null, "PRESENT");
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.STRING, featureValue.getListElementType().get());
     List<String> listValue = featureValue.stringArrayValue();
@@ -85,7 +92,12 @@ public class FeatureValueTest {
 
     FeatureValue featureValue =
         new FeatureValue(
-            expectedArray, testName, ValueType.ARRAY, Optional.of(ValueType.FLOAT32), null, "PRESENT");
+            expectedArray,
+            testName,
+            ValueType.ARRAY,
+            Optional.of(ValueType.FLOAT32),
+            null,
+            "PRESENT");
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.FLOAT32, featureValue.getListElementType().get());
     List<Float> actualArray = featureValue.float32ArrayValue();
@@ -94,7 +106,8 @@ public class FeatureValueTest {
 
   @Test
   public void testInvalidTypeAccess() {
-    FeatureValue featureValue = new FeatureValue("0", testName, ValueType.INT64, null, null, "PRESENT");
+    FeatureValue featureValue =
+        new FeatureValue("0", testName, ValueType.INT64, null, null, "PRESENT");
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     try {
       Boolean boolVal = featureValue.booleanValue();
