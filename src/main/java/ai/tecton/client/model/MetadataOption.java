@@ -15,7 +15,7 @@ public enum MetadataOption {
   DATA_TYPE("include_data_types"),
   /** Include SLO Info in the response */
   SLO_INFO("include_slo_info"),
-  /** Include Feature Status in the response */
+  /** Include feature status of the feature value in the response */
   FEATURE_STATUS("include_serving_status"),
   /** Include all metadata in the response */
   ALL(),
