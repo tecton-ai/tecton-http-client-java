@@ -96,7 +96,6 @@ public class TectonClientTest {
 
     // Send request and receive response
     GetFeaturesResponse response = tectonClient.getFeatures(request);
-
     // Feature Vector as List
     List<FeatureValue> featureValues = response.getFeatureValues();
     Assert.assertEquals(14, featureValues.size());
@@ -107,11 +106,14 @@ public class TectonClientTest {
     // Sample Feature Value
     FeatureValue sampleFeatureValue =
         featureValueMap.get("user_transaction_amount_metrics.amt_sum_1h_10m");
+
     Assert.assertEquals(
         "user_transaction_amount_metrics", sampleFeatureValue.getFeatureNamespace());
     Assert.assertEquals("amt_sum_1h_10m", sampleFeatureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, sampleFeatureValue.getValueType());
     Assert.assertEquals(new Double(5817.029999999999), sampleFeatureValue.float64Value());
+    Assert.assertEquals(
+        "PRESENT", sampleFeatureValue.getFeatureStatus().get());
 
     Assert.assertTrue(response.getSloInformation().isPresent());
     SloInformation sloInfo = response.getSloInformation().get();
@@ -286,6 +288,9 @@ public class TectonClientTest {
             i -> {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+              for(FeatureValue value : getFeaturesResponse.getFeatureValues()) {
+                Assert.assertTrue(value.getFeatureStatus().isPresent());
+              }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
 
@@ -320,6 +325,9 @@ public class TectonClientTest {
             i -> {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+              for(FeatureValue value : getFeaturesResponse.getFeatureValues()) {
+                Assert.assertTrue(value.getFeatureStatus().isPresent());
+              }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
 

@@ -24,7 +24,8 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).name,
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
-              featureMetadata.get(i).effectiveTime);
+              featureMetadata.get(i).effectiveTime,
+              featureMetadata.get(i).status);
       featureValues.add(value);
     }
     return featureValues;
@@ -55,6 +56,7 @@ class GetFeaturesResponseUtils {
     String effectiveTime;
     AbstractTectonResponse.ResponseDataType dataType =
         new AbstractTectonResponse.ResponseDataType();
+    String status;
   }
 
   static class FeatureVectorJson {
