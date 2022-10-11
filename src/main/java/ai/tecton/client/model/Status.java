@@ -4,13 +4,19 @@ import java.util.Arrays;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
-/** Enum that represents the different data types (primitive or custom) of feature values */
+/**
+ * Enum that represents the different feature statuses that can be returned when requesting feature
+ * values.
+ */
 public enum Status {
-  /** java.lang.Boolean */
+  /** Feature value is present and returned with no errors. */
   PRESENT("PRESENT"),
-  /** java.lang.Long */
+  /**
+   * Either the join keys requested are missing in the online store or the feature value is outside
+   * ttl.
+   */
   MISSING_DATA("MISSING_DATA"),
-  /** java.lang.String */
+  /** Something in the feature server returned unknown exit status. */
   UNKNOWN("UNKNOWN");
 
   final String status;
