@@ -3,8 +3,10 @@ package ai.tecton.client.response;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.FeatureValue;
+import ai.tecton.client.model.Status;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 class GetFeaturesResponseUtils {
@@ -18,6 +20,7 @@ class GetFeaturesResponseUtils {
     validateResponse(features, featureMetadata);
     List<FeatureValue> featureValues = new ArrayList<>(features.size());
     for (int i = 0; i < features.size(); i++) {
+      Optional<Status> s = Status.fromString(featureMetadata.get(i).status);
       FeatureValue value =
           new FeatureValue(
               features.get(i),
@@ -25,7 +28,7 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              featureMetadata.get(i).status);
+              (s.isPresent() ? s.get() : Status.UNKNOWN));
       featureValues.add(value);
     }
     return featureValues;
