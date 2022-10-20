@@ -16,7 +16,7 @@ public enum Status {
    * ttl.
    */
   MISSING_DATA("MISSING_DATA"),
-  /** Something in the feature server returned unknown exit status. */
+  /** Unable to infer feature status. */
   UNKNOWN("UNKNOWN");
 
   final String status;

@@ -108,8 +108,6 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
 
     // Construct Feature Value object from response
     for (int i = 0; i < responseJson.result.features.size(); i++) {
-      Optional<Status> s = Status.fromString(featureMetadata.get(i).status);
-
       FeatureValue value =
           new FeatureValue(
               featureVector.get(i),
@@ -117,7 +115,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              (s.isPresent() ? s.get() : Status.UNKNOWN));
+              Status.fromString(featureMetadata.get(i).status));
       this.featureValues.add(value);
     }
     // Construct Slo Info if present
