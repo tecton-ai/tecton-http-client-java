@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
  * Enum that represents the different feature statuses that can be returned when requesting feature
  * values.
  */
-public enum Status {
+public enum FeatureStatus {
   /** Feature value is present and returned with no errors. */
   PRESENT("PRESENT"),
   /**
@@ -21,7 +21,7 @@ public enum Status {
 
   final String status;
 
-  Status(String status) {
+  FeatureStatus(String status) {
     this.status = status;
   }
 
@@ -35,9 +35,9 @@ public enum Status {
    * @param name The String representation of the Status
    * @return Optional&lt;{@link ValueType}&gt; if a match is found, Optional.empty() otherwise
    */
-  public static Optional<Status> fromString(String name) {
+  public static Optional<FeatureStatus> fromString(String name) {
     // Map string to the corresponding ValueType enum
-    return Arrays.stream(Status.values())
+    return Arrays.stream(FeatureStatus.values())
         .filter(val -> StringUtils.equalsIgnoreCase(val.getStatus(), name))
         .findAny();
   }

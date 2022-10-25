@@ -112,7 +112,7 @@ public class TectonClientTest {
     Assert.assertEquals("amt_sum_1h_10m", sampleFeatureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, sampleFeatureValue.getValueType());
     Assert.assertEquals(new Double(5817.029999999999), sampleFeatureValue.float64Value());
-    Assert.assertEquals(Status.PRESENT, sampleFeatureValue.getFeatureStatus().get());
+    Assert.assertEquals(FeatureStatus.PRESENT, sampleFeatureValue.getFeatureStatus().get());
 
     Assert.assertTrue(response.getSloInformation().isPresent());
     SloInformation sloInfo = response.getSloInformation().get();

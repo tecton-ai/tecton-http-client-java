@@ -20,7 +20,7 @@ public class FeatureValue {
   private final String featureName;
   private Instant effectiveTime;
   private final Value value;
-  private final Optional<Status> featureStatus;
+  private final Optional<FeatureStatus> featureStatus;
 
   public FeatureValue(
       Object featureObject,
@@ -28,7 +28,7 @@ public class FeatureValue {
       ValueType valueType,
       Optional<ValueType> elementValueType,
       String effectiveTime,
-      Optional<Status> featureStatus) {
+      Optional<FeatureStatus> featureStatus) {
 
     // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");
@@ -87,7 +87,7 @@ public class FeatureValue {
    *
    * @return Optional&lt;String&gt; of the feature value statuses {@link java.util.Optional}.
    */
-  public Optional<Status> getFeatureStatus() {
+  public Optional<FeatureStatus> getFeatureStatus() {
     return this.featureStatus;
   }
 

@@ -2,8 +2,8 @@ package ai.tecton.client.response;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
+import ai.tecton.client.model.FeatureStatus;
 import ai.tecton.client.model.FeatureValue;
-import ai.tecton.client.model.Status;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +26,7 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              Status.fromString(featureMetadata.get(i).status));
+              FeatureStatus.fromString(featureMetadata.get(i).status));
       featureValues.add(value);
     }
     return featureValues;
