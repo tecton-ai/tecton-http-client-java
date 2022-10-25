@@ -7,7 +7,6 @@ import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import java.awt.*;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
@@ -109,8 +108,11 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     validateResponse(featureVector, featureMetadata);
     // Construct Feature Value object from response
     for (int i = 0; i < responseJson.result.features.size(); i++) {
-      ArrayList<Optional<FeatureStatus>> featureStatuses = new ArrayList<>();
-      featureStatuses.add(FeatureStatus.fromString(featureMetadata.get(i).status));
+      ArrayList<Optional<FeatureStatus>> featureStatuses = null;
+      if (featureMetadata.get(i).status != null) {
+        featureStatuses = new ArrayList<>();
+        featureStatuses.add(FeatureStatus.fromString(featureMetadata.get(i).status));
+      }
       FeatureValue value =
           new FeatureValue(
               featureVector.get(i),
