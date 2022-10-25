@@ -175,6 +175,7 @@ public class GetFeaturesBatchResponse {
 
         List<FeatureVectorJson> featureVectorJson = responseJson.result;
         List<FeatureMetadata> featureMetadata = responseJson.metadata.features;
+
         List<SloInformation> sloInformationList = responseJson.metadata.sloInfo;
 
         // Parallel Stream to map each feature vector and sloInfo (if present) in the response to a

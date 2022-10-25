@@ -5,6 +5,7 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -20,7 +21,7 @@ public class FeatureValue {
   private final String featureName;
   private Instant effectiveTime;
   private final Value value;
-  private final Optional<FeatureStatus> featureStatus;
+  private final Optional<ArrayList<Optional<FeatureStatus>>> featureStatus;
 
   public FeatureValue(
       Object featureObject,
@@ -28,7 +29,7 @@ public class FeatureValue {
       ValueType valueType,
       Optional<ValueType> elementValueType,
       String effectiveTime,
-      Optional<FeatureStatus> featureStatus) {
+      Optional<ArrayList<Optional<FeatureStatus>>> featureStatus) {
 
     // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");
@@ -87,7 +88,7 @@ public class FeatureValue {
    *
    * @return Optional&lt;String&gt; of the feature value statuses {@link java.util.Optional}.
    */
-  public Optional<FeatureStatus> getFeatureStatus() {
+  public Optional<ArrayList<Optional<FeatureStatus>>> getFeatureStatuses() {
     return this.featureStatus;
   }
 
