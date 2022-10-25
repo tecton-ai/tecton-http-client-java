@@ -10,7 +10,6 @@ import com.squareup.moshi.Moshi;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -106,6 +105,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
     List<GetFeaturesResponseJson.FeatureMetadata> featureMetadata = responseJson.metadata.features;
 
     validateResponse(featureVector, featureMetadata);
+
     // Construct Feature Value object from response
     for (int i = 0; i < responseJson.result.features.size(); i++) {
       FeatureValue value =

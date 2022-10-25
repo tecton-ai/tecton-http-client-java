@@ -60,6 +60,7 @@ public class GetFeaturesBatchResponseTest {
           Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
           Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
         });
+
     // Verify BatchSloInformation
     Assert.assertTrue(batchResponse.getBatchSloInformation().isPresent());
     SloInformation batchSloInfo = batchResponse.getBatchSloInformation().get();
