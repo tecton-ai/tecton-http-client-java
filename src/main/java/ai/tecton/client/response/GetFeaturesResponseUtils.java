@@ -6,7 +6,6 @@ import ai.tecton.client.model.FeatureStatus;
 import ai.tecton.client.model.FeatureValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 
 class GetFeaturesResponseUtils {
@@ -16,17 +15,10 @@ class GetFeaturesResponseUtils {
 
   // Construct Feature Vector from list of object and metadata
   static List<FeatureValue> constructFeatureVector(
-      List<Object> features, List<FeatureMetadata> featureMetadata) {
+      List<Object> features, List<FeatureMetadata> featureMetadata, int index) {
     validateResponse(features, featureMetadata);
     List<FeatureValue> featureValues = new ArrayList<>(features.size());
     for (int i = 0; i < features.size(); i++) {
-      ArrayList<Optional<FeatureStatus>> statuses = null;
-      if (featureMetadata.get(i).status != null) {
-        statuses = new ArrayList<>();
-        for (String status : featureMetadata.get(i).status) {
-          statuses.add(FeatureStatus.fromString(status));
-        }
-      }
       FeatureValue value =
           new FeatureValue(
               features.get(i),
@@ -34,7 +26,9 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              Optional.ofNullable(statuses));
+              (featureMetadata.get(i).status != null)
+                  ? FeatureStatus.fromString(featureMetadata.get(i).status.get(index))
+                  : null);
       featureValues.add(value);
     }
     return featureValues;

@@ -112,8 +112,7 @@ public class TectonClientTest {
     Assert.assertEquals("amt_sum_1h_10m", sampleFeatureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, sampleFeatureValue.getValueType());
     Assert.assertEquals(new Double(5817.029999999999), sampleFeatureValue.float64Value());
-    Assert.assertEquals(
-        FeatureStatus.PRESENT, sampleFeatureValue.getFeatureStatuses().get().get(0).get());
+    Assert.assertEquals(FeatureStatus.PRESENT, sampleFeatureValue.getFeatureStatus().get());
 
     Assert.assertTrue(response.getSloInformation().isPresent());
     SloInformation sloInfo = response.getSloInformation().get();
@@ -289,10 +288,8 @@ public class TectonClientTest {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
-                Assert.assertTrue(value.getFeatureStatuses().isPresent());
-                Assert.assertTrue(value.getFeatureStatuses().get().size() == 1);
-                Assert.assertTrue(
-                    value.getFeatureStatuses().get().get(0).get() == FeatureStatus.PRESENT);
+                Assert.assertTrue(value.getFeatureStatus().isPresent());
+                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
@@ -329,10 +326,8 @@ public class TectonClientTest {
               GetFeaturesResponse getFeaturesResponse = responseList.get(i);
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
-                Assert.assertTrue(value.getFeatureStatuses().isPresent());
-                for (Optional<FeatureStatus> s : value.getFeatureStatuses().get()) {
-                  Assert.assertTrue(s.get() == FeatureStatus.PRESENT);
-                }
+                Assert.assertTrue(value.getFeatureStatus().isPresent());
+                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
