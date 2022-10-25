@@ -2,6 +2,7 @@ package ai.tecton.client.response;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
+import ai.tecton.client.model.FeatureStatus;
 import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
 import com.squareup.moshi.JsonAdapter;
@@ -88,6 +89,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       String name;
       String effectiveTime;
       ResponseDataType dataType = new ResponseDataType();
+      String status;
     }
   }
 
@@ -112,7 +114,8 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
               featureMetadata.get(i).name,
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
-              featureMetadata.get(i).effectiveTime);
+              featureMetadata.get(i).effectiveTime,
+              FeatureStatus.fromString(featureMetadata.get(i).status));
       this.featureValues.add(value);
     }
     // Construct Slo Info if present

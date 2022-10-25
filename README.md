@@ -17,7 +17,7 @@ Add the following dependency to `pom.xml`
 </dependency>
 ```
 
-###Installation for Gradlle Project
+###Installation for Gradle Project
 Add the following to `build.gradle`
 
 ```java
@@ -42,5 +42,23 @@ There is a `build.gradle` file provided to build the JAR from source and the cli
 
 ### API Reference
 To learn more about the supported HTTP API endpoints, refer to the [Feature Server API Documentation](https://docs.tecton.ai/rest-swagger/docs.html)
+
+## Basic end to end testing
+
+Go to the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) and update the `build.gradle` file with the jar that you generate from this repo using `./gradlew clean build`.
+
+Change the dependencies target to this and point the files attribute to your java client jar:
+
+```
+dependencies {
+    implementation files('libs/java-client-0.1.0-SNAPSHOT.jar')
+    implementation 'com.google.code.gson:gson:2.2.4'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+}
+```
+
+Update `tecton.properties` with your cluster url and run the Demo file to query the feature services needed.
+
 
 ### Contributions

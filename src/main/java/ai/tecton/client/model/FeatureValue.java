@@ -20,18 +20,21 @@ public class FeatureValue {
   private final String featureName;
   private Instant effectiveTime;
   private final Value value;
+  private final Optional<FeatureStatus> featureStatus;
 
   public FeatureValue(
       Object featureObject,
       String name,
       ValueType valueType,
       Optional<ValueType> elementValueType,
-      String effectiveTime) {
+      String effectiveTime,
+      Optional<FeatureStatus> featureStatus) {
 
     // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");
     featureNamespace = split[0];
     featureName = split[1];
+    this.featureStatus = featureStatus;
 
     // Parse effective_time if present
     try {
@@ -76,6 +79,16 @@ public class FeatureValue {
    */
   public Optional<ValueType> getListElementType() {
     return Optional.ofNullable(this.value.listValue.listElementType);
+  }
+
+  /**
+   * Returns the feature status of the feature value. PRESENT if the feature value is retrieved and
+   * present in the online store or MISSING_DATA if the feature value is missing or outside TTL
+   *
+   * @return Optional&lt;String&gt; of the feature value statuses {@link java.util.Optional}.
+   */
+  public Optional<FeatureStatus> getFeatureStatus() {
+    return this.featureStatus;
   }
 
   /**
