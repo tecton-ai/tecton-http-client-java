@@ -15,7 +15,7 @@ class GetFeaturesResponseUtils {
 
   // Construct Feature Vector from list of object and metadata
   static List<FeatureValue> constructFeatureVector(
-      List<Object> features, List<FeatureMetadata> featureMetadata) {
+      List<Object> features, List<FeatureMetadata> featureMetadata, int index) {
     validateResponse(features, featureMetadata);
     List<FeatureValue> featureValues = new ArrayList<>(features.size());
     for (int i = 0; i < features.size(); i++) {
@@ -26,7 +26,9 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              FeatureStatus.fromString(featureMetadata.get(i).status));
+              (featureMetadata.get(i).status != null)
+                  ? FeatureStatus.fromString(featureMetadata.get(i).status.get(index))
+                  : null);
       featureValues.add(value);
     }
     return featureValues;
@@ -57,7 +59,7 @@ class GetFeaturesResponseUtils {
     String effectiveTime;
     AbstractTectonResponse.ResponseDataType dataType =
         new AbstractTectonResponse.ResponseDataType();
-    String status;
+    List<String> status;
   }
 
   static class FeatureVectorJson {

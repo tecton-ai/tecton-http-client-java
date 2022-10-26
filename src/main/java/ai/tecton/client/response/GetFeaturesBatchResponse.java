@@ -209,7 +209,7 @@ public class GetFeaturesBatchResponse {
 
     List<FeatureValue> featureValues =
         GetFeaturesResponseUtils.constructFeatureVector(
-            featureVectorJson.get(index).features, featureMetadata);
+            featureVectorJson.get(index).features, featureMetadata, index);
     GetFeaturesResponse getFeaturesResponse =
         new GetFeaturesResponse(featureValues, requestLatency);
     if (sloInformationList != null) {

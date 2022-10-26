@@ -289,6 +289,7 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
+                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
@@ -326,6 +327,7 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
+                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
