@@ -2,50 +2,38 @@
 
 A simple Java client for the Feature Server HTTP API that helps customers integrate with Tecton easily.
 
-## Installation
+## Documentation
 
-Any Java client application using build frameworks such as Maven or Gradle can simply declare dependency on the current or appropriate version of `tecton-http-client-java` artifact to ensure all required JAR dependencies are resolved and available at runtime. The JAR can also be downloaded from the repository and manually imported into the project.
+* [Fetching Online Features](https://docs.tecton.ai/latest/examples/fetch-real-time-features.html)
+* [FeatureServer API Reference](https://docs.tecton.ai/rest-swagger/docs.html)
+* [Tecton Java Client API Reference](https://www.javadoc.io/doc/ai.tecton/java-client/latest/index.html)
+* [Tecton Java Client Example Code](https://github.com/tecton-ai/TectonClientDemo/tree/main/src/main/java)
 
-### Installation for Maven Project
+## Troubleshooting
 
-Add the following dependency to `pom.xml`
+If you have any questions or need help,
+please [open an Issue](https://github.com/tecton-ai/tecton-http-client-java/issues) or reach out to us in Slack!
 
-```xml
-<dependency>
-<groupId>com.tecton.http-client</groupId>
-<artifactId>tecton-http-client</artifactId>
-</dependency>
-```
+## Contributing
 
-###Installation for Gradle Project
-Add the following to `build.gradle`
+The Tecton Java client is open source and we welcome any contributions from our Tecton community.
 
-```java
-repositories {
-      mavenCentral()
-  }
-  dependencies {
-      compile 'com.tecton.http-client:tecton-http-client:<VERSION>'
-  }
-```
+### Prerequisites
 
-### Manual Installation
+* Java 8 or higher
+* Gradle
+* [Google Java Format](https://github.com/google/google-java-format) formatter (can also use as a plugin in your IDE)
 
-Download the Client Library as a zip or tar file from Maven Central, extract and place them directly in the application `CLASSPATH`
+### Build the Project
 
-### Build the Java Client
+The `tecton-http-client-java` project can be built using Gradle as follows:
 
-There is a `build.gradle` file provided to build the JAR from source and the client library can be built by running `./gradlew clean build` from the repository root. By default, the gradle build will generate `tecton-http-client-java-<VERSION>-SNAPSHOT.jar` in `build/libs`.
-
-### Getting Started
-//TODO
-
-### API Reference
-To learn more about the supported HTTP API endpoints, refer to the [Feature Server API Documentation](https://docs.tecton.ai/rest-swagger/docs.html)
+`./gradlew clean build`
 
 ## Basic end to end testing
 
-Go to the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) and update the `build.gradle` file with the jar that you generate from this repo using `./gradlew clean build`.
+In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the
+jar that you generate from this repo using `./gradlew clean build`.
 
 Change the dependencies target to this and point the files attribute to your java client jar:
 
@@ -60,5 +48,13 @@ dependencies {
 
 Update `tecton.properties` with your cluster url and run the Demo file to query the feature services needed.
 
+## Before Opening a PR
 
-### Contributions
+* Please run pre-commit on your staged files to ensure that the changes are correctly formatted.
+* Please run `./gradlew clean build` to ensure that your changes pass the build
+* Please add unit tests if possible to test the new code changes
+
+## License
+
+The project is licensed
+under [Apache License 2.0](https://github.com/tecton-ai/tecton-http-client-java/blob/main/LICENSE.md)
