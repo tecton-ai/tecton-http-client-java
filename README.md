@@ -11,15 +11,17 @@ A simple Java client for the Feature Server HTTP API that helps customers integr
 
 ## Troubleshooting
 
-If you have any questions or need help, please [open an Issue](https://github.com/tecton-ai/tecton-http-client-java/issues) or reach out to us in Slack!
+If you have any questions or need help,
+please [open an Issue](https://github.com/tecton-ai/tecton-http-client-java/issues) or reach out to us in Slack!
 
 ## Contributing
+
 The Tecton Java client is open source and we welcome any contributions from our Tecton community.
 
 ### Prerequisites
 
 * Java 8 or higher
-* Gradle 
+* Gradle
 * [Google Java Format](https://github.com/google/google-java-format) formatter (can also use as a plugin in your IDE)
 
 ### Build the Project
@@ -30,7 +32,8 @@ The `tecton-http-client-java` project can be built using Gradle as follows:
 
 ## Basic end to end testing
 
-In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the jar that you generate from this repo using `./gradlew clean build`.
+In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the
+jar that you generate from this repo using `./gradlew clean build`.
 
 Change the dependencies target to this and point the files attribute to your java client jar:
 
@@ -47,4 +50,5 @@ Update `tecton.properties` with your cluster url and run the Demo file to query 
 
 ## License
 
-The project is licensed under [Apache License 2.0](https://github.com/tecton-ai/tecton-http-client-java/blob/main/LICENSE.md)
+The project is licensed
+under [Apache License 2.0](https://github.com/tecton-ai/tecton-http-client-java/blob/main/LICENSE.md)
