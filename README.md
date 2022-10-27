@@ -48,6 +48,12 @@ dependencies {
 
 Update `tecton.properties` with your cluster url and run the Demo file to query the feature services needed.
 
+## Before Opening a PR
+
+* Please run pre-commit on your staged files to ensure that the changes are correctly formatted.
+* Please run `./gradlew clean build` to ensure that your changes pass the build
+* Please add unit tests if possible to test the new code changes
+
 ## License
 
 The project is licensed
