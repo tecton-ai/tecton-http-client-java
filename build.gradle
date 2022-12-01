@@ -39,12 +39,6 @@ dependencies {
 //Package JAR with dependencies
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-    // @see https://youtrack.jetbrains.com/issue/KT-25709
-    exclude("**/*.kotlin_metadata")
-    exclude("**/*.kotlin_builtins")
 }
 
 //Run tests during build and output status
