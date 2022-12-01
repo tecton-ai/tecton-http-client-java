@@ -36,14 +36,6 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.3.1'
 }
 
-//Package JAR with dependencies
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
 //Run tests during build and output status
 test {
     useJUnit()
