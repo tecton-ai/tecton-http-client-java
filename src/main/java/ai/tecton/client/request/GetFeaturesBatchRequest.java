@@ -44,7 +44,7 @@ public class GetFeaturesBatchRequest {
   private List<? extends AbstractGetFeaturesRequest> requestList;
   private final int microBatchSize;
   private final Duration timeout;
-  private static final String BATCH_ENDPOINT = "api/v1/feature-service/get-features-batch";
+  private static final String BATCH_ENDPOINT = "/api/v1/feature-service/get-features-batch";
   private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
       null;
   private String endpoint;
