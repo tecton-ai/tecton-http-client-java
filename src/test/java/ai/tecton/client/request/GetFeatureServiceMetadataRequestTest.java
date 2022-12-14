@@ -9,7 +9,7 @@ public class GetFeatureServiceMetadataRequestTest {
 
   private static final String TEST_WORKSPACENAME = "testWorkspaceName";
   private static final String TEST_FEATURESERVICE_NAME = "testFSName";
-  private static final String ENDPOINT = "api/v1/feature-service/metadata";
+  private static final String ENDPOINT = "/api/v1/feature-service/metadata";
   private static final String DEFAULT_WORKSPACE = "prod";
 
   GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest;

@@ -1,6 +1,7 @@
 package ai.tecton.client.transport;
 
 import okhttp3.HttpUrl;
+import org.apache.commons.lang3.StringUtils;
 
 class HttpRequest {
   HttpUrl url;
@@ -16,7 +17,9 @@ class HttpRequest {
       String jsonBody) {
     url = HttpUrl.parse(baseUrl);
     if (endpoint != null && !endpoint.isEmpty()) {
-      url = url.newBuilder().addPathSegment(endpoint).build();
+      // Paths with leading backslash results in a URL with double backslash.
+      // See https://github.com/square/okhttp/issues/2399#issuecomment-195354749
+      url = url.newBuilder().addPathSegment(StringUtils.stripStart(endpoint, "/")).build();
     }
     this.method = method;
     this.apiKey = apiKey;

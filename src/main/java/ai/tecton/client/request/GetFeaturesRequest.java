@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  */
 public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
 
-  static final String ENDPOINT = "api/v1/feature-service/get-features";
+  static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private final JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
 

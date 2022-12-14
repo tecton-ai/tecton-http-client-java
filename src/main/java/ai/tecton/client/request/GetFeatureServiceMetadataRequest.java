@@ -15,7 +15,7 @@ import com.squareup.moshi.Moshi;
 public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
 
   private static final TectonHttpClient.HttpMethod method = TectonHttpClient.HttpMethod.POST;
-  private static final String ENDPOINT = "api/v1/feature-service/metadata";
+  private static final String ENDPOINT = "/api/v1/feature-service/metadata";
   private static final String DEFAULT_WORKSPACE = "prod";
   private JsonAdapter<GetFeatureServiceMetadataJson> jsonAdapter;
 

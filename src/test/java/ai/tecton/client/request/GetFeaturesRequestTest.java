@@ -16,7 +16,7 @@ public class GetFeaturesRequestTest {
 
   private static final String TEST_WORKSPACENAME = "testWorkspaceName";
   private static final String TEST_FEATURESERVICE_NAME = "testFSName";
-  private static final String ENDPOINT = "api/v1/feature-service/get-features";
+  private static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private static final Set<MetadataOption> defaultMetadataOptions =
       EnumSet.of(MetadataOption.NAME, MetadataOption.DATA_TYPE);
 
