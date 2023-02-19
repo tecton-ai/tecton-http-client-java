@@ -55,16 +55,49 @@ public class FeatureValueTest {
   }
 
   @Test
+  public void testFloat32Value() {
+    FeatureValue featureValue =
+            new FeatureValue(
+                    555.55,
+                    testName,
+                    ValueType.FLOAT32,
+                    Optional.empty(),
+                    null,
+                    Optional.ofNullable(FeatureStatus.PRESENT));
+
+    Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
+    Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
+    Assert.assertEquals(ValueType.FLOAT32, featureValue.getValueType());
+    Assert.assertEquals(new Double(555.55), featureValue.float32Value());
+  }
+
+  @Test
   public void testInt64Value() {
 
     FeatureValue featureValue =
         new FeatureValue(
-            "0",
+            0,
             testName,
             ValueType.INT64,
             Optional.empty(),
             null,
             Optional.ofNullable(FeatureStatus.PRESENT));
+
+    Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
+    Assert.assertEquals(new Long(0), featureValue.int64value());
+  }
+
+  @Test
+  public void testInt64ValueAsString() {
+
+    FeatureValue featureValue =
+            new FeatureValue(
+                    "0",
+                    testName,
+                    ValueType.INT64,
+                    Optional.empty(),
+                    null,
+                    Optional.ofNullable(FeatureStatus.PRESENT));
 
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     Assert.assertEquals(new Long(0), featureValue.int64value());

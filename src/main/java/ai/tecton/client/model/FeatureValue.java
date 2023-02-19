@@ -120,6 +120,7 @@ public class FeatureValue {
     private Long int64Value;
     private Boolean booleanValue;
     private Double float64Value;
+    private Double float32Value;
     private ListDataType listValue;
 
     // Primitive types
@@ -133,10 +134,11 @@ public class FeatureValue {
           this.stringValue = (String) featureObject;
           break;
         case INT64:
-          String stringValue = (String) featureObject;
-          if (stringValue != null) {
-            this.int64Value = Long.parseLong(stringValue);
-          }
+          // This should handle String, Integer, or Long types or null
+          this.int64Value = Optional.ofNullable(featureObject).map(Object::toString).map(Long::parseLong).orElse(null);
+          break;
+        case FLOAT32:
+          this.float32Value = (Double) featureObject;
           break;
         case FLOAT64:
           this.float64Value = (Double) featureObject;
@@ -185,6 +187,17 @@ public class FeatureValue {
   public Boolean booleanValue() throws TectonClientException {
     validateValueType(ValueType.BOOLEAN);
     return this.value.booleanValue;
+  }
+
+  /**
+   * A Feature Value of type Float32 (Double)
+   *
+   * @return feature value cast to java.lang.Double
+   * @throws TectonClientException if the method is called on a value whose ValueType is not FLOAT64
+   */
+  public Double float32Value() throws TectonClientException {
+    validateValueType(ValueType.FLOAT32);
+    return this.value.float32Value;
   }
 
   /**
