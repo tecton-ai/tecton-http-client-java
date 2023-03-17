@@ -37,7 +37,10 @@ public class GetFeaturesRequestData {
   public GetFeaturesRequestData addJoinKeyMap(Map<String, String> joinKeyMap)
       throws TectonClientException {
     Validate.notEmpty(joinKeyMap);
-    joinKeyMap.forEach(this::validateKeyValue);
+    joinKeyMap.forEach(
+        (key, value) -> {
+          validateKeyValue(key, value, true);
+        });
     this.joinKeyMap = joinKeyMap;
     return this;
   }
@@ -59,7 +62,10 @@ public class GetFeaturesRequestData {
   public GetFeaturesRequestData addRequestContextMap(Map<String, Object> requestContextMap)
       throws TectonClientException {
     Validate.notEmpty(requestContextMap);
-    requestContextMap.forEach(this::validateKeyValue);
+    requestContextMap.forEach(
+        (key, value) -> {
+          validateKeyValue(key, value, false);
+        });
     this.requestContextMap = requestContextMap;
     return this;
   }
@@ -73,7 +79,7 @@ public class GetFeaturesRequestData {
    * @throws TectonClientException when the join key or value is null or empty
    */
   public GetFeaturesRequestData addJoinKey(String key, String value) throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValue(key, value, true);
     joinKeyMap.put(key, value);
     return this;
   }
@@ -87,8 +93,9 @@ public class GetFeaturesRequestData {
    * @throws TectonClientException when the join key or value is null or empty
    */
   public GetFeaturesRequestData addJoinKey(String key, Long value) throws TectonClientException {
-    validateKeyValue(key, value.toString());
-    joinKeyMap.put(key, value.toString());
+    String joinKeyValue = (value == null) ? null : value.toString();
+    validateKeyValue(key, joinKeyValue, true);
+    joinKeyMap.put(key, joinKeyValue);
     return this;
   }
 
@@ -102,7 +109,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, String value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValue(key, value, false);
     requestContextMap.put(key, value);
     return this;
   }
@@ -119,7 +126,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, Long value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValue(key, value, false);
     requestContextMap.put(key, value.toString());
     return this;
   }
@@ -134,7 +141,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, Double value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValue(key, value, false);
     requestContextMap.put(key, value);
     return this;
   }
@@ -155,10 +162,11 @@ public class GetFeaturesRequestData {
     return this.requestContextMap.isEmpty();
   }
 
-  private void validateKeyValue(String key, Object value) {
+  private void validateKeyValue(String key, Object value, boolean allowNullValue) {
     Validate.notEmpty(key, TectonErrorMessage.INVALID_KEY_VALUE);
-    Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
-
+    if (!allowNullValue) {
+      Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
+    }
     if (value instanceof String) {
       Validate.notEmpty((String) value, TectonErrorMessage.INVALID_KEY_VALUE);
     }
