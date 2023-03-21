@@ -123,6 +123,9 @@ public class FeatureValue {
     private ListDataType listValue;
 
     // Primitive types
+    // Float32 is currently not a supported type for feature values in Tecton. Refer here for all
+    // supported types :
+    // https://docs.tecton.ai/docs/faqs/creating_and_managing_features/#what-data-types-are-supported-for-feature-values
     public Value(Object featureObject, ValueType valueType) {
       this.valueType = valueType;
       switch (valueType) {
@@ -133,12 +136,14 @@ public class FeatureValue {
           this.stringValue = (String) featureObject;
           break;
         case INT64:
+          // Tecton represents all Int64 feature values as JSON strings in the response.
           String stringValue = (String) featureObject;
           if (stringValue != null) {
             this.int64Value = Long.parseLong(stringValue);
           }
           break;
         case FLOAT64:
+          // Tecton also represents all double feature values as JSON numbers in the response.
           this.float64Value = (Double) featureObject;
           break;
         default:

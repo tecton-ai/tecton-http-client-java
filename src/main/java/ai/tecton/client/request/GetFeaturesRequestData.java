@@ -59,7 +59,7 @@ public class GetFeaturesRequestData {
   public GetFeaturesRequestData addRequestContextMap(Map<String, Object> requestContextMap)
       throws TectonClientException {
     Validate.notEmpty(requestContextMap);
-    requestContextMap.forEach(this::validateKeyValue);
+    requestContextMap.forEach(this::validateKeyValueDisallowingNullValue);
     this.requestContextMap = requestContextMap;
     return this;
   }
@@ -87,8 +87,9 @@ public class GetFeaturesRequestData {
    * @throws TectonClientException when the join key or value is null or empty
    */
   public GetFeaturesRequestData addJoinKey(String key, Long value) throws TectonClientException {
-    validateKeyValue(key, value.toString());
-    joinKeyMap.put(key, value.toString());
+    String joinKeyValue = (value == null) ? null : value.toString();
+    validateKeyValue(key, joinKeyValue);
+    joinKeyMap.put(key, joinKeyValue);
     return this;
   }
 
@@ -102,7 +103,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, String value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value);
     return this;
   }
@@ -119,7 +120,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, Long value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value.toString());
     return this;
   }
@@ -134,7 +135,7 @@ public class GetFeaturesRequestData {
    */
   public GetFeaturesRequestData addRequestContext(String key, Double value)
       throws TectonClientException {
-    validateKeyValue(key, value);
+    validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value);
     return this;
   }
@@ -157,10 +158,13 @@ public class GetFeaturesRequestData {
 
   private void validateKeyValue(String key, Object value) {
     Validate.notEmpty(key, TectonErrorMessage.INVALID_KEY_VALUE);
-    Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
-
     if (value instanceof String) {
       Validate.notEmpty((String) value, TectonErrorMessage.INVALID_KEY_VALUE);
     }
+  }
+
+  private void validateKeyValueDisallowingNullValue(String key, Object value) {
+    validateKeyValue(key, value);
+    Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
   }
 }

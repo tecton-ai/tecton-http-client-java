@@ -29,12 +29,11 @@ public class GetFeatureRequestDataTest {
   }
 
   @Test
-  public void testNullJoinValue() {
+  public void testShouldAllowNullJoinValue() {
     try {
       getFeaturesRequestData.addJoinKey("testKey", (String) null);
-      fail();
     } catch (NullPointerException e) {
-      Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
+      fail();
     }
   }
 
