@@ -37,7 +37,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     super(workspaceName, featureServiceName, ENDPOINT, RequestConstants.DEFAULT_METADATA_OPTIONS);
     validateRequestParameters(getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
-    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
+    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class).serializeNulls();
   }
 
   /**

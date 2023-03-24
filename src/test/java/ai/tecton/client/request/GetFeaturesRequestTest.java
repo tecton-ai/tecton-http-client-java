@@ -113,6 +113,31 @@ public class GetFeaturesRequestTest {
   }
 
   @Test
+  public void testSimpleRequestWithNullJoinKey() {
+    defaultFeatureRequestData.addJoinKey("testNullKey", (String) null);
+    getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
+
+    Assert.assertEquals(ENDPOINT, getFeaturesRequest.getEndpoint());
+    Assert.assertEquals(TectonHttpClient.HttpMethod.POST, getFeaturesRequest.getMethod());
+    Assert.assertEquals(TEST_WORKSPACENAME, getFeaturesRequest.getWorkspaceName());
+    Assert.assertEquals(TEST_FEATURESERVICE_NAME, getFeaturesRequest.getFeatureServiceName());
+    Assert.assertTrue(getFeaturesRequest.getFeaturesRequestData().isEmptyRequestContextMap());
+    Assert.assertEquals(defaultMetadataOptions, getFeaturesRequest.getMetadataOptions());
+
+    Map<String, String> joinKeyMap = getFeaturesRequest.getFeaturesRequestData().getJoinKeyMap();
+    Assert.assertEquals(2, joinKeyMap.size());
+    Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
+
+    String expected_json =
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null,\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
+    String actual_json = getFeaturesRequest.requestToJson();
+
+    Assert.assertEquals(expected_json, actual_json);
+  }
+
+  @Test
   public void testRequestWithRequestContextMap() throws IOException {
     defaultFeatureRequestData.addRequestContext("testKey1", 999.999);
     defaultFeatureRequestData.addRequestContext("testKey2", "testVal");
