@@ -17,7 +17,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
   static final String ENDPOINT = "/api/v1/feature-service/get-features";
   private final JsonAdapter<GetFeaturesRequestJson> jsonAdapter;
   private final GetFeaturesRequestData getFeaturesRequestData;
-  private final Moshi moshi = new Moshi.Builder().build();
+  private final Moshi moshi = new Moshi.Builder().add(SerializeNulls.JSON_ADAPTER_FACTORY).build();
 
   /**
    * Constructor that creates a new GetFeaturesRequest with specified parameters. {@code
@@ -37,7 +37,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     super(workspaceName, featureServiceName, ENDPOINT, RequestConstants.DEFAULT_METADATA_OPTIONS);
     validateRequestParameters(getFeaturesRequestData);
     this.getFeaturesRequestData = getFeaturesRequestData;
-    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class).serializeNulls();
+    jsonAdapter = moshi.adapter(GetFeaturesRequestJson.class);
   }
 
   /**
@@ -81,7 +81,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
   static class GetFeaturesFields {
     String feature_service_name;
     String workspace_name;
-    Map<String, String> join_key_map;
+    @SerializeNulls Map<String, String> join_key_map;
     Map<String, Object> request_context_map;
     Map<String, Boolean> metadata_options;
   }
