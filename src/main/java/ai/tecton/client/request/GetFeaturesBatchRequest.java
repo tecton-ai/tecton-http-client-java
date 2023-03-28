@@ -435,7 +435,7 @@ public class GetFeaturesBatchRequest {
     }
 
     static class RequestDataField {
-      Map<String, String> join_key_map;
+      @SerializeNulls Map<String, String> join_key_map;
       Map<String, Object> request_context_map;
     }
 

@@ -29,7 +29,7 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
   public GetFeatureServiceMetadataRequest(String featureServiceName, String workspaceName) {
     super(ENDPOINT, method, workspaceName, featureServiceName);
     Moshi moshi = new Moshi.Builder().build();
-    jsonAdapter = moshi.adapter(GetFeatureServiceMetadataJson.class).serializeNulls();
+    jsonAdapter = moshi.adapter(GetFeatureServiceMetadataJson.class);
   }
 
   /**
