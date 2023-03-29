@@ -13,7 +13,7 @@ import com.squareup.moshi.Types;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
 /**
