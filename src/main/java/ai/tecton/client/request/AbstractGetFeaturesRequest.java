@@ -1,10 +1,20 @@
 package ai.tecton.client.request;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
-import java.util.*;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.JsonQualifier;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.reflect.Type;
+import java.util.Set;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Parent class for GetFeaturesRequest and GetFeaturesBatchRequest and extends AbstractTectonRequest
@@ -52,5 +62,24 @@ public abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
         && getFeaturesRequestData.isEmptyRequestContextMap()) {
       throw new TectonClientException(TectonErrorMessage.EMPTY_REQUEST_MAPS);
     }
+  }
+
+  @Retention(RUNTIME)
+  @JsonQualifier
+  public @interface SerializeNulls {
+    JsonAdapter.Factory JSON_ADAPTER_FACTORY =
+        new JsonAdapter.Factory() {
+          @Nullable
+          @Override
+          public JsonAdapter<?> create(
+              Type type, Set<? extends Annotation> annotations, Moshi moshi) {
+            Set<? extends Annotation> nextAnnotations =
+                Types.nextAnnotations(annotations, SerializeNulls.class);
+            if (nextAnnotations == null) {
+              return null;
+            }
+            return moshi.nextAdapter(this, type, nextAnnotations).serializeNulls();
+          }
+        };
   }
 }

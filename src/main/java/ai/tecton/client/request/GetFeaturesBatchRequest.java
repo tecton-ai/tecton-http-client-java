@@ -49,6 +49,10 @@ public class GetFeaturesBatchRequest {
       null;
   private String endpoint;
   private TectonHttpClient.HttpMethod method;
+  private final Moshi moshi =
+      new Moshi.Builder()
+          .add(AbstractGetFeaturesRequest.SerializeNulls.JSON_ADAPTER_FACTORY)
+          .build();
 
   /**
    * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters. {@code
@@ -196,7 +200,6 @@ public class GetFeaturesBatchRequest {
                           workspaceName, featureServiceName, requestData, metadataOptions))
               .collect(Collectors.toList());
       this.microBatchSize = microBatchSize;
-      Moshi moshi = new Moshi.Builder().build();
       jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
       this.endpoint = BATCH_ENDPOINT;
       this.method = TectonHttpClient.HttpMethod.POST;
@@ -432,7 +435,7 @@ public class GetFeaturesBatchRequest {
     }
 
     static class RequestDataField {
-      Map<String, String> join_key_map;
+      @SerializeNulls Map<String, String> join_key_map;
       Map<String, Object> request_context_map;
     }
 

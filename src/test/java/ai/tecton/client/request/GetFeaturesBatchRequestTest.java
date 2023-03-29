@@ -310,6 +310,26 @@ public class GetFeaturesBatchRequestTest {
     Assert.assertEquals(expected_json, microBatchRequest.requestToJson());
   }
 
+  @Test
+  public void testDefaultBatchRequestWithNullJoinKey_shouldSerializeNulls() {
+    // GetFeaturesBatchRequest with 25 requestData should create 25 individual GetFeaturesRequest
+    // objects
+    List<GetFeaturesRequestData> requestDataList = new ArrayList<>(1);
+    requestDataList.add(new GetFeaturesRequestData().addJoinKey("testNullKey", (String) null));
+
+    getFeaturesBatchRequest =
+        new GetFeaturesBatchRequest(TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, requestDataList);
+
+    List<GetFeaturesRequest> getFeaturesRequests =
+        (List<GetFeaturesRequest>) getFeaturesBatchRequest.getRequestList();
+    Assert.assertEquals(1, getFeaturesRequests.size());
+
+    String actual = getFeaturesBatchRequest.getRequestList().get(0).requestToJson();
+    String expected =
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+    Assert.assertEquals(expected, actual);
+  }
+
   private void checkGetFeaturesCommonFields(
       AbstractGetFeaturesRequest getFeaturesRequest,
       String endpoint,
