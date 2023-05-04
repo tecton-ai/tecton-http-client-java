@@ -48,7 +48,7 @@ public class TectonClient {
    *
    * @param url The Tecton Base Url
    * @param apiKey API Key for authenticating with the FeatureService API. See <a
-   *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api>Authenticating
+   *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api">Authenticating
    *     with an API key</a> for more information
    * @param tectonClientOptions A {@link TectonClientOptions} object with custom configurations
    */
