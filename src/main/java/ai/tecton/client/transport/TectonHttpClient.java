@@ -33,7 +33,8 @@ public class TectonHttpClient {
       };
 
   public TectonHttpClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
-    validateClientParameters(url, apiKey);
+    validateUrl(url);
+    validateApiKey(apiKey);
     this.apiKey = apiKey;
     Dispatcher dispatcher = new Dispatcher();
     dispatcher.setMaxRequestsPerHost(tectonClientOptions.getMaxParallelRequests());
@@ -51,6 +52,16 @@ public class TectonHttpClient {
     builder.connectionPool(connectionPool);
     client = builder.build();
     isClosed = new AtomicBoolean(false);
+  }
+
+  public TectonHttpClient(String url, String apiKey, OkHttpClient httpClient) {
+    validateUrl(url);
+    if (apiKey != null) {
+      validateApiKey(apiKey);
+    }
+    this.client = httpClient;
+    this.apiKey = apiKey;
+    this.isClosed = new AtomicBoolean(false);
   }
 
   public void close() {
@@ -182,13 +193,15 @@ public class TectonHttpClient {
     return client.dispatcher().getMaxRequestsPerHost();
   }
 
-  private void validateClientParameters(String url, String apiKey) {
+  private void validateApiKey(String apiKey) {
     try {
       Validate.notEmpty(apiKey);
     } catch (Exception e) {
       throw new TectonClientException(TectonErrorMessage.INVALID_KEY);
     }
+  }
 
+  private void validateUrl(String url) {
     try {
       Validate.notEmpty(url);
       this.url = HttpUrl.parse(url);

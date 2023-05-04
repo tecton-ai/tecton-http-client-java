@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.IntStream;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Assert;
@@ -37,13 +38,13 @@ public class TectonClientTest {
 
   @Before
   public void setup() throws IOException, URISyntaxException {
-    this.url = "https://test-url.com";
     this.apiKey = "12345";
     mockWebServer = new MockWebServer();
     mockWebServer.start();
     HttpUrl baseUrl = mockWebServer.url("");
+    this.url = baseUrl.url().toString();
     classLoader = getClass().getClassLoader();
-    tectonClient = new TectonClient(baseUrl.url().toString(), "12345");
+    tectonClient = new TectonClient(this.url, this.apiKey);
     sampleResponses = TestUtils.readAllFilesInDirectory("mocktest/getfeatures", "json");
     sampleBatchResponses = TestUtils.readAllFilesInDirectory("mocktest/getfeaturesbatch", "json");
   }
@@ -118,6 +119,32 @@ public class TectonClientTest {
     SloInformation sloInfo = response.getSloInformation().get();
     Assert.assertEquals(new Double(0.016342122), sloInfo.getServerTimeSeconds().get());
     Assert.assertEquals(new Double(0.014861452), sloInfo.getSloServerTimeSeconds().get());
+  }
+
+  @Test
+  public void testTectonClientWithCustomOkHttpClient() throws IOException {
+    // Test Setup
+    mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody(sampleResponses.get(0)));
+
+    OkHttpClient httpClient = new OkHttpClient.Builder().build();
+    TectonClient tectonClient = new TectonClient(this.url, this.apiKey, httpClient);
+
+    // Create Request Data
+    GetFeaturesRequestData requestData =
+        new GetFeaturesRequestData()
+            .addRequestContext("amt", 100.55)
+            .addJoinKey("user_id", "xyz")
+            .addJoinKey("merchant", "abc");
+
+    // Create GetFeaturesRequest
+    GetFeaturesRequest request =
+        new GetFeaturesRequest(WORKSPACE_NAME, FEATURE_SERVICE_NAME, requestData);
+
+    // Send request and receive response
+    GetFeaturesResponse response = tectonClient.getFeatures(request);
+    // Feature Vector as List
+    List<FeatureValue> featureValues = response.getFeatureValues();
+    Assert.assertEquals(14, featureValues.size());
   }
 
   @Test

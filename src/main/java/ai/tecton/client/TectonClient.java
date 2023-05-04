@@ -15,6 +15,7 @@ import ai.tecton.client.transport.TectonHttpClient;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
+import okhttp3.OkHttpClient;
 
 /**
  * A client for interacting with the Tecton FeatureService API. The client provides several methods
@@ -34,7 +35,7 @@ public class TectonClient {
    *
    * @param url The Tecton Base Url
    * @param apiKey API Key for authenticating with the FeatureService API. See <a
-   *     href="https://docs.tecton.ai/latest/examples/fetch-real-time-features.html#authenticating-with-an-api-key/">Authenticating
+   *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api">Authenticating
    *     with an API key</a> for more information
    */
   public TectonClient(String url, String apiKey) {
@@ -47,12 +48,35 @@ public class TectonClient {
    *
    * @param url The Tecton Base Url
    * @param apiKey API Key for authenticating with the FeatureService API. See <a
-   *     href="https://docs.tecton.ai/latest/examples/fetch-real-time-features.html#authenticating-with-an-api-key/">Authenticating
+   *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api>Authenticating
    *     with an API key</a> for more information
-   * @param tectonClientOptions A {@link TectonClientOptions} object with custom comfigurations
+   * @param tectonClientOptions A {@link TectonClientOptions} object with custom configurations
    */
   public TectonClient(String url, String apiKey, TectonClientOptions tectonClientOptions) {
     this.tectonHttpClient = new TectonHttpClient(url, apiKey, tectonClientOptions);
+  }
+
+  /**
+   * Constructor for a Tecton Client with a custom OkHttpClient
+   *
+   * @param url The Tecton Base Url
+   * @param apiKey API Key for authenticating with the FeatureService API. See <a
+   *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api">Authenticating
+   *     with an API key</a> for more information
+   * @param httpClient An OkHttpClient for making requests and receiving responses from the Feature
+   *     Service API. Please refer to <a
+   *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/">OkHttp
+   *     Documentation</a> for recommendations on creating and maintaining an OkHttp Client in your
+   *     application. Tecton recommends configuring the <a
+   *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-connection-pool">ConnectionPool</a>
+   *     in the OkHttpClient for efficiently managing HTTP connections. If you intend to use the
+   *     {@link GetFeaturesBatchRequest} to send parallel requests to Tecton, please also configure
+   *     the <a
+   *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-dispatcher/max-requests-per-host">maxRequestsPerHost</a>
+   *     in the client's Dispatcher.
+   */
+  public TectonClient(String url, String apiKey, OkHttpClient httpClient) {
+    this.tectonHttpClient = new TectonHttpClient(url, apiKey, httpClient);
   }
 
   /**
