@@ -51,7 +51,7 @@ class ListDataType {
         && Objects.equals(float32List, that.float32List)
         && Objects.equals(float64List, that.float64List)
         && Objects.equals(int64List, that.int64List)
-        && listElementType == that.listElementType;
+        && Objects.equals(listElementType, that.listElementType);
   }
 
   /** Overrides <i>hashCode()</i> in class {@link Object} */
