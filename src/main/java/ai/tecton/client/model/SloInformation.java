@@ -1,6 +1,7 @@
 package ai.tecton.client.model;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import java.util.Set;
  * returned are wrapped in {@link }
  */
 public class SloInformation {
+
   private Boolean sloEligible;
 
   private Double serverTimeSeconds;
@@ -148,5 +150,31 @@ public class SloInformation {
           this.sloIneligibilityReasons,
           this.storeMaxLatency);
     }
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    SloInformation that = (SloInformation) o;
+    return Objects.equals(sloEligible, that.sloEligible)
+        && Objects.equals(serverTimeSeconds, that.serverTimeSeconds)
+        && Objects.equals(sloServerTimeSeconds, that.sloServerTimeSeconds)
+        && Objects.equals(storeResponseSizeBytes, that.storeResponseSizeBytes)
+        && Objects.equals(sloIneligibilityReasons, that.sloIneligibilityReasons)
+        && Objects.equals(storeMaxLatency, that.storeMaxLatency);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        sloEligible,
+        serverTimeSeconds,
+        sloServerTimeSeconds,
+        storeResponseSizeBytes,
+        sloIneligibilityReasons,
+        storeMaxLatency);
   }
 }

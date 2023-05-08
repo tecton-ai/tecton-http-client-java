@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
  * (i.e. microBatchSize&gt;1)
  */
 public class GetFeaturesBatchResponse {
+
   private final List<GetFeaturesResponse> batchResponseList;
 
   private SloInformation batchSloInfo;
@@ -98,6 +99,22 @@ public class GetFeaturesBatchResponse {
    */
   public Optional<SloInformation> getBatchSloInformation() {
     return Optional.ofNullable(this.batchSloInfo);
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GetFeaturesBatchResponse that = (GetFeaturesBatchResponse) o;
+    return Objects.equals(batchResponseList, that.batchResponseList)
+        && Objects.equals(batchSloInfo, that.batchSloInfo);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(batchResponseList, batchSloInfo);
   }
 
   // Parse a single HttpResponse and extract GetFeaturesResponse, SloInformation

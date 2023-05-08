@@ -164,4 +164,41 @@ public class GetFeatureRequestDataTest {
                   getFeaturesRequestData.getRequestContextMap().get(key));
             });
   }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    Map<String, String> joinKeyMap =
+        new HashMap<String, String>() {
+          {
+            put("user_id", "123");
+          }
+        };
+    Map<String, Object> requestContextMap =
+        new HashMap<String, Object>() {
+          {
+            put("amount", 500.00);
+          }
+        };
+
+    GetFeaturesRequestData requestData =
+        new GetFeaturesRequestData.Builder()
+            .joinKeyMap(joinKeyMap)
+            .requestContextMap(requestContextMap)
+            .build();
+    GetFeaturesRequestData requestDataEquals =
+        new GetFeaturesRequestData()
+            .addJoinKeyMap(joinKeyMap)
+            .addRequestContextMap(requestContextMap);
+    GetFeaturesRequestData requestDataNotEquals =
+        new GetFeaturesRequestData()
+            .addJoinKeyMap(new HashMap<>(joinKeyMap))
+            .addRequestContextMap(requestContextMap)
+            .addJoinKey("ad_id", "1234");
+
+    Assert.assertEquals(requestData, requestDataEquals);
+    Assert.assertEquals(requestData.hashCode(), requestDataEquals.hashCode());
+
+    Assert.assertNotEquals(requestData, requestDataNotEquals);
+    Assert.assertNotEquals(requestData.hashCode(), requestDataNotEquals.hashCode());
+  }
 }

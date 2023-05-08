@@ -5,7 +5,10 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -86,6 +89,11 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     Map<String, Boolean> metadata_options;
   }
 
+  /**
+   * Get the JSON representation of the request that will be sent to the /get-features endpoint.
+   *
+   * @return JSON String representation of {@link GetFeaturesRequest}
+   */
   @Override
   public String requestToJson() {
     GetFeaturesFields getFeaturesFields = new GetFeaturesFields();
@@ -108,6 +116,103 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     } catch (Exception e) {
       throw new TectonClientException(
           String.format(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST, e.getMessage()));
+    }
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    GetFeaturesRequest that = (GetFeaturesRequest) o;
+    return getFeaturesRequestData.equals(that.getFeaturesRequestData);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getFeaturesRequestData);
+  }
+
+  /**
+   * A Builder class for building instances of {@link GetFeaturesRequest} objects from values
+   * configured by setters
+   */
+  public static final class Builder {
+    Set<MetadataOption> metadataOptions;
+    private String workspaceName;
+    private String featureServiceName;
+    private GetFeaturesRequestData getFeaturesRequestData;
+
+    /** Constructor for instantiating an empty Builder */
+    public Builder() {
+      this.metadataOptions = new HashSet<>();
+    }
+
+    /**
+     * Setter for metadataOptions
+     *
+     * @param metadataOptions A {@link Set} of {@link MetadataOption} for retrieving additional
+     *     metadata about the feature values. Use {@link RequestConstants#ALL_METADATA_OPTIONS} to
+     *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
+     *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
+     *     be added to each request
+     * @return this Builder
+     */
+    public Builder metadataOptions(Set<MetadataOption> metadataOptions) {
+      this.metadataOptions = metadataOptions;
+      return this;
+    }
+
+    /**
+     * Setter for workspaceName
+     *
+     * @param workspaceName Name of the workspace in which the Feature Service is defined
+     * @return this Builder
+     */
+    public Builder workspaceName(String workspaceName) {
+      this.workspaceName = workspaceName;
+      return this;
+    }
+
+    /**
+     * Setter for featureServiceName
+     *
+     * @param featureServiceName Name of the Feature Service for which the feature vector is being
+     *     requested
+     * @return this Builder
+     */
+    public Builder featureServiceName(String featureServiceName) {
+      this.featureServiceName = featureServiceName;
+      return this;
+    }
+
+    /**
+     * Setter for {@link GetFeaturesRequestData}
+     *
+     * @param getFeaturesRequestData {@link GetFeaturesRequestData} object with joinKeyMap and/or
+     *     requestContextMap
+     * @return this Builder
+     */
+    public Builder getFeaturesRequestData(GetFeaturesRequestData getFeaturesRequestData) {
+      this.getFeaturesRequestData = getFeaturesRequestData;
+      return this;
+    }
+
+    /**
+     * Returns an instance of {@link GetFeaturesRequest} created from the fields set on this builder
+     *
+     * @return {@link GetFeaturesRequest} object
+     * @throws TectonClientException when workspaceName and/or featureServiceName is null or empty
+     */
+    public GetFeaturesRequest build() {
+      if (this.metadataOptions.isEmpty()) {
+        return new GetFeaturesRequest(workspaceName, featureServiceName, getFeaturesRequestData);
+      } else {
+        return new GetFeaturesRequest(
+            workspaceName, featureServiceName, getFeaturesRequestData, metadataOptions);
+      }
     }
   }
 }

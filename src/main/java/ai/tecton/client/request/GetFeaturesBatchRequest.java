@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
@@ -475,5 +476,38 @@ public class GetFeaturesBatchRequest {
             String.format(TectonErrorMessage.INVALID_GET_FEATURE_BATCH_REQUEST, e.getMessage()));
       }
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      if (!super.equals(o)) return false;
+      GetFeaturesMicroBatchRequest that = (GetFeaturesMicroBatchRequest) o;
+      return requestDataList.equals(that.requestDataList);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(super.hashCode(), requestDataList);
+    }
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GetFeaturesBatchRequest that = (GetFeaturesBatchRequest) o;
+    return microBatchSize == that.microBatchSize
+        && Objects.equals(requestList, that.requestList)
+        && Objects.equals(timeout, that.timeout)
+        && Objects.equals(endpoint, that.endpoint)
+        && method == that.method;
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(requestList, microBatchSize, timeout, endpoint, method);
   }
 }

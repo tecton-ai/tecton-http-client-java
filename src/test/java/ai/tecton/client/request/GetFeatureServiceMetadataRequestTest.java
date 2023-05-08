@@ -62,4 +62,33 @@ public class GetFeatureServiceMetadataRequestTest {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
+        new GetFeatureServiceMetadataRequest(TEST_FEATURESERVICE_NAME, TEST_WORKSPACENAME);
+
+    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequestEquals =
+        new GetFeatureServiceMetadataRequest.Builder()
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .workspaceName(TEST_WORKSPACENAME)
+            .build();
+
+    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequestNotEquals =
+        new GetFeatureServiceMetadataRequest.Builder()
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .workspaceName("dev_workspace")
+            .build();
+
+    Assert.assertEquals(getFeatureServiceMetadataRequest, getFeatureServiceMetadataRequestEquals);
+    Assert.assertEquals(
+        getFeatureServiceMetadataRequest.hashCode(),
+        getFeatureServiceMetadataRequestEquals.hashCode());
+
+    Assert.assertNotEquals(
+        getFeatureServiceMetadataRequest, getFeatureServiceMetadataRequestNotEquals);
+    Assert.assertNotEquals(
+        getFeatureServiceMetadataRequest.hashCode(),
+        getFeatureServiceMetadataRequestNotEquals.hashCode());
+  }
 }

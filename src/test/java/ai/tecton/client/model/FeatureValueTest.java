@@ -154,4 +154,38 @@ public class FeatureValueTest {
       Assert.assertEquals(message, e.getMessage());
     }
   }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    FeatureValue featureValue =
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.STRING,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT));
+    FeatureValue featureValueEquals =
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.STRING,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT));
+    FeatureValue featureValueNotEquals =
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.INT64,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT));
+
+    Assert.assertEquals(featureValue, featureValueEquals);
+    Assert.assertEquals(featureValue.hashCode(), featureValueEquals.hashCode());
+
+    Assert.assertNotEquals(featureValue, featureValueNotEquals);
+    Assert.assertNotEquals(featureValue.hashCode(), featureValueNotEquals.hashCode());
+  }
 }
