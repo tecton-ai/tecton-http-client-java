@@ -146,4 +146,20 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       }
     }
   }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GetFeaturesResponse that = (GetFeaturesResponse) o;
+    return Objects.equals(featureValues, that.featureValues)
+        && Objects.equals(sloInformation, that.sloInformation);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(featureValues, sloInformation);
+  }
 }

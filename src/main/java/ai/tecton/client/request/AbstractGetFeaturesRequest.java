@@ -13,6 +13,7 @@ import com.squareup.moshi.Types;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.reflect.Type;
+import java.util.Objects;
 import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,5 +82,19 @@ public abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
             return moshi.nextAdapter(this, type, nextAnnotations).serializeNulls();
           }
         };
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    AbstractGetFeaturesRequest that = (AbstractGetFeaturesRequest) o;
+    return Objects.equals(metadataOptions, that.metadataOptions);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), metadataOptions);
   }
 }

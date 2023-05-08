@@ -330,6 +330,43 @@ public class GetFeaturesBatchRequestTest {
     Assert.assertEquals(expected, actual);
   }
 
+  @Test
+  public void testEqualsAndHashCode() {
+    List<GetFeaturesRequestData> requestDataList = TestUtils.generateRequestDataForSize(3);
+
+    GetFeaturesBatchRequest getFeaturesBatchRequest =
+        new GetFeaturesBatchRequest.Builder()
+            .workspaceName(TEST_WORKSPACENAME)
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .requestDataList(requestDataList)
+            .microBatchSize(1)
+            .build();
+
+    GetFeaturesBatchRequest getFeaturesBatchRequestEquals =
+        new GetFeaturesBatchRequest.Builder()
+            .workspaceName(TEST_WORKSPACENAME)
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .requestDataList(requestDataList)
+            .microBatchSize(1)
+            .build();
+
+    GetFeaturesBatchRequest getFeaturesBatchRequestNotEquals =
+        new GetFeaturesBatchRequest.Builder()
+            .workspaceName(TEST_WORKSPACENAME)
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .requestDataList(requestDataList)
+            .microBatchSize(3)
+            .build();
+
+    Assert.assertEquals(getFeaturesBatchRequest, getFeaturesBatchRequestEquals);
+    Assert.assertEquals(
+        getFeaturesBatchRequest.hashCode(), getFeaturesBatchRequestEquals.hashCode());
+
+    Assert.assertNotEquals(getFeaturesBatchRequest, getFeaturesBatchRequestNotEquals);
+    Assert.assertNotEquals(
+        getFeaturesBatchRequest.hashCode(), getFeaturesBatchRequestNotEquals.hashCode());
+  }
+
   private void checkGetFeaturesCommonFields(
       AbstractGetFeaturesRequest getFeaturesRequest,
       String endpoint,

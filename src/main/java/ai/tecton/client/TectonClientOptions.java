@@ -178,6 +178,11 @@ public class TectonClientOptions {
       return this;
     }
 
+    /**
+     * Build a {@link TectonClientOptions} object from the Builder
+     *
+     * @return {@link TectonClientOptions}
+     */
     public TectonClientOptions build() {
       return new TectonClientOptions(
           this.readTimeout,

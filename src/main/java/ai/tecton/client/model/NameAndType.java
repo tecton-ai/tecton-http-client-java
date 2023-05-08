@@ -1,9 +1,11 @@
 package ai.tecton.client.model;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /** Class that represents the return types for parameters of FeatureServiceMetadata */
 public class NameAndType {
+
   String name;
   ValueType dataType;
   ValueType listElementType;
@@ -57,5 +59,22 @@ public class NameAndType {
    */
   public Optional<ValueType> getListElementType() {
     return Optional.ofNullable(this.listElementType);
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    NameAndType that = (NameAndType) o;
+    return Objects.equals(name, that.name)
+        && dataType == that.dataType
+        && listElementType == that.listElementType;
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, dataType, listElementType);
   }
 }

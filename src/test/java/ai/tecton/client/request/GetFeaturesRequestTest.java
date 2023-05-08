@@ -263,4 +263,31 @@ public class GetFeaturesRequestTest {
     String actual_json = getFeaturesRequest.requestToJson();
     Assert.assertEquals(expected_json, actual_json);
   }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    GetFeaturesRequest getFeaturesRequest =
+        new GetFeaturesRequest(
+            TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
+
+    GetFeaturesRequest getFeaturesRequestEquals =
+        new GetFeaturesRequest.Builder()
+            .workspaceName(TEST_WORKSPACENAME)
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .getFeaturesRequestData(defaultFeatureRequestData)
+            .build();
+
+    GetFeaturesRequest getFeaturesRequestNotEquals =
+        new GetFeaturesRequest.Builder()
+            .workspaceName("dev_workspace")
+            .featureServiceName(TEST_FEATURESERVICE_NAME)
+            .getFeaturesRequestData(defaultFeatureRequestData)
+            .build();
+
+    Assert.assertEquals(getFeaturesRequest, getFeaturesRequestEquals);
+    Assert.assertEquals(getFeaturesRequest.hashCode(), getFeaturesRequestEquals.hashCode());
+
+    Assert.assertNotEquals(getFeaturesRequest, getFeaturesRequestNotEquals);
+    Assert.assertNotEquals(getFeaturesRequest.hashCode(), getFeaturesRequestNotEquals.hashCode());
+  }
 }

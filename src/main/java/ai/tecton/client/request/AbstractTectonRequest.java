@@ -3,6 +3,7 @@ package ai.tecton.client.request;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.transport.TectonHttpClient;
+import java.util.Objects;
 import org.apache.commons.lang3.Validate;
 
 /** An abstract parent class for Tecton FeatureService API Request subclasses */
@@ -68,5 +69,21 @@ public abstract class AbstractTectonRequest {
     } catch (Exception e) {
       throw new TectonClientException(e.getMessage());
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    AbstractTectonRequest that = (AbstractTectonRequest) o;
+    return endpoint.equals(that.endpoint)
+        && method == that.method
+        && workspaceName.equals(that.workspaceName)
+        && featureServiceName.equals(that.featureServiceName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(endpoint, method, workspaceName, featureServiceName);
   }
 }

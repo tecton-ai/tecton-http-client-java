@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
  * GetFeaturesResponse
  */
 public class FeatureValue {
-
   private final SimpleDateFormat dateFormat =
       new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
@@ -121,6 +120,25 @@ public class FeatureValue {
     private Boolean booleanValue;
     private Double float64Value;
     private ListDataType listValue;
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Value value = (Value) o;
+      return valueType == value.valueType
+          && Objects.equals(stringValue, value.stringValue)
+          && Objects.equals(int64Value, value.int64Value)
+          && Objects.equals(booleanValue, value.booleanValue)
+          && Objects.equals(float64Value, value.float64Value)
+          && Objects.equals(listValue, value.listValue);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(
+          valueType, stringValue, int64Value, booleanValue, float64Value, listValue);
+    }
 
     // Primitive types
     // Float32 is currently not a supported type for feature values in Tecton. Refer here for all
@@ -265,5 +283,24 @@ public class FeatureValue {
           String.format(
               TectonErrorMessage.MISMATCHED_TYPE, value.listValue.listElementType.getName()));
     }
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FeatureValue that = (FeatureValue) o;
+    return Objects.equals(featureNamespace, that.featureNamespace)
+        && Objects.equals(featureName, that.featureName)
+        && Objects.equals(effectiveTime, that.effectiveTime)
+        && Objects.equals(value, that.value)
+        && Objects.equals(featureStatus, that.featureStatus);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(featureNamespace, featureName, effectiveTime, value, featureStatus);
   }
 }

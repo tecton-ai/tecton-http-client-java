@@ -57,6 +57,11 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
     String workspace_name;
   }
 
+  /**
+   * Get the JSON representation of the request that will be sent to the /metadata endpoint.
+   *
+   * @return JSON String representation of {@link GetFeatureServiceMetadataRequest}
+   */
   @Override
   public String requestToJson() {
     GetFeatureServiceMetadataFields serviceMetadataFields = new GetFeatureServiceMetadataFields();
@@ -68,6 +73,48 @@ public class GetFeatureServiceMetadataRequest extends AbstractTectonRequest {
     } catch (Exception e) {
       throw new TectonClientException(
           String.format(TectonErrorMessage.INVALID_GET_SERVICE_METADATA_REQUEST, e.getMessage()));
+    }
+  }
+
+  /**
+   * A Builder class for building instances of {@link GetFeatureServiceMetadataRequest} objects from
+   * values configured by setters
+   */
+  public static final class Builder {
+    private String workspaceName;
+    private String featureServiceName;
+
+    /**
+     * Setter for workspaceName
+     *
+     * @param workspaceName Name of the workspace to fetch metadata for the FeatureService from
+     * @return this Builder
+     */
+    public Builder workspaceName(String workspaceName) {
+      this.workspaceName = workspaceName;
+      return this;
+    }
+
+    /**
+     * Setter for featureServiceName
+     *
+     * @param featureServiceName Name of the Feature Service for which the metadata is being
+     *     requested
+     * @return this Builder
+     */
+    public Builder featureServiceName(String featureServiceName) {
+      this.featureServiceName = featureServiceName;
+      return this;
+    }
+
+    /**
+     * Returns an instance of {@link GetFeatureServiceMetadataRequest}
+     *
+     * @return {@link GetFeatureServiceMetadataRequest} object
+     * @throws TectonClientException when workspaceName and/or featureServiceName is null or empty
+     */
+    public GetFeatureServiceMetadataRequest build() {
+      return new GetFeatureServiceMetadataRequest(featureServiceName, workspaceName);
     }
   }
 }

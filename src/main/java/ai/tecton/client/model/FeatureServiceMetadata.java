@@ -3,6 +3,7 @@ package ai.tecton.client.model;
 import ai.tecton.client.request.GetFeaturesRequest;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -82,5 +83,22 @@ public class FeatureServiceMetadata {
   public Map<String, NameAndType> getFeatureValuesAsMap() {
     return this.featureValues.stream()
         .collect(Collectors.toMap(NameAndType::getName, Function.identity()));
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    FeatureServiceMetadata that = (FeatureServiceMetadata) o;
+    return Objects.equals(inputJoinKeys, that.inputJoinKeys)
+        && Objects.equals(inputRequestContextKeys, that.inputRequestContextKeys)
+        && Objects.equals(featureValues, that.featureValues);
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(inputJoinKeys, inputRequestContextKeys, featureValues);
   }
 }

@@ -188,4 +188,85 @@ public class TectonClient {
     }
     return httpResponse;
   }
+
+  /**
+   * A Builder class for creating an instance of {@link TectonClient} object with specific
+   * configurations
+   */
+  public static class Builder {
+    private String url;
+    private String apiKey;
+    private TectonClientOptions tectonClientOptions;
+    private OkHttpClient httpClient;
+
+    /**
+     * Setter for url
+     *
+     * @param url The Tecton Base Url
+     * @return this Builder
+     */
+    public Builder url(String url) {
+      this.url = url;
+      return this;
+    }
+
+    /**
+     * Setter for apiKey
+     *
+     * @param apiKey API Key for authenticating with the FeatureService API. See <a
+     *     href="https://docs.tecton.ai/docs/reading-feature-data/reading-feature-data-for-inference/reading-online-features-for-inference-using-the-http-api#creating-an-api-key-to-authenticate-to-the-http-api">Authenticating
+     *     with an API key</a> for more information
+     * @return this Builder
+     */
+    public Builder apiKey(String apiKey) {
+      this.apiKey = apiKey;
+      return this;
+    }
+
+    /**
+     * Setter for tectonClientOptions
+     *
+     * @param tectonClientOptions A {@link TectonClientOptions} object with custom configurations
+     * @return this Builder
+     */
+    public Builder tectonClientOptions(TectonClientOptions tectonClientOptions) {
+      this.tectonClientOptions = tectonClientOptions;
+      return this;
+    }
+
+    /**
+     * Setter for httpClient
+     *
+     * @param httpClient An OkHttpClient for making requests and receiving responses from the
+     *     Feature Service API. Please refer to <a
+     *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/">OkHttp
+     *     Documentation</a> for recommendations on creating and maintaining an OkHttp Client in
+     *     your application. Tecton recommends configuring the <a
+     *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-connection-pool">ConnectionPool</a>
+     *     in the OkHttpClient for efficiently managing HTTP connections. If you intend to use the
+     *     {@link GetFeaturesBatchRequest} to send parallel requests to Tecton, please also
+     *     configure the <a
+     *     href="https://square.github.io/okhttp/4.x/okhttp/okhttp3/-dispatcher/max-requests-per-host">maxRequestsPerHost</a>
+     *     in the client's Dispatcher.
+     * @return this Builder
+     */
+    public Builder httpClient(OkHttpClient httpClient) {
+      this.httpClient = httpClient;
+      return this;
+    }
+
+    /**
+     * Build a {@link TectonClient} object from the Builder
+     *
+     * @return {@link TectonClient}
+     */
+    public TectonClient build() {
+      if (this.httpClient != null) {
+        return new TectonClient(url, apiKey, httpClient);
+      } else if (this.tectonClientOptions != null) {
+        return new TectonClient(url, apiKey, tectonClientOptions);
+      }
+      return new TectonClient(url, apiKey);
+    }
+  }
 }

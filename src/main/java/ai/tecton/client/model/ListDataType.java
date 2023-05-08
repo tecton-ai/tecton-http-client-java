@@ -4,9 +4,11 @@ import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressWarnings("unchecked")
 class ListDataType {
+
   List<String> stringList;
   List<Float> float32List;
   List<Double> float64List;
@@ -37,5 +39,24 @@ class ListDataType {
       default:
         throw new TectonClientException(TectonErrorMessage.UNSUPPORTED_LIST_DATA_TYPE);
     }
+  }
+
+  /** Overrides <i>equals()</i> in class {@link Object} */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ListDataType that = (ListDataType) o;
+    return Objects.equals(stringList, that.stringList)
+        && Objects.equals(float32List, that.float32List)
+        && Objects.equals(float64List, that.float64List)
+        && Objects.equals(int64List, that.int64List)
+        && listElementType == that.listElementType;
+  }
+
+  /** Overrides <i>hashCode()</i> in class {@link Object} */
+  @Override
+  public int hashCode() {
+    return Objects.hash(stringList, float32List, float64List, int64List, listElementType);
   }
 }

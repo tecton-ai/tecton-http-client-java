@@ -113,6 +113,21 @@ public class GetFeaturesResponseTest {
     Assert.assertEquals(expectedLongArray, actualLongArray);
   }
 
+  @Test
+  public void testEqualsAndHashCode() {
+    GetFeaturesResponse getFeaturesResponse =
+        new GetFeaturesResponse(sampleResponses.get(1), Duration.ofMillis(10));
+    GetFeaturesResponse getFeaturesResponseEquals =
+        new GetFeaturesResponse(sampleResponses.get(1), Duration.ofMillis(5));
+    GetFeaturesResponse getFeaturesResponseNotEquals =
+        new GetFeaturesResponse(sampleResponses.get(2), Duration.ofMillis(10));
+
+    Assert.assertEquals(getFeaturesResponse, getFeaturesResponseEquals);
+    Assert.assertEquals(getFeaturesResponse.hashCode(), getFeaturesResponseEquals.hashCode());
+    Assert.assertNotEquals(getFeaturesResponse, getFeaturesResponseNotEquals);
+    Assert.assertNotEquals(getFeaturesResponse.hashCode(), getFeaturesResponseNotEquals.hashCode());
+  }
+
   private void checkFeatureValues(Map<String, FeatureValue> featureValues) {
     Assert.assertEquals(5, getFeaturesResponse.getFeatureValues().size());
     Assert.assertEquals(
