@@ -5,6 +5,7 @@ import ai.tecton.client.exceptions.TectonErrorMessage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 class ListDataType {
@@ -21,8 +22,14 @@ class ListDataType {
     // Parse List of Object to List of corresponding Java type
     switch (listElementType) {
       case INT64:
-        this.int64List = new ArrayList<>(featureObjectList.size());
-        featureObjectList.forEach(obj -> this.int64List.add(Long.parseLong((String) obj)));
+        this.int64List =
+            featureObjectList.stream()
+                .map(
+                    obj -> {
+                      String stringValue = (String) obj;
+                      return (stringValue != null) ? Long.parseLong(stringValue) : null;
+                    })
+                .collect(Collectors.toList());
         break;
       case FLOAT32:
         this.float32List = new ArrayList<>(featureObjectList.size());

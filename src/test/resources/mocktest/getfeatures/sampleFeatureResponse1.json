@@ -124,7 +124,7 @@
       },
       {
         "name": "user_transaction_counts.transaction_count_90d_1d",
-        "effectiveTime": "2022-07-06T00:00:00Z",
+        "effectiveTime": "2023-06-13T03:20:46.563Z",
         "dataType": {
           "type": "int64"
         },

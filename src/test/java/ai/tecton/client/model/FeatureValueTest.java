@@ -132,6 +132,44 @@ public class FeatureValueTest {
   }
 
   @Test
+  public void testLongListWithNulls() {
+    List<Long> expectedArray =
+        new ArrayList<Long>() {
+          {
+            add(123L);
+            add(335L);
+            add(null);
+            add(null);
+          }
+        };
+
+    // The response from Tecton API will represent an array of Int64 values as an array of String
+    List<String> arrayInput =
+        new ArrayList<String>() {
+          {
+            add("123");
+            add("335");
+            add(null);
+            add(null);
+          }
+        };
+
+    FeatureValue featureValue =
+        new FeatureValue(
+            arrayInput,
+            testName,
+            ValueType.ARRAY,
+            Optional.of(ValueType.INT64),
+            null,
+            Optional.of(FeatureStatus.PRESENT));
+
+    Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
+    Assert.assertEquals(ValueType.INT64, featureValue.getListElementType().get());
+    List<Long> actualArray = featureValue.int64ArrayValue();
+    Assert.assertEquals(expectedArray, actualArray);
+  }
+
+  @Test
   public void testInvalidTypeAccess() {
     FeatureValue featureValue =
         new FeatureValue(
