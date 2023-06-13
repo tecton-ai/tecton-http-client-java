@@ -2,8 +2,8 @@ package ai.tecton.client.model;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,8 +12,6 @@ import org.apache.commons.lang3.StringUtils;
  * GetFeaturesResponse
  */
 public class FeatureValue {
-  private final SimpleDateFormat dateFormat =
-      new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
   private final String featureNamespace;
   private final String featureName;
@@ -38,8 +36,7 @@ public class FeatureValue {
     // Parse effective_time if present
     try {
       if (StringUtils.isNotEmpty(effectiveTime)) {
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.effectiveTime = dateFormat.parse(effectiveTime).toInstant();
+        this.effectiveTime = OffsetDateTime.parse(effectiveTime).toInstant();
       }
     } catch (Exception e) {
       throw new TectonClientException(TectonErrorMessage.UNKNOWN_DATETIME_FORMAT);
