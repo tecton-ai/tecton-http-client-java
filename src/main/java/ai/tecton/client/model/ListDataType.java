@@ -17,7 +17,6 @@ class ListDataType {
   ValueType listElementType;
 
   ListDataType(ValueType listElementType, Object featureObject) {
-
     List<Object> featureObjectList = (ArrayList<Object>) featureObject;
     this.listElementType = listElementType;
     // Parse List of Object to List of corresponding Java type

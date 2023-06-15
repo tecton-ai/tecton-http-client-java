@@ -99,7 +99,7 @@ public class GetFeaturesBatchResponseTest {
     List<HttpResponse> httpResponseList = generateHttpResponseList(singleVectorResponseList);
     GetFeaturesBatchResponse batchResponse =
         new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(10), 1);
-    // Verify 4 GetFeaturesResponse in the list, each with a different feature vector size
+    // Verify 5 GetFeaturesResponse in the list, each with a different feature vector size
     Assert.assertEquals(5, batchResponse.getBatchResponseList().size());
     List<Integer> featureVectorSizes = Arrays.asList(14, 5, 3, 5);
     List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
@@ -127,7 +127,7 @@ public class GetFeaturesBatchResponseTest {
 
     GetFeaturesBatchResponse batchResponse =
         new GetFeaturesBatchResponse(httpResponseList, Duration.ofMillis(100), 1);
-    // Verify 6 GetFeaturesResponse in the list, 4 non-null and last two indices with null responses
+    // Verify 7 GetFeaturesResponse in the list, 4 non-null and last two indices with null responses
     List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
     Assert.assertEquals(7, responseList.size());
     responseList.subList(0, 5).forEach(Assert::assertNotNull);
