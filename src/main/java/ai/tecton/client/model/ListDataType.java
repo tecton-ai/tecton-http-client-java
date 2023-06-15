@@ -17,31 +17,48 @@ class ListDataType {
   ValueType listElementType;
 
   ListDataType(ValueType listElementType, Object featureObject) {
+
     List<Object> featureObjectList = (ArrayList<Object>) featureObject;
     this.listElementType = listElementType;
     // Parse List of Object to List of corresponding Java type
     switch (listElementType) {
       case INT64:
-        this.int64List =
-            featureObjectList.stream()
-                .map(
-                    obj -> {
-                      String stringValue = (String) obj;
-                      return (stringValue != null) ? Long.parseLong(stringValue) : null;
-                    })
-                .collect(Collectors.toList());
+        if (featureObjectList != null) {
+          this.int64List =
+              featureObjectList.stream()
+                  .map(
+                      obj -> {
+                        String stringValue = (String) obj;
+                        return (stringValue != null) ? Long.parseLong(stringValue) : null;
+                      })
+                  .collect(Collectors.toList());
+        } else {
+          this.int64List = null;
+        }
         break;
       case FLOAT32:
-        this.float32List = new ArrayList<>(featureObjectList.size());
-        featureObjectList.forEach(obj -> this.float32List.add((Float) obj));
+        if (featureObjectList != null) {
+          this.float32List = new ArrayList<>(featureObjectList.size());
+          featureObjectList.forEach(obj -> this.float32List.add((Float) obj));
+        } else {
+          this.float32List = null;
+        }
         break;
       case FLOAT64:
-        this.float64List = new ArrayList<>(featureObjectList.size());
-        featureObjectList.forEach(obj -> this.float64List.add((Double) obj));
+        if (featureObjectList != null) {
+          this.float64List = new ArrayList<>(featureObjectList.size());
+          featureObjectList.forEach(obj -> this.float64List.add((Double) obj));
+        } else {
+          this.float64List = null;
+        }
         break;
       case STRING:
-        this.stringList = new ArrayList<>(featureObjectList.size());
-        featureObjectList.forEach(obj -> this.stringList.add((String) obj));
+        if (featureObjectList != null) {
+          this.stringList = new ArrayList<>(featureObjectList.size());
+          featureObjectList.forEach(obj -> this.stringList.add((String) obj));
+        } else {
+          this.stringList = null;
+        }
         break;
       default:
         throw new TectonClientException(TectonErrorMessage.UNSUPPORTED_LIST_DATA_TYPE);
