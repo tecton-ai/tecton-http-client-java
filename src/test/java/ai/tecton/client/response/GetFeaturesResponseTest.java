@@ -55,7 +55,7 @@ public class GetFeaturesResponseTest {
   @Test
   public void testSloresponse() {
     Duration duration = Duration.ofMillis(10);
-    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(4), duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(3), duration);
     checkFeatureValues(getFeaturesResponse.getFeatureValuesAsMap());
     SloInformation sloInfo = getFeaturesResponse.getSloInformation().get();
 
@@ -150,7 +150,7 @@ public class GetFeaturesResponseTest {
   @Test
   public void testResponseWithNullArray() {
     Duration duration = Duration.ofMillis(10);
-    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(3), duration);
+    getFeaturesResponse = new GetFeaturesResponse(sampleResponses.get(4), duration);
     Assert.assertEquals(4, getFeaturesResponse.getFeatureValues().size());
     Map<String, FeatureValue> featureValueMap = getFeaturesResponse.getFeatureValuesAsMap();
     Assert.assertNull(featureValueMap.get("average_rain.cloud_type").stringArrayValue());
