@@ -2,6 +2,7 @@ package ai.tecton.client.request;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -142,11 +143,11 @@ public class GetFeaturesRequestData {
   }
 
   public Map<String, String> getJoinKeyMap() {
-    return this.joinKeyMap;
+    return Collections.unmodifiableMap(this.joinKeyMap);
   }
 
   public Map<String, Object> getRequestContextMap() {
-    return requestContextMap;
+    return Collections.unmodifiableMap(this.requestContextMap);
   }
 
   public boolean isEmptyJoinKeyMap() {
