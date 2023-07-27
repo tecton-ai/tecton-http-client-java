@@ -141,19 +141,19 @@ public class GetFeaturesRequestData {
     return this;
   }
 
-  Map<String, String> getJoinKeyMap() {
+  public Map<String, String> getJoinKeyMap() {
     return this.joinKeyMap;
   }
 
-  Map<String, Object> getRequestContextMap() {
+  public Map<String, Object> getRequestContextMap() {
     return requestContextMap;
   }
 
-  boolean isEmptyJoinKeyMap() {
+  public boolean isEmptyJoinKeyMap() {
     return this.joinKeyMap.isEmpty();
   }
 
-  boolean isEmptyRequestContextMap() {
+  public boolean isEmptyRequestContextMap() {
     return this.requestContextMap.isEmpty();
   }
 
