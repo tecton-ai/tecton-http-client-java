@@ -1,7 +1,6 @@
 package ai.tecton.client;
 
 import ai.tecton.client.exceptions.TectonClientException;
-import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
@@ -176,16 +175,7 @@ public class TectonClient {
         tectonHttpClient.performRequest(
             tectonRequest.getEndpoint(), tectonRequest.getMethod(), tectonRequest.requestToJson());
 
-    if (!httpResponse.isSuccessful()) {
-      throw new TectonServiceException(
-          String.format(
-              TectonErrorMessage.ERROR_RESPONSE,
-              httpResponse.getResponseCode(),
-              httpResponse.getMessage()));
-    }
-    if (!httpResponse.getResponseBody().isPresent()) {
-      throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
-    }
+    httpResponse.validateResponse();
     return httpResponse;
   }
 

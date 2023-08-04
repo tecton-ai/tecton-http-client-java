@@ -1,5 +1,10 @@
 package ai.tecton.client.transport;
 
+import ai.tecton.client.exceptions.HttpStatusExceptionFactory;
+import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.TectonErrorMessage;
+import ai.tecton.client.exceptions.TectonException;
+import ai.tecton.client.exceptions.TectonServiceException;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import java.time.Duration;
@@ -59,6 +64,25 @@ public class HttpResponse {
 
   public Optional<String> getResponseBody() {
     return Optional.ofNullable(this.body);
+  }
+
+  public void validateResponse() {
+    if (!this.isSuccessful()) {
+      int responseCode = this.getResponseCode();
+      String errorMessage = this.getMessage();
+
+      Optional<TectonException> tectonException =
+          HttpStatusExceptionFactory.createException(responseCode, errorMessage);
+      if (tectonException.isPresent()) {
+        throw tectonException.get();
+      }
+      throw new TectonServiceException(
+          String.format(
+              TectonErrorMessage.ERROR_RESPONSE, this.getResponseCode(), this.getMessage()));
+    }
+    if (!this.getResponseBody().isPresent()) {
+      throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
+    }
   }
 
   private static String parseErrorResponse(String responseBody, String message) {

@@ -1,13 +1,17 @@
 package ai.tecton.client.exceptions;
 
 /**
- * Exception class that is used to represent an error response received from the FeatureService API.
- * The errorMessage in the exception contains the Tecton error message received in the response
+ * Exception class that is used to represent server side errors. This includes Internal Server
+ * Errors, Gateway Timeouts etc
  */
-public class TectonServiceException extends RuntimeException {
+public class TectonServiceException extends TectonException {
 
   public TectonServiceException(String errorMessage) {
     super(errorMessage);
+  }
+
+  public TectonServiceException(String errorMessage, int statusCode) {
+    super(errorMessage, statusCode);
   }
 
   public TectonServiceException(String message, Throwable t) {
