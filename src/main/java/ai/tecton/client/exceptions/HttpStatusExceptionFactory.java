@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/** An exception factory that */
 public class HttpStatusExceptionFactory {
   private static final Map<Integer, Class<? extends TectonException>> exceptionMappings =
       new HashMap<>();

@@ -1,8 +1,8 @@
 package ai.tecton.client.exceptions;
 
 /**
- * Exception class that is used to represent various errors encountered by the client. It includes a
- * {@link TectonErrorMessage} that provides more information about the cause of the exception
+ * Exception class that is used to represent various client side errors, such as bad request
+ * parameters, unauthorized requests etc.
  */
 public class TectonClientException extends TectonException {
 

@@ -2,10 +2,7 @@ package ai.tecton.client.exceptions;
 
 import java.util.Optional;
 
-/**
- * Exception class that is used to represent various errors encountered by the client. It includes a
- * {@link TectonErrorMessage} that provides more information about the cause of the exception
- */
+/** Base class that is used to represent various errors encountered by the Java client. */
 public class TectonException extends RuntimeException {
   int statusCode;
 
@@ -26,6 +23,11 @@ public class TectonException extends RuntimeException {
     super(t);
   }
 
+  /**
+   * Returns the HTTP Status Code associated with the exception
+   *
+   * @return HTTP Status Code if present, Optional.empty() otherwise
+   */
   public Optional<Integer> getStatusCode() {
     return Optional.of(statusCode);
   }
