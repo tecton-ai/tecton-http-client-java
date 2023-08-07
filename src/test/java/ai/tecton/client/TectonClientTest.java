@@ -219,7 +219,7 @@ public class TectonClientTest {
     GetFeaturesRequest request =
         new GetFeaturesRequest(WORKSPACE_NAME, FEATURE_SERVICE_NAME, requestData);
     String expectedMessage =
-        "Received Error Response from Tecton wih code 400 and error message: Missing required join key: merchant";
+        "Received Error Response from Tecton with code 400 and error message: Missing required join key: merchant";
     try {
       GetFeaturesResponse response = tectonClient.getFeatures(request);
       fail();
@@ -243,7 +243,7 @@ public class TectonClientTest {
     GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
         new GetFeatureServiceMetadataRequest(FEATURE_SERVICE_NAME);
     String expectedMessage =
-        "Received Error Response from Tecton wih code 400 and error message: "
+        "Received Error Response from Tecton with code 400 and error message: "
             + "Unable to query FeatureService `fraud_detection_feature` for workspace `prod`."
             + " Newly created feature services may take up to 60 seconds to query. "
             + "Also, ensure that the workspace is a \"live\" workspace.";
@@ -266,7 +266,7 @@ public class TectonClientTest {
     GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
         new GetFeatureServiceMetadataRequest(FEATURE_SERVICE_NAME);
     String expectedMessage =
-        "Received Error Response from Tecton wih code 400 and error message: invalid 'Tecton-key' authorization header";
+        "Received Error Response from Tecton with code 400 and error message: invalid 'Tecton-key' authorization header";
 
     try {
       GetFeatureServiceMetadataResponse response =
