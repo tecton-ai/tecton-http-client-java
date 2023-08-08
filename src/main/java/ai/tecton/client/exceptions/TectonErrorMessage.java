@@ -11,7 +11,7 @@ public class TectonErrorMessage {
 
   public static final String CALL_FAILURE = "Unable to perform call. %s";
   public static final String ERROR_RESPONSE =
-      "Received Error Response from Tecton wih code %s and error message: %s";
+      "Received Error Response from Tecton with code %s and error message: %s";
 
   public static final String INVALID_WORKSPACENAME = "Workspace Name cannot be null or empty";
   public static final String INVALID_FEATURESERVICENAME =
