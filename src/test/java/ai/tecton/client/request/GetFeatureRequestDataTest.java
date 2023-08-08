@@ -201,4 +201,14 @@ public class GetFeatureRequestDataTest {
     Assert.assertNotEquals(requestData, requestDataNotEquals);
     Assert.assertNotEquals(requestData.hashCode(), requestDataNotEquals.hashCode());
   }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testModifyingRequestContextMapThrowsException() {
+    getFeaturesRequestData.getRequestContextMap().put("key", "value");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testModifyingJoinKeyMapThrowsException() {
+    getFeaturesRequestData.getJoinKeyMap().put("key", "value");
+  }
 }
