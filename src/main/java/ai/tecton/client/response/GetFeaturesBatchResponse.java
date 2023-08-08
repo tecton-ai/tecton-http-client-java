@@ -2,7 +2,6 @@ package ai.tecton.client.response;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-import ai.tecton.client.exceptions.TectonServiceException;
 import ai.tecton.client.model.FeatureValue;
 import ai.tecton.client.model.SloInformation;
 import ai.tecton.client.response.GetFeaturesResponseUtils.FeatureMetadata;
@@ -126,17 +125,7 @@ public class GetFeaturesBatchResponse {
     if (httpResponse == null)
       return new GetFeaturesMicroBatchResponse(Collections.nCopies(microBatchSize, null), null);
     // For an error response, throw TectonServiceException
-    if (!httpResponse.isSuccessful()) {
-      throw new TectonServiceException(
-          String.format(
-              TectonErrorMessage.ERROR_RESPONSE,
-              httpResponse.getResponseCode(),
-              httpResponse.getMessage()));
-    }
-    // Response is not null, but response body is empty.
-    if (!httpResponse.getResponseBody().isPresent()) {
-      throw new TectonClientException(TectonErrorMessage.EMPTY_RESPONSE);
-    }
+    httpResponse.validateResponse();
 
     String responseJson = httpResponse.getResponseBody().get();
     if (microBatchSize == 1) {

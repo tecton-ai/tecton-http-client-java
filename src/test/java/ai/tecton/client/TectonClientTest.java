@@ -2,9 +2,12 @@ package ai.tecton.client;
 
 import static junit.framework.TestCase.fail;
 
+import ai.tecton.client.exceptions.BadRequestException;
+import ai.tecton.client.exceptions.ResourceExhaustedException;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-import ai.tecton.client.exceptions.TectonServiceException;
+import ai.tecton.client.exceptions.TectonException;
+import ai.tecton.client.exceptions.UnauthorizedException;
 import ai.tecton.client.model.*;
 import ai.tecton.client.request.*;
 import ai.tecton.client.response.GetFeatureServiceMetadataResponse;
@@ -207,25 +210,8 @@ public class TectonClientTest {
   public void testErrorResponseWhenJoinKeyIsMissing() {
     String errorResponse =
         "{\"error\":\"Missing required join key: merchant\",\"code\":3,\"message\":\"Missing required join key: merchant\"}";
-
-    mockWebServer.enqueue(
-        new MockResponse()
-            .setResponseCode(400)
-            .setHeader("Content-Type", "application/json")
-            .setBody(errorResponse));
-
-    GetFeaturesRequestData requestData =
-        new GetFeaturesRequestData().addJoinKey("user_id", "12345").addRequestContext("amt", 555.5);
-    GetFeaturesRequest request =
-        new GetFeaturesRequest(WORKSPACE_NAME, FEATURE_SERVICE_NAME, requestData);
-    String expectedMessage =
-        "Received Error Response from Tecton with code 400 and error message: Missing required join key: merchant";
-    try {
-      GetFeaturesResponse response = tectonClient.getFeatures(request);
-      fail();
-    } catch (TectonServiceException e) {
-      Assert.assertEquals(expectedMessage, e.getMessage());
-    }
+    String expectedMessage = "Bad Request: Missing required join key: merchant";
+    testErrorResponse(400, errorResponse, expectedMessage, BadRequestException.class);
   }
 
   @Test
@@ -238,22 +224,9 @@ public class TectonClientTest {
             + "Newly created feature services may take up to 60 seconds to query."
             + " Also, ensure that the workspace is a \\\"live\\\" workspace.\"}";
 
-    mockWebServer.enqueue(new MockResponse().setResponseCode(400).setBody(errorResponse));
-
-    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
-        new GetFeatureServiceMetadataRequest(FEATURE_SERVICE_NAME);
     String expectedMessage =
-        "Received Error Response from Tecton with code 400 and error message: "
-            + "Unable to query FeatureService `fraud_detection_feature` for workspace `prod`."
-            + " Newly created feature services may take up to 60 seconds to query. "
-            + "Also, ensure that the workspace is a \"live\" workspace.";
-    try {
-      GetFeatureServiceMetadataResponse response =
-          tectonClient.getFeatureServiceMetadata(getFeatureServiceMetadataRequest);
-      fail();
-    } catch (TectonServiceException e) {
-      Assert.assertEquals(expectedMessage, e.getMessage());
-    }
+        "Bad Request: Unable to query FeatureService `fraud_detection_feature` for workspace `prod`. Newly created feature services may take up to 60 seconds to query. Also, ensure that the workspace is a \"live\" workspace.";
+    testErrorResponse(400, errorResponse, expectedMessage, BadRequestException.class);
   }
 
   @Test
@@ -261,20 +234,21 @@ public class TectonClientTest {
     String errorResponse =
         "{\"error\":\"invalid 'Tecton-key' authorization header\",\"code\":7,"
             + "\"message\":\"invalid 'Tecton-key' authorization header\"}";
-    mockWebServer.enqueue(new MockResponse().setResponseCode(400).setBody(errorResponse));
 
-    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
-        new GetFeatureServiceMetadataRequest(FEATURE_SERVICE_NAME);
+    String expectedMessage = "Unauthorized: invalid 'Tecton-key' authorization header";
+
+    testErrorResponse(401, errorResponse, expectedMessage, UnauthorizedException.class);
+  }
+
+  @Test
+  public void testTooManyRequests() {
+    String errorResponse =
+        "{\"error\":\"FeatureService/GetFeatures exceeded the concurrent request limit, please retry later\",\"code\":8,"
+            + "\"message\":\"FeatureService/GetFeatures exceeded the concurrent request limit, please retry later\"}";
     String expectedMessage =
-        "Received Error Response from Tecton with code 400 and error message: invalid 'Tecton-key' authorization header";
+        "FeatureService/GetFeatures exceeded the concurrent request limit, please retry later";
 
-    try {
-      GetFeatureServiceMetadataResponse response =
-          tectonClient.getFeatureServiceMetadata(getFeatureServiceMetadataRequest);
-      fail();
-    } catch (TectonServiceException e) {
-      Assert.assertEquals(expectedMessage, e.getMessage());
-    }
+    testErrorResponse(429, errorResponse, expectedMessage, ResourceExhaustedException.class);
   }
 
   @Test
@@ -316,7 +290,7 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
-                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
+                Assert.assertSame(value.getFeatureStatus().get(), FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
@@ -354,11 +328,34 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
-                Assert.assertTrue(value.getFeatureStatus().get() == FeatureStatus.PRESENT);
+                Assert.assertSame(value.getFeatureStatus().get(), FeatureStatus.PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
 
     Assert.assertTrue(batchResponse.getBatchSloInformation().isPresent());
+  }
+
+  private void testErrorResponse(
+      int expectedStatusCode,
+      String errorResponse,
+      String expectedMessage,
+      Class<? extends Exception> expectedException) {
+    mockWebServer.enqueue(
+        new MockResponse().setResponseCode(expectedStatusCode).setBody(errorResponse));
+
+    GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest =
+        new GetFeatureServiceMetadataRequest(FEATURE_SERVICE_NAME);
+
+    try {
+      GetFeatureServiceMetadataResponse response =
+          tectonClient.getFeatureServiceMetadata(getFeatureServiceMetadataRequest);
+      fail();
+    } catch (Exception e) {
+      Assert.assertTrue(expectedException.isInstance(e));
+      Assert.assertEquals(
+          Integer.valueOf(expectedStatusCode), ((TectonException) e).getStatusCode().get());
+      Assert.assertEquals(expectedMessage, e.getMessage());
+    }
   }
 }
