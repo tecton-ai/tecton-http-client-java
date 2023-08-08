@@ -144,8 +144,8 @@ public class TectonClient {
    * and feature service
    *
    * @param batchRequest The {@link GetFeaturesRequest} object with the request parameters
-   * @return {@link GetFeaturesBatchResponse} object wih the list of feature vector and metadata (if
-   *     requested)
+   * @return {@link GetFeaturesBatchResponse} object with the list of feature vector and metadata
+   *     (if requested)
    * @throws TectonClientException when the client is already closed or the client encounters an
    *     error while building the request or parsing the response
    * @throws BadRequestException If the HTTP status code is 400 (Bad Request).
