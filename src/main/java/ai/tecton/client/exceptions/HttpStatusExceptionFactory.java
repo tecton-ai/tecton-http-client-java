@@ -1,37 +1,30 @@
 package ai.tecton.client.exceptions;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
-/** An exception factory that */
+/** An exception factory that maps HTTP Status code to a custom Exception */
 public class HttpStatusExceptionFactory {
-  private static final Map<Integer, Class<? extends TectonException>> exceptionMappings =
-      new HashMap<>();
-
-  static {
-    exceptionMappings.put(400, BadRequestException.class);
-    exceptionMappings.put(401, UnauthorizedException.class);
-    exceptionMappings.put(403, ForbiddenException.class);
-    exceptionMappings.put(404, ResourceNotFoundException.class);
-    exceptionMappings.put(429, ResourceExhaustedException.class);
-    exceptionMappings.put(500, InternalServerErrorException.class);
-    exceptionMappings.put(503, ServiceUnavailableException.class);
-    exceptionMappings.put(504, GatewayTimeoutExceptionException.class);
-  }
 
   public static Optional<TectonException> createException(int statusCode, String errorMessage) {
-    Class<? extends TectonException> exceptionClass = exceptionMappings.get(statusCode);
-    if (exceptionClass == null) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(
-          exceptionClass
-              .getConstructor(String.class, int.class)
-              .newInstance(errorMessage, statusCode));
-    } catch (Exception e) {
-      throw new RuntimeException("Exception creation failed", e);
+    switch (statusCode) {
+      case 400:
+        return Optional.of(new BadRequestException(errorMessage, statusCode));
+      case 401:
+        return Optional.of(new UnauthorizedException(errorMessage, statusCode));
+      case 403:
+        return Optional.of(new ForbiddenException(errorMessage, statusCode));
+      case 404:
+        return Optional.of(new ResourceNotFoundException(errorMessage, statusCode));
+      case 429:
+        return Optional.of(new ResourceExhaustedException(errorMessage, statusCode));
+      case 500:
+        return Optional.of(new InternalServerErrorException(errorMessage, statusCode));
+      case 503:
+        return Optional.of(new ServiceUnavailableException(errorMessage, statusCode));
+      case 504:
+        return Optional.of(new GatewayTimeoutException(errorMessage, statusCode));
+      default:
+        return Optional.empty();
     }
   }
 }

@@ -7,7 +7,7 @@ package ai.tecton.client.exceptions;
  */
 public class UnauthorizedException extends TectonClientException {
 
-  public UnauthorizedException(String errorMessage, int statusCode) {
+  public UnauthorizedException(final String errorMessage, final int statusCode) {
 
     super("Unauthorized: " + errorMessage, statusCode);
   }

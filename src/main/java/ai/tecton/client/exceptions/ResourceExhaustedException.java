@@ -8,7 +8,7 @@ package ai.tecton.client.exceptions;
  */
 public class ResourceExhaustedException extends TectonClientException {
 
-  public ResourceExhaustedException(String errorMessage, int statusCode) {
+  public ResourceExhaustedException(final String errorMessage, final int statusCode) {
     super(errorMessage, statusCode);
   }
 }

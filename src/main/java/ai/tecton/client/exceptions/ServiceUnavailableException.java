@@ -8,7 +8,7 @@ package ai.tecton.client.exceptions;
  */
 public class ServiceUnavailableException extends TectonServiceException {
 
-  public ServiceUnavailableException(String errorMessage, int statusCode) {
+  public ServiceUnavailableException(final String errorMessage, final int statusCode) {
     super(errorMessage, statusCode);
   }
 }

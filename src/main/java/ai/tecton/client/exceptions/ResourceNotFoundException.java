@@ -8,7 +8,7 @@ package ai.tecton.client.exceptions;
  */
 public class ResourceNotFoundException extends TectonClientException {
 
-  public ResourceNotFoundException(String errorMessage, int statusCode) {
+  public ResourceNotFoundException(final String errorMessage, final int statusCode) {
 
     super("Not Found: " + errorMessage, statusCode);
   }

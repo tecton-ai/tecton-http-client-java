@@ -1,7 +1,15 @@
 package ai.tecton.client;
 
+import ai.tecton.client.exceptions.BadRequestException;
+import ai.tecton.client.exceptions.ForbiddenException;
+import ai.tecton.client.exceptions.GatewayTimeoutException;
+import ai.tecton.client.exceptions.InternalServerErrorException;
+import ai.tecton.client.exceptions.ResourceExhaustedException;
+import ai.tecton.client.exceptions.ResourceNotFoundException;
+import ai.tecton.client.exceptions.ServiceUnavailableException;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonServiceException;
+import ai.tecton.client.exceptions.UnauthorizedException;
 import ai.tecton.client.request.AbstractTectonRequest;
 import ai.tecton.client.request.GetFeatureServiceMetadataRequest;
 import ai.tecton.client.request.GetFeaturesBatchRequest;
@@ -86,7 +94,15 @@ public class TectonClient {
    * @return {@link GetFeaturesResponse} object representing the response from the HTTP API
    * @throws TectonClientException when the client is already closed or encounters an error while
    *     building the request or parsing the response
-   * @throws TectonServiceException when the client receives an error response from the HTTP API
+   * @throws BadRequestException If the HTTP status code is 400 (Bad Request).
+   * @throws UnauthorizedException If the HTTP status code is 401 (Unauthorized).
+   * @throws ForbiddenException If the HTTP status code is 403 (Forbidden).
+   * @throws ResourceNotFoundException If the HTTP status code is 404 (Resource Not Found).
+   * @throws ResourceExhaustedException If the HTTP status code is 429 (Resource Exhausted).
+   * @throws InternalServerErrorException If HTTP the status code is 500 (Internal Server Error).
+   * @throws ServiceUnavailableException If HTTP the status code is 503 (Service Unavailable).
+   * @throws GatewayTimeoutException If HTTP the status code is 504 (Gateway Timeout).
+   * @throws TectonServiceException If Tecton returns an error response with other status codes
    */
   public GetFeaturesResponse getFeatures(GetFeaturesRequest getFeaturesRequest)
       throws TectonClientException, TectonServiceException {
@@ -105,7 +121,15 @@ public class TectonClient {
    *     HTTP API
    * @throws TectonClientException when the client is already closed or encounters an error while
    *     building the request or parsing the response
-   * @throws TectonServiceException when the client receives an error response from the HTTP API
+   * @throws BadRequestException If the HTTP status code is 400 (Bad Request).
+   * @throws UnauthorizedException If the HTTP status code is 401 (Unauthorized).
+   * @throws ForbiddenException If the HTTP status code is 403 (Forbidden).
+   * @throws ResourceNotFoundException If the HTTP status code is 404 (Resource Not Found).
+   * @throws ResourceExhaustedException If the HTTP status code is 429 (Resource Exhausted).
+   * @throws InternalServerErrorException If HTTP the status code is 500 (Internal Server Error).
+   * @throws ServiceUnavailableException If HTTP the status code is 503 (Service Unavailable).
+   * @throws GatewayTimeoutException If HTTP the status code is 504 (Gateway Timeout).
+   * @throws TectonServiceException If Tecton returns an error response with other status codes
    */
   public GetFeatureServiceMetadataResponse getFeatureServiceMetadata(
       GetFeatureServiceMetadataRequest getFeatureServiceMetadataRequest)
@@ -124,7 +148,15 @@ public class TectonClient {
    *     requested)
    * @throws TectonClientException when the client is already closed or the client encounters an
    *     error while building the request or parsing the response
-   * @throws TectonServiceException when the client receives an error response from the HTTP API
+   * @throws BadRequestException If the HTTP status code is 400 (Bad Request).
+   * @throws UnauthorizedException If the HTTP status code is 401 (Unauthorized).
+   * @throws ForbiddenException If the HTTP status code is 403 (Forbidden).
+   * @throws ResourceNotFoundException If the HTTP status code is 404 (Resource Not Found).
+   * @throws ResourceExhaustedException If the HTTP status code is 429 (Resource Exhausted).
+   * @throws InternalServerErrorException If HTTP the status code is 500 (Internal Server Error).
+   * @throws ServiceUnavailableException If HTTP the status code is 503 (Service Unavailable).
+   * @throws GatewayTimeoutException If HTTP the status code is 504 (Gateway Timeout).
+   * @throws TectonServiceException If Tecton returns an error response with other status codes
    */
   public GetFeaturesBatchResponse getFeaturesBatch(GetFeaturesBatchRequest batchRequest)
       throws TectonClientException, TectonServiceException {

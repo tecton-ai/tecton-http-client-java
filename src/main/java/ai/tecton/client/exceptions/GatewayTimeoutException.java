@@ -6,9 +6,9 @@ package ai.tecton.client.exceptions;
  * from the Feature Server, resulting in a "504 Gateway Timeout" HTTP response status. It extends
  * the {@link TectonServiceException} class.
  */
-public class GatewayTimeoutExceptionException extends TectonServiceException {
+public class GatewayTimeoutException extends TectonServiceException {
 
-  public GatewayTimeoutExceptionException(String errorMessage, int statusCode) {
+  public GatewayTimeoutException(final String errorMessage, final int statusCode) {
     super(errorMessage, statusCode);
   }
 }

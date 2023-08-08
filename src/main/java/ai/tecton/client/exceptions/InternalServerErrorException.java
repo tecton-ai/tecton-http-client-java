@@ -7,7 +7,7 @@ package ai.tecton.client.exceptions;
  */
 public class InternalServerErrorException extends TectonServiceException {
 
-  public InternalServerErrorException(String errorMessage, int statusCode) {
+  public InternalServerErrorException(final String errorMessage, final int statusCode) {
     super(errorMessage, statusCode);
   }
 }

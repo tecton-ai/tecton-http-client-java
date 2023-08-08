@@ -8,7 +8,7 @@ package ai.tecton.client.exceptions;
  */
 public class ForbiddenException extends TectonClientException {
 
-  public ForbiddenException(String errorMessage, int statusCode) {
+  public ForbiddenException(final String errorMessage, final int statusCode) {
     super(errorMessage, statusCode);
   }
 }
