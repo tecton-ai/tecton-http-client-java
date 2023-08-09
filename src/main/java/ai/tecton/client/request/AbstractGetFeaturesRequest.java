@@ -2,7 +2,7 @@ package ai.tecton.client.request;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient.HttpMethod;
@@ -30,7 +30,7 @@ public abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
       String featureServiceName,
       String endpoint,
       Set<MetadataOption> metadataOptions)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     super(endpoint, httpMethod, workspaceName, featureServiceName);
     if (metadataOptions == null || metadataOptions.size() == 0) {
       this.metadataOptions = RequestConstants.DEFAULT_METADATA_OPTIONS;
@@ -61,7 +61,7 @@ public abstract class AbstractGetFeaturesRequest extends AbstractTectonRequest {
   static void validateRequestParameters(GetFeaturesRequestData getFeaturesRequestData) {
     if (getFeaturesRequestData.isEmptyJoinKeyMap()
         && getFeaturesRequestData.isEmptyRequestContextMap()) {
-      throw new TectonClientException(TectonErrorMessage.EMPTY_REQUEST_MAPS);
+      throw new InvalidRequestParameterException(TectonErrorMessage.EMPTY_REQUEST_MAPS);
     }
   }
 

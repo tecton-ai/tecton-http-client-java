@@ -1,6 +1,6 @@
 package ai.tecton.client.request;
 
-import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import com.squareup.moshi.JsonAdapter;
@@ -114,7 +114,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     try {
       return jsonAdapter.toJson(getFeaturesRequestJson);
     } catch (Exception e) {
-      throw new TectonClientException(
+      throw new InvalidRequestParameterException(
           String.format(TectonErrorMessage.INVALID_GET_FEATURE_REQUEST, e.getMessage()));
     }
   }
@@ -204,7 +204,8 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
      * Returns an instance of {@link GetFeaturesRequest} created from the fields set on this builder
      *
      * @return {@link GetFeaturesRequest} object
-     * @throws TectonClientException when workspaceName and/or featureServiceName is null or empty
+     * @throws InvalidRequestParameterException when workspaceName and/or featureServiceName is null
+     *     or empty
      */
     public GetFeaturesRequest build() {
       if (this.metadataOptions.isEmpty()) {

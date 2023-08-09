@@ -1,5 +1,6 @@
 package ai.tecton.client.request;
 
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
@@ -66,9 +67,10 @@ public class GetFeaturesBatchRequest {
    *     requested
    * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
    *     and/or requestContextMap
-   * @throws TectonClientException when workspacename or featureServiceName is empty or null
-   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
-   *     null/empty elements)
+   * @throws InvalidRequestParameterException when workspacename or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
    */
   public GetFeaturesBatchRequest(
       String workspaceName,
@@ -98,9 +100,10 @@ public class GetFeaturesBatchRequest {
    *     request all metadata and {@link RequestConstants#NONE_METADATA_OPTIONS} to request no
    *     metadata respectively. By default, {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will
    *     be added to each request
-   * @throws TectonClientException when workspaceName or featureServiceName is empty or null
-   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
-   *     null/empty elements)
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
    */
   public GetFeaturesBatchRequest(
       String workspaceName,
@@ -134,9 +137,10 @@ public class GetFeaturesBatchRequest {
    *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
    *     multiple micro batches of this size and executes them parallely. By default, the
    *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
-   * @throws TectonClientException when workspaceName or featureServiceName is empty or null
-   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
-   *     null/empty elements)
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
    */
   public GetFeaturesBatchRequest(
       String workspaceName,
@@ -173,11 +177,12 @@ public class GetFeaturesBatchRequest {
    * @param timeout The max time in {@link Duration} for which the client waits for the batch
    *     requests to complete before canceling the operation and returning the partial list of
    *     results.
-   * @throws TectonClientException when workspacename or featureServiceName is empty or null
-   * @throws TectonClientException when requestDataList is invalid (null/empty or contains
-   *     null/empty elements)
-   * @throws TectonClientException when the microBatchSize is out of bounds of [ 1, {@value
-   *     RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
+   * @throws InvalidRequestParameterException when the microBatchSize is out of bounds of [ 1,
+   *     {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
    */
   public GetFeaturesBatchRequest(
       String workspaceName,
@@ -345,8 +350,8 @@ public class GetFeaturesBatchRequest {
      *     into multiple micro batches of this size and executes them parallely. By default, the
      *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
      * @return this Builder
-     * @throws TectonClientException when the microBatchSize is out of bounds of [ 1, {@value
-     *     RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+     * @throws InvalidRequestParameterException when the microBatchSize is out of bounds of [ 1,
+     *     {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
      */
     public Builder microBatchSize(int microBatchSize) throws TectonClientException {
       this.microBatchSize = microBatchSize;
@@ -371,7 +376,7 @@ public class GetFeaturesBatchRequest {
      * @return {@link GetFeaturesBatchRequest} object
      * @throws TectonClientException when requestDataList is invalid ( when the requestDataList is
      *     null or empty, or any joinKeyMap or requestContextMap is null or empty)
-     * @throws TectonClientException when microBatchSize is out of bounds of [1, {@value
+     * @throws InvalidRequestParameterException when microBatchSize is out of bounds of [1, {@value
      *     RequestConstants#MAX_MICRO_BATCH_SIZE}
      */
     public GetFeaturesBatchRequest build() throws TectonClientException {
@@ -393,11 +398,11 @@ public class GetFeaturesBatchRequest {
       int microBatchSize) {
     AbstractTectonRequest.validateRequestParameters(workspaceName, featureServiceName);
     if (requestDataList == null || requestDataList.isEmpty()) {
-      throw new TectonClientException(TectonErrorMessage.INVALID_REQUEST_DATA_LIST);
+      throw new InvalidRequestParameterException(TectonErrorMessage.INVALID_REQUEST_DATA_LIST);
     }
     requestDataList.parallelStream().forEach(AbstractGetFeaturesRequest::validateRequestParameters);
     if (microBatchSize > RequestConstants.MAX_MICRO_BATCH_SIZE || microBatchSize < 1) {
-      throw new TectonClientException(
+      throw new InvalidRequestParameterException(
           String.format(
               TectonErrorMessage.INVALID_MICRO_BATCH_SIZE,
               1,
@@ -472,7 +477,7 @@ public class GetFeaturesBatchRequest {
       try {
         return jsonAdapter.toJson(getFeaturesRequestJson);
       } catch (Exception e) {
-        throw new TectonClientException(
+        throw new InvalidRequestParameterException(
             String.format(TectonErrorMessage.INVALID_GET_FEATURE_BATCH_REQUEST, e.getMessage()));
       }
     }

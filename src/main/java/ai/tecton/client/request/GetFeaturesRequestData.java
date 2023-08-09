@@ -1,6 +1,6 @@
 package ai.tecton.client.request;
 
-import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,11 +33,11 @@ public class GetFeaturesRequestData {
    *     <p>For int64 (Long) keys, the value should be a string of the decimal representation of the
    *     integer
    * @return Returns the GetFeaturesRequestData object after setting joinKeyMap
-   * @throws TectonClientException when joinKeyMap is null or empty, or any key or value in the map
-   *     is null or empty
+   * @throws InvalidRequestParameterException when joinKeyMap is null or empty, or any key or value
+   *     in the map is null or empty
    */
   public GetFeaturesRequestData addJoinKeyMap(Map<String, String> joinKeyMap)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     Validate.notEmpty(joinKeyMap);
     joinKeyMap.forEach(this::validateKeyValue);
     this.joinKeyMap = joinKeyMap;
@@ -55,11 +55,11 @@ public class GetFeaturesRequestData {
    *     of the integer
    *     <p>For double values, the value should be a java.lang.Double
    * @return Returns the GetFeaturesRequestData object after setting requestContextMap
-   * @throws TectonClientException when requestContextMap is null or empty, or any key or value in
-   *     the map is null or empty
+   * @throws InvalidRequestParameterException when requestContextMap is null or empty, or any key or
+   *     value in the map is null or empty
    */
   public GetFeaturesRequestData addRequestContextMap(Map<String, Object> requestContextMap)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     Validate.notEmpty(requestContextMap);
     requestContextMap.forEach(this::validateKeyValueDisallowingNullValue);
     this.requestContextMap = requestContextMap;
@@ -72,9 +72,10 @@ public class GetFeaturesRequestData {
    * @param key join key name
    * @param value String join value
    * @return Returns the GetFeaturesRequestData object after adding the join key value
-   * @throws TectonClientException when the join key or value is null or empty
+   * @throws InvalidRequestParameterException when the join key or value is null or empty
    */
-  public GetFeaturesRequestData addJoinKey(String key, String value) throws TectonClientException {
+  public GetFeaturesRequestData addJoinKey(String key, String value)
+      throws InvalidRequestParameterException {
     validateKeyValue(key, value);
     joinKeyMap.put(key, value);
     return this;
@@ -86,9 +87,10 @@ public class GetFeaturesRequestData {
    * @param key join key name
    * @param value int64 (Long) join value
    * @return Returns the GetFeaturesRequestData object after adding the join key value
-   * @throws TectonClientException when the join key or value is null or empty
+   * @throws InvalidRequestParameterException when the join key or value is null or empty
    */
-  public GetFeaturesRequestData addJoinKey(String key, Long value) throws TectonClientException {
+  public GetFeaturesRequestData addJoinKey(String key, Long value)
+      throws InvalidRequestParameterException {
     String joinKeyValue = (value == null) ? null : value.toString();
     validateKeyValue(key, joinKeyValue);
     joinKeyMap.put(key, joinKeyValue);
@@ -101,10 +103,10 @@ public class GetFeaturesRequestData {
    * @param key request context name
    * @param value String request context value
    * @return Returns the GetFeaturesRequestData object after adding the request context key value
-   * @throws TectonClientException when the request context key or value is null or empty
+   * @throws InvalidRequestParameterException when the request context key or value is null or empty
    */
   public GetFeaturesRequestData addRequestContext(String key, String value)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value);
     return this;
@@ -118,10 +120,10 @@ public class GetFeaturesRequestData {
    *     <p>Note: The int64 value is converted to a String of the decimal representation of the
    *     integer
    * @return Returns the GetFeaturesRequestData object after adding the request context key value
-   * @throws TectonClientException when the request context key or value is null or empty
+   * @throws InvalidRequestParameterException when the request context key or value is null or empty
    */
   public GetFeaturesRequestData addRequestContext(String key, Long value)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value.toString());
     return this;
@@ -133,10 +135,10 @@ public class GetFeaturesRequestData {
    * @param key request context name
    * @param value Double request context value
    * @return Returns the GetFeaturesRequestData object after adding the request context key value
-   * @throws TectonClientException when the request context key or value is null or empty
+   * @throws InvalidRequestParameterException when the request context key or value is null or empty
    */
   public GetFeaturesRequestData addRequestContext(String key, Double value)
-      throws TectonClientException {
+      throws InvalidRequestParameterException {
     validateKeyValueDisallowingNullValue(key, value);
     requestContextMap.put(key, value);
     return this;
@@ -159,15 +161,23 @@ public class GetFeaturesRequestData {
   }
 
   private void validateKeyValue(String key, Object value) {
-    Validate.notEmpty(key, TectonErrorMessage.INVALID_KEY_VALUE);
-    if (value instanceof String) {
-      Validate.notEmpty((String) value, TectonErrorMessage.INVALID_KEY_VALUE);
+    try {
+      Validate.notEmpty(key, TectonErrorMessage.INVALID_KEY_VALUE);
+      if (value instanceof String) {
+        Validate.notEmpty((String) value, TectonErrorMessage.INVALID_KEY_VALUE);
+      }
+    } catch (Exception e) {
+      throw new InvalidRequestParameterException(e.getMessage());
     }
   }
 
   private void validateKeyValueDisallowingNullValue(String key, Object value) {
-    validateKeyValue(key, value);
-    Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
+    try {
+      validateKeyValue(key, value);
+      Validate.notNull(value, TectonErrorMessage.INVALID_KEY_VALUE);
+    } catch (Exception e) {
+      throw new InvalidRequestParameterException(e.getMessage());
+    }
   }
 
   /** A Builder class for creating an instance of {@link GetFeaturesRequestData} object */

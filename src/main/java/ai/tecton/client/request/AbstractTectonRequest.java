@@ -1,5 +1,6 @@
 package ai.tecton.client.request;
 
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.transport.TectonHttpClient;
@@ -67,7 +68,7 @@ public abstract class AbstractTectonRequest {
       Validate.notEmpty(workspaceName, TectonErrorMessage.INVALID_WORKSPACENAME);
       Validate.notEmpty(featureServiceName, TectonErrorMessage.INVALID_FEATURESERVICENAME);
     } catch (Exception e) {
-      throw new TectonClientException(e.getMessage());
+      throw new InvalidRequestParameterException(e.getMessage());
     }
   }
 
