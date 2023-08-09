@@ -2,6 +2,7 @@ package ai.tecton.client.request;
 
 import static org.junit.Assert.fail;
 
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addJoinKey(null, "testValue");
       fail();
-    } catch (NullPointerException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -32,7 +33,7 @@ public class GetFeatureRequestDataTest {
   public void testShouldAllowNullJoinValue() {
     try {
       getFeaturesRequestData.addJoinKey("testKey", (String) null);
-    } catch (NullPointerException e) {
+    } catch (InvalidRequestParameterException e) {
       fail();
     }
   }
@@ -42,7 +43,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addRequestContext(null, "testValue");
       fail();
-    } catch (NullPointerException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -52,7 +53,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addRequestContext("testKey", (String) null);
       fail();
-    } catch (NullPointerException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -62,7 +63,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addJoinKey("", "testValue");
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -72,7 +73,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addJoinKey("testKey", "");
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -82,7 +83,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addRequestContext("", "testValue");
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
@@ -92,7 +93,7 @@ public class GetFeatureRequestDataTest {
     try {
       getFeaturesRequestData.addRequestContext("testKey", "");
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
