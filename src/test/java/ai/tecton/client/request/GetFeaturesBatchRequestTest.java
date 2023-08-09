@@ -3,6 +3,7 @@ package ai.tecton.client.request;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
@@ -107,7 +108,7 @@ public class GetFeaturesBatchRequestTest {
               .requestDataList(requestData)
               .build();
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }

@@ -2,7 +2,7 @@ package ai.tecton.client.request;
 
 import static org.junit.Assert.fail;
 
-import ai.tecton.client.exceptions.TectonClientException;
+import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient;
@@ -37,7 +37,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest("", TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
       fail();
-    } catch (TectonClientException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
     }
   }
@@ -48,7 +48,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(TEST_WORKSPACENAME, "", defaultFeatureRequestData);
       fail();
-    } catch (TectonClientException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
@@ -59,7 +59,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(null, TEST_FEATURESERVICE_NAME, defaultFeatureRequestData);
       fail();
-    } catch (TectonClientException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_WORKSPACENAME, e.getMessage());
     }
   }
@@ -70,7 +70,7 @@ public class GetFeaturesRequestTest {
       getFeaturesRequest =
           new GetFeaturesRequest(TEST_WORKSPACENAME, null, defaultFeatureRequestData);
       fail();
-    } catch (TectonClientException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.INVALID_FEATURESERVICENAME, e.getMessage());
     }
   }
@@ -83,7 +83,7 @@ public class GetFeaturesRequestTest {
           new GetFeaturesRequest(
               TEST_WORKSPACENAME, TEST_FEATURESERVICE_NAME, getFeaturesRequestData);
       fail();
-    } catch (TectonClientException e) {
+    } catch (InvalidRequestParameterException e) {
       Assert.assertEquals(TectonErrorMessage.EMPTY_REQUEST_MAPS, e.getMessage());
     }
   }
