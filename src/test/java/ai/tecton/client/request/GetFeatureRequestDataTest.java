@@ -49,12 +49,11 @@ public class GetFeatureRequestDataTest {
   }
 
   @Test
-  public void testNullRequestContextValue() {
+  public void testShouldAllowNullRequestContextValue() {
     try {
       getFeaturesRequestData.addRequestContext("testKey", (String) null);
+    } catch (Exception e) {
       fail();
-    } catch (InvalidRequestParameterException e) {
-      Assert.assertEquals(TectonErrorMessage.INVALID_KEY_VALUE, e.getMessage());
     }
   }
 
