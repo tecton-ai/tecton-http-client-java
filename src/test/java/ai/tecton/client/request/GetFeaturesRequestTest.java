@@ -106,7 +106,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -131,7 +131,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null,\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null,\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
