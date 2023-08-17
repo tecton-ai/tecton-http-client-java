@@ -51,7 +51,11 @@ public class GetFeatureRequestDataTest {
   @Test
   public void testShouldAllowNullRequestContextValue() {
     try {
-      getFeaturesRequestData.addRequestContext("testKey", (String) null);
+      getFeaturesRequestData.addRequestContext("testStringKey", (String) null);
+      getFeaturesRequestData.addRequestContext("testLongKey", (Long) null);
+      getFeaturesRequestData.addRequestContext("testDoubleKey", (Double) null);
+
+      Assert.assertEquals(3, getFeaturesRequestData.getRequestContextMap().size());
     } catch (Exception e) {
       fail();
     }

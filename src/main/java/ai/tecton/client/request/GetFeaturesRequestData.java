@@ -125,7 +125,8 @@ public class GetFeaturesRequestData {
   public GetFeaturesRequestData addRequestContext(String key, Long value)
       throws InvalidRequestParameterException {
     validateKeyValue(key, value);
-    requestContextMap.put(key, value.toString());
+    String requestContextValue = (value == null) ? null : value.toString();
+    requestContextMap.put(key, requestContextValue);
     return this;
   }
 
