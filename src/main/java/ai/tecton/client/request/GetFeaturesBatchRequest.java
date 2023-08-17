@@ -67,7 +67,7 @@ public class GetFeaturesBatchRequest {
    *     requested
    * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
    *     and/or requestContextMap
-   * @throws InvalidRequestParameterException when workspacename or featureServiceName is empty or
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
    *     null
    * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
    *     contains null/empty elements)

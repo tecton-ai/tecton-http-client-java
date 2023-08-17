@@ -85,7 +85,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
     String feature_service_name;
     String workspace_name;
     @SerializeNulls Map<String, String> join_key_map;
-    Map<String, Object> request_context_map;
+    @SerializeNulls Map<String, Object> request_context_map;
     Map<String, Boolean> metadata_options;
   }
 

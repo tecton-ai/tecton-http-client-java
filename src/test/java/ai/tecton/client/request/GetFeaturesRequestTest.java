@@ -106,7 +106,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -131,7 +131,7 @@ public class GetFeaturesRequestTest {
     Assert.assertEquals("testValue", joinKeyMap.get("testKey"));
 
     String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null,\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null,\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);
@@ -141,6 +141,7 @@ public class GetFeaturesRequestTest {
   public void testRequestWithRequestContextMap() throws IOException {
     defaultFeatureRequestData.addRequestContext("testKey1", 999.999);
     defaultFeatureRequestData.addRequestContext("testKey2", "testVal");
+    defaultFeatureRequestData.addRequestContext("testNullKey", (String) null);
 
     getFeaturesRequest =
         new GetFeaturesRequest(
@@ -153,12 +154,13 @@ public class GetFeaturesRequestTest {
 
     Map<String, Object> requestContextMap =
         getFeaturesRequest.getFeaturesRequestData().getRequestContextMap();
-    Assert.assertEquals(2, requestContextMap.size());
+    Assert.assertEquals(3, requestContextMap.size());
     Assert.assertEquals(999.999, requestContextMap.get("testKey1"));
     Assert.assertEquals("testVal", requestContextMap.get("testKey2"));
+    Assert.assertNull(requestContextMap.get("testNullKey"));
 
     String expected_json =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":{\"testKey2\":\"testVal\",\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testKey\":\"testValue\"},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":{\"testKey2\":\"testVal\",\"testNullKey\":null,\"testKey1\":999.999},\"workspace_name\":\"testWorkspaceName\"}}";
     String actual_json = getFeaturesRequest.requestToJson();
 
     Assert.assertEquals(expected_json, actual_json);

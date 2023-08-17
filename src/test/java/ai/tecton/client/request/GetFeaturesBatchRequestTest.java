@@ -327,7 +327,7 @@ public class GetFeaturesBatchRequestTest {
 
     String actual = getFeaturesBatchRequest.getRequestList().get(0).requestToJson();
     String expected =
-        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"workspace_name\":\"testWorkspaceName\"}}";
+        "{\"params\":{\"feature_service_name\":\"testFSName\",\"join_key_map\":{\"testNullKey\":null},\"metadata_options\":{\"include_names\":true,\"include_data_types\":true},\"request_context_map\":null,\"workspace_name\":\"testWorkspaceName\"}}";
     Assert.assertEquals(expected, actual);
   }
 
