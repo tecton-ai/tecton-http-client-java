@@ -1,4 +1,8 @@
 <!--- [0.7.0-SNAPSHOT] --->
+## [0.7.0] - 2023-08-18
+
+### Changed
+- Allow request context values to be null in `GetFeaturesRequestData`.
 
 ## [0.6.0] - 2023-08-10
 
