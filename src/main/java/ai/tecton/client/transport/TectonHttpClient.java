@@ -83,7 +83,10 @@ public class TectonHttpClient {
     try (Response response = call.execute()) {
       return new HttpResponse(response);
     } catch (Exception e) {
-      throw new TectonClientException(e.getMessage());
+      throw new TectonClientException(
+          String.format(
+              "Caught Exception of type %s and message %s",
+              e.getClass().getName(), e.getMessage()));
     }
   }
 
