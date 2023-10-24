@@ -304,7 +304,9 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
-                Assert.assertSame(value.getFeatureStatus().get(), FeatureStatus.PRESENT);
+                Assert.assertTrue(
+                    value.getFeatureStatus().get() == FeatureStatus.PRESENT
+                        || value.getFeatureStatus().get() == FeatureStatus.CACHED);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });

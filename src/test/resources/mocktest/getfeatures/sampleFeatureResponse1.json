@@ -104,7 +104,7 @@
         "dataType": {
           "type": "float64"
         },
-        "status": "PRESENT"
+        "status": "CACHED"
       },
       {
         "name": "user_transaction_counts.transaction_count_1d_1d",
