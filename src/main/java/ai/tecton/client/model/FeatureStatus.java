@@ -17,6 +17,7 @@ public enum FeatureStatus {
    */
   MISSING_DATA("MISSING_DATA"),
   /** Unable to infer feature status. */
+  CACHED("CACHED"),
   UNKNOWN("UNKNOWN");
 
   final String status;
