@@ -32,6 +32,7 @@ public class TectonErrorMessage {
   public static final String MISSING_EXPECTED_METADATA =
       "Required metadata %s is missing in the response";
   public static final String UNKNOWN_DATA_TYPE = "Unknown Data Type %s in response";
+    public static final String INVALID_DATA_TYPE = "Unable to cast response for field %s to expected type %s (value: %s)";
   public static final String MISMATCHED_TYPE = "Invalid method used to access value of type %s";
   public static final String UNSUPPORTED_LIST_DATA_TYPE =
       "Unsupported data type detected for array feature values";

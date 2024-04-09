@@ -42,18 +42,23 @@ public class FeatureValue {
       throw new TectonClientException(TectonErrorMessage.UNKNOWN_DATETIME_FORMAT);
     }
 
-    // Create Value using valueType
-    switch (valueType) {
-      case ARRAY:
-        this.value = new Value(featureObject, valueType, elementValueType.get());
-        break;
-      case STRING:
-      case INT64:
-      case BOOLEAN:
-      case FLOAT32:
-      case FLOAT64:
-      default:
-        this.value = new Value(featureObject, valueType);
+    try {
+      // Create Value using valueType
+      switch (valueType) {
+        case ARRAY:
+          this.value = new Value(featureObject, valueType, elementValueType.get());
+          break;
+        case STRING:
+        case INT64:
+        case BOOLEAN:
+        case FLOAT32:
+        case FLOAT64:
+        default:
+          this.value = new Value(featureObject, valueType);
+      }
+    } catch (Exception e) {
+      throw new TectonClientException(
+          String.format(TectonErrorMessage.INVALID_DATA_TYPE, name, valueType.getName(), featureObject);
     }
   }
 
@@ -159,7 +164,16 @@ public class FeatureValue {
           break;
         case FLOAT64:
           // Tecton also represents all double feature values as JSON numbers in the response.
-          this.float64Value = (Double) featureObject;
+          if (featureObject instanceof String) {
+            String doubleString = (String) featureObject;
+            if (doubleString.equals("null") || doubleString.equals("NaN") || doubleString.equals("Infinity") || doubleString.equals("-Infinity")) {
+              this.float64Value = null;
+            } else {
+              this.float64Value = Double.valueOf(doubleString);
+            }
+          } else {
+            this.float64Value = (Double) featureObject;
+          }
           break;
         default:
           throw new TectonClientException(
