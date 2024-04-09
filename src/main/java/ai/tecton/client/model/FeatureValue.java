@@ -58,7 +58,7 @@ public class FeatureValue {
       }
     } catch (Exception e) {
       throw new TectonClientException(
-          String.format(TectonErrorMessage.INVALID_DATA_TYPE, name, valueType.getName(), featureObject);
+          String.format(TectonErrorMessage.INVALID_DATA_TYPE, name, valueType.getName(), featureObject));
     }
   }
 

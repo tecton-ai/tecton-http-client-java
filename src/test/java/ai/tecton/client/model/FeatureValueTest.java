@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+
 public class FeatureValueTest {
 
   String testName;
@@ -52,6 +53,26 @@ public class FeatureValueTest {
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.FLOAT64, featureValue.getValueType());
     Assert.assertEquals(new Double(555.55), featureValue.float64Value());
+  }
+
+  @Test
+  public void testFloat64ValueInvalidValues() {
+    String[] invalidValues = {"NaN", "Infinity", "-Infinity"};
+    for (String invalidValue : invalidValues) {
+      FeatureValue featureValue =
+          new FeatureValue(
+              invalidValue,
+              testName,
+              ValueType.FLOAT64,
+              Optional.empty(),
+              null,
+              Optional.ofNullable(FeatureStatus.PRESENT));
+
+      Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
+      Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
+      Assert.assertEquals(ValueType.FLOAT64, featureValue.getValueType());
+      Assert.assertEquals(null, featureValue.float64Value());
+    }
   }
 
   @Test
