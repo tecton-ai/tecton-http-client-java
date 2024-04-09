@@ -56,7 +56,7 @@ public class FeatureValueTest {
 
   @Test
   public void testFloat64ValueInvalidValues() {
-    String[] invalidValues = {"NaN", "Infinity", "-Infinity"};
+    String[] invalidValues = {null, "NaN", "Infinity", "-Infinity"};
     for (String invalidValue : invalidValues) {
       FeatureValue featureValue =
           new FeatureValue(
