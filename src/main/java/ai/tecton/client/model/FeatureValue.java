@@ -58,7 +58,8 @@ public class FeatureValue {
       }
     } catch (Exception e) {
       throw new TectonClientException(
-          String.format(TectonErrorMessage.INVALID_DATA_TYPE, name, valueType.getName(), featureObject));
+          String.format(
+              TectonErrorMessage.INVALID_DATA_TYPE, name, valueType.getName(), featureObject));
     }
   }
 
@@ -166,7 +167,10 @@ public class FeatureValue {
           // Tecton also represents all double feature values as JSON numbers in the response.
           if (featureObject instanceof String) {
             String doubleString = (String) featureObject;
-            if (doubleString.equals("null") || doubleString.equals("NaN") || doubleString.equals("Infinity") || doubleString.equals("-Infinity")) {
+            if (doubleString.equals("null")
+                || doubleString.equals("NaN")
+                || doubleString.equals("Infinity")
+                || doubleString.equals("-Infinity")) {
               this.float64Value = null;
             } else {
               this.float64Value = Double.valueOf(doubleString);
