@@ -122,6 +122,20 @@ public class TectonClientTest {
     SloInformation sloInfo = response.getSloInformation().get();
     Assert.assertEquals(new Double(0.016342122), sloInfo.getServerTimeSeconds().get());
     Assert.assertEquals(new Double(0.014861452), sloInfo.getSloServerTimeSeconds().get());
+
+    sampleFeatureValue = featureValueMap.get("user_transaction_amount_metrics.amt_sum_3d_10m");
+
+    Assert.assertEquals(
+        "user_transaction_amount_metrics", sampleFeatureValue.getFeatureNamespace());
+    Assert.assertEquals("amt_sum_3d_10m", sampleFeatureValue.getFeatureName());
+    Assert.assertEquals(ValueType.FLOAT64, sampleFeatureValue.getValueType());
+    Assert.assertEquals(new Double(196112.57999999993), sampleFeatureValue.float64Value());
+    Assert.assertEquals(FeatureStatus.CACHED_PRESENT, sampleFeatureValue.getFeatureStatus().get());
+
+    Assert.assertTrue(response.getSloInformation().isPresent());
+    sloInfo = response.getSloInformation().get();
+    Assert.assertEquals(new Double(0.016342122), sloInfo.getServerTimeSeconds().get());
+    Assert.assertEquals(new Double(0.014861452), sloInfo.getSloServerTimeSeconds().get());
   }
 
   @Test
@@ -290,7 +304,9 @@ public class TectonClientTest {
               Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
               for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
                 Assert.assertTrue(value.getFeatureStatus().isPresent());
-                Assert.assertSame(value.getFeatureStatus().get(), FeatureStatus.PRESENT);
+                Assert.assertTrue(
+                    value.getFeatureStatus().get() == FeatureStatus.PRESENT
+                        || value.getFeatureStatus().get() == FeatureStatus.CACHED_PRESENT);
               }
               Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
             });
