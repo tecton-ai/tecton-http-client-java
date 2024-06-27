@@ -55,6 +55,26 @@ public class FeatureValueTest {
   }
 
   @Test
+  public void testFloat64ValueInvalidValues() {
+    String[] invalidValues = {null, "NaN", "Infinity", "-Infinity"};
+    for (String invalidValue : invalidValues) {
+      FeatureValue featureValue =
+          new FeatureValue(
+              invalidValue,
+              testName,
+              ValueType.FLOAT64,
+              Optional.empty(),
+              null,
+              Optional.ofNullable(FeatureStatus.PRESENT));
+
+      Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
+      Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
+      Assert.assertEquals(ValueType.FLOAT64, featureValue.getValueType());
+      Assert.assertEquals(null, featureValue.float64Value());
+    }
+  }
+
+  @Test
   public void testInt64Value() {
 
     FeatureValue featureValue =
