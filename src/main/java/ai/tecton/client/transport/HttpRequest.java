@@ -19,7 +19,7 @@ class HttpRequest {
     if (endpoint != null && !endpoint.isEmpty()) {
       // Paths with leading backslash results in a URL with double backslash.
       // See https://github.com/square/okhttp/issues/2399#issuecomment-195354749
-      url = url.newBuilder().addPathSegment(StringUtils.stripStart(endpoint, "/")).build();
+      url = url.newBuilder().addPathSegments(StringUtils.stripStart(endpoint, "/")).build();
     }
     this.method = method;
     this.apiKey = apiKey;
