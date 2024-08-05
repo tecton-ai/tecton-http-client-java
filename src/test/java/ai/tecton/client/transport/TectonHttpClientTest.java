@@ -88,6 +88,11 @@ public class TectonHttpClientTest {
     Assert.assertEquals(
         "Tecton-key " + apiKey,
         request.headers().get(TectonHttpClient.HttpHeader.AUTHORIZATION.getName()));
+    Assert.assertTrue(
+        request
+            .headers()
+            .get(TectonHttpClient.HttpHeader.USER_AGENT.getName())
+            .startsWith("tecton-http-java-client "));
     Assert.assertEquals(
         "http://test-url.com/api/v1/feature-service/get-features", request.url().toString());
   }
