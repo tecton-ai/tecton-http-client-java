@@ -4,6 +4,7 @@ import ai.tecton.client.TectonClientOptions;
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.exceptions.TectonServiceException;
+import ai.tecton.client.version.Version;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.time.Duration;
@@ -23,12 +24,14 @@ public class TectonHttpClient {
   private final OkHttpClient client;
   private final AtomicBoolean isClosed;
   private static final String API_KEY_PREFIX = "Tecton-key ";
+  private static final String USER_AGENT_STRING_PREFIX = "tecton-http-java-client ";
 
   private static final Map<String, String> defaultHeaders =
       new HashMap<String, String>() {
         {
           put(HttpHeader.CONTENT_TYPE.getName(), MediaType.APPLICATION_JSON.getName());
           put(HttpHeader.ACCEPT.getName(), MediaType.APPLICATION_JSON.getName());
+          put(HttpHeader.USER_AGENT.getName(), USER_AGENT_STRING_PREFIX + Version.VERSION);
         }
       };
 
@@ -220,7 +223,8 @@ public class TectonHttpClient {
   enum HttpHeader {
     CONTENT_TYPE("Content-Type"),
     ACCEPT("Accept"),
-    AUTHORIZATION("Authorization");
+    AUTHORIZATION("Authorization"),
+    USER_AGENT("User-Agent");
 
     private final String name;
 
