@@ -1,4 +1,17 @@
 <!--- [0.7.0-SNAPSHOT] --->
+## [0.9.0] - 2024-08-13
+
+Note that the 0.8.0 release was skipped.
+
+### Added
+- A user agent string is included in all HTTP requests. It identifies the java client and version.
+- Throw more informative exceptions for invalid data types, and parse more representations of doubles.
+- Add handling of cached feature statuses.
+  
+### Fixed
+- Fixed URL path encodings.
+
+<!--- [0.7.0-SNAPSHOT] --->
 ## [0.7.0] - 2023-08-18
 
 ### Changed
