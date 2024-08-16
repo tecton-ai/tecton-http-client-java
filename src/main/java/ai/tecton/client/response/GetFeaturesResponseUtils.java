@@ -6,6 +6,9 @@ import ai.tecton.client.model.FeatureStatus;
 import ai.tecton.client.model.FeatureValue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 
 class GetFeaturesResponseUtils {
@@ -28,7 +31,10 @@ class GetFeaturesResponseUtils {
               featureMetadata.get(i).effectiveTime,
               (featureMetadata.get(i).status != null)
                   ? FeatureStatus.fromString(featureMetadata.get(i).status.get(index))
-                  : null);
+                  : null,
+              featureMetadata.get(i).description,
+              featureMetadata.get(i).tags
+                      );
       featureValues.add(value);
     }
     return featureValues;
@@ -60,6 +66,8 @@ class GetFeaturesResponseUtils {
     AbstractTectonResponse.ResponseDataType dataType =
         new AbstractTectonResponse.ResponseDataType();
     List<String> status;
+    Optional<String> description;
+    Optional<Map<String, String>> tags;
   }
 
   static class FeatureVectorJson {

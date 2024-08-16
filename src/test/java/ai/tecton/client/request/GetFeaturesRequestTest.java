@@ -183,7 +183,10 @@ public class GetFeaturesRequestTest {
                 MetadataOption.DATA_TYPE,
                 MetadataOption.EFFECTIVE_TIME,
                 MetadataOption.SLO_INFO,
-                MetadataOption.FEATURE_STATUS));
+                MetadataOption.FEATURE_STATUS,
+                MetadataOption.FEATURE_DESCRIPTION,
+                MetadataOption.FEATURE_TAGS
+            ));
     Assert.assertTrue(metadataOptionSet.containsAll(expectedSet));
   }
 

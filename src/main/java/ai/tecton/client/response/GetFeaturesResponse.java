@@ -90,6 +90,8 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       String effectiveTime;
       ResponseDataType dataType = new ResponseDataType();
       String status;
+      Optional<String> description;
+      Optional<Map<String, String>> tags;
     }
   }
 
@@ -115,7 +117,10 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
               featureMetadata.get(i).dataType.getDataType(),
               featureMetadata.get(i).dataType.getListElementType(),
               featureMetadata.get(i).effectiveTime,
-              FeatureStatus.fromString(featureMetadata.get(i).status));
+              FeatureStatus.fromString(featureMetadata.get(i).status),
+              featureMetadata.get(i).description,
+              featureMetadata.get(i).tags
+          );
       this.featureValues.add(value);
     }
     // Construct Slo Info if present
