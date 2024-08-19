@@ -111,7 +111,6 @@ public class FeatureValue {
   /**
    * Returns the tags of the feature
    *
-   * @return Map<String, String>
    */
   public Optional<Map<String, String>> getFeatureTags() {
     return this.featureTags;
