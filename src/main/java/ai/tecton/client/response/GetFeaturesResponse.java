@@ -90,8 +90,8 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
       String effectiveTime;
       ResponseDataType dataType = new ResponseDataType();
       String status;
-      Optional<String> description;
-      Optional<Map<String, String>> tags;
+      String description;
+      Map<String, String> tags;
     }
   }
 

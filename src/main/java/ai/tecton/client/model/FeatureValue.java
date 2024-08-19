@@ -18,8 +18,8 @@ public class FeatureValue {
   private Instant effectiveTime;
   private final Value value;
   private final Optional<FeatureStatus> featureStatus;
-  private final Optional<String> featureDescription;
-  private final Optional<Map<String, String>> featureTags;
+  private final String featureDescription;
+  private final Map<String, String> featureTags;
 
   public FeatureValue(
       Object featureObject,
@@ -28,8 +28,8 @@ public class FeatureValue {
       Optional<ValueType> elementValueType,
       String effectiveTime,
       Optional<FeatureStatus> featureStatus,
-      Optional<String> featureDescription,
-      Optional<Map<String, String>> featureTags) {
+      String featureDescription,
+      Map<String, String> featureTags) {
 
     // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");
@@ -104,12 +104,12 @@ public class FeatureValue {
    *
    * @return String
    */
-  public Optional<String> getFeatureDescription() {
+  public String getFeatureDescription() {
     return this.featureDescription;
   }
 
   /** Returns the tags of the feature */
-  public Optional<Map<String, String>> getFeatureTags() {
+  public Map<String, String> getFeatureTags() {
     return this.featureTags;
   }
 
