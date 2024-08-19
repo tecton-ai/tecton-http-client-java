@@ -66,8 +66,8 @@ class GetFeaturesResponseUtils {
     AbstractTectonResponse.ResponseDataType dataType =
         new AbstractTectonResponse.ResponseDataType();
     List<String> status;
-    String description;
-    Map<String, String> tags;
+    Optional<String> description;
+    Optional<Map<String, String>> tags;
   }
 
   static class FeatureVectorJson {
