@@ -110,6 +110,15 @@ public class FeatureValue {
   }
 
   /**
+   * Returns the tags of the feature
+   *
+   * @return Map<String, String>
+   */
+  public Optional<Map<String, String>> getFeatureTags() {
+    return this.featureTags;
+  }
+
+  /**
    * Returns the effective serving time for this feature. This is the most recent time that's
    * aligned to the interval for which a full aggregation is available for this feature. Note: Only
    * present if MetadataOption.EFFECTIVE_TIME is included in the GetFeaturesRequest
