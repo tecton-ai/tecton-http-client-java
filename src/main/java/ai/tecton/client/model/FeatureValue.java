@@ -29,8 +29,7 @@ public class FeatureValue {
       String effectiveTime,
       Optional<FeatureStatus> featureStatus,
       Optional<String> featureDescription,
-      Optional<Map<String, String>> featureTags
-      ) {
+      Optional<Map<String, String>> featureTags) {
 
     // Split name into feature namespace and feature name
     String[] split = StringUtils.split(name, ".");

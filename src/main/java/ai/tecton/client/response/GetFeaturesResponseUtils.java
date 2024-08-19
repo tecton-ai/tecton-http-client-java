@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 
 class GetFeaturesResponseUtils {
@@ -33,8 +32,7 @@ class GetFeaturesResponseUtils {
                   ? FeatureStatus.fromString(featureMetadata.get(i).status.get(index))
                   : null,
               featureMetadata.get(i).description,
-              featureMetadata.get(i).tags
-                      );
+              featureMetadata.get(i).tags);
       featureValues.add(value);
     }
     return featureValues;

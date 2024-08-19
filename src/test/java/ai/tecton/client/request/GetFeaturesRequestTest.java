@@ -185,8 +185,7 @@ public class GetFeaturesRequestTest {
                 MetadataOption.SLO_INFO,
                 MetadataOption.FEATURE_STATUS,
                 MetadataOption.FEATURE_DESCRIPTION,
-                MetadataOption.FEATURE_TAGS
-            ));
+                MetadataOption.FEATURE_TAGS));
     Assert.assertTrue(metadataOptionSet.containsAll(expectedSet));
   }
 

@@ -119,8 +119,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
               featureMetadata.get(i).effectiveTime,
               FeatureStatus.fromString(featureMetadata.get(i).status),
               featureMetadata.get(i).description,
-              featureMetadata.get(i).tags
-          );
+              featureMetadata.get(i).tags);
       this.featureValues.add(value);
     }
     // Construct Slo Info if present
