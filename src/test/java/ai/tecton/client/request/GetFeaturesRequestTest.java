@@ -253,7 +253,7 @@ public class GetFeaturesRequestTest {
             + "\"testKey\":\"testValue\""
             + "},"
             + "\"metadata_options\":{"
-            + "\"include_feature_description\":true,"
+            + "\"include_feature_descriptions\":true,"
             + "\"include_slo_info\":true,"
             + "\"include_feature_tags\":true,"
             + "\"include_effective_times\":true,"

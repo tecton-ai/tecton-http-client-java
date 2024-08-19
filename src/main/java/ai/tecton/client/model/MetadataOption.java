@@ -18,7 +18,7 @@ public enum MetadataOption {
   /** Include feature status of the feature value in the response */
   FEATURE_STATUS("include_serving_status"),
   /** Include user defined description of the feature in the response */
-  FEATURE_DESCRIPTION("include_feature_description"),
+  FEATURE_DESCRIPTION("include_feature_descriptions"),
   /** Include user defined tags of the feature in the response */
   FEATURE_TAGS("include_feature_tags"),
   /** Include all metadata in the response */
