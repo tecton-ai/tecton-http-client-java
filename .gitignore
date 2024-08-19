@@ -2,3 +2,4 @@ bin/
 .gradle/
 gradle/
 build/
+.idea/
