@@ -35,14 +35,25 @@ The `tecton-http-client-java` project can be built using Gradle as follows:
 In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the
 jar that you generate from this repo using `./gradlew clean build`.
 
-Change the dependencies target to this and point the files attribute to your java client jar:
+1. Change the dependencies target to this and point the files attribute to your java client jar.
+2. Add all dependencies from `tecton-http-client-java` except `testImplementation` to `build.gradle` in the demo client repository.
 
 ```
 dependencies {
     implementation files('libs/java-client-0.1.0-SNAPSHOT.jar')
     implementation 'com.google.code.gson:gson:2.2.4'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
-
+    testImplementation 'junit:junit:4.13.2'
+    // OkHttp Client
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.10.0'
+    // Moshi JSON Parsing Library
+    implementation group: 'com.squareup.moshi', name: 'moshi', version: '1.13.0'
+    // Moshi JSON Adapter Library for Standard Java Types
+    implementation group: 'com.squareup.moshi', name: 'moshi-adapters', version: '1.13.0'
+    // StringUtils and Validation checks
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    // Collection operations such as Partition and Parallel Streams
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 }
 ```
 

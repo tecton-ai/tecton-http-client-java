@@ -4,10 +4,7 @@ import static org.junit.Assert.fail;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +27,9 @@ public class FeatureValueTest {
             ValueType.STRING,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
@@ -46,7 +45,9 @@ public class FeatureValueTest {
             ValueType.FLOAT64,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
     Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
@@ -65,7 +66,9 @@ public class FeatureValueTest {
               ValueType.FLOAT64,
               Optional.empty(),
               null,
-              Optional.ofNullable(FeatureStatus.PRESENT));
+              Optional.ofNullable(FeatureStatus.PRESENT),
+              null,
+              null);
 
       Assert.assertEquals("test_fs_name_space", featureValue.getFeatureNamespace());
       Assert.assertEquals("test_fs_name", featureValue.getFeatureName());
@@ -84,7 +87,9 @@ public class FeatureValueTest {
             ValueType.INT64,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     Assert.assertEquals(new Long(0), featureValue.int64value());
@@ -99,7 +104,9 @@ public class FeatureValueTest {
             ValueType.STRING,
             Optional.empty(),
             "2021-08-21T01:23:58Z",
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.STRING, featureValue.getValueType());
     Assert.assertEquals("2021-08-21T01:23:58Z", featureValue.getEffectiveTime().get().toString());
@@ -115,7 +122,9 @@ public class FeatureValueTest {
             ValueType.ARRAY,
             Optional.of(ValueType.STRING),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.STRING, featureValue.getListElementType().get());
@@ -143,7 +152,9 @@ public class FeatureValueTest {
             ValueType.ARRAY,
             Optional.of(ValueType.FLOAT32),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.FLOAT32, featureValue.getListElementType().get());
@@ -181,7 +192,9 @@ public class FeatureValueTest {
             ValueType.ARRAY,
             Optional.of(ValueType.INT64),
             null,
-            Optional.of(FeatureStatus.PRESENT));
+            Optional.of(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.ARRAY, featureValue.getValueType());
     Assert.assertEquals(ValueType.INT64, featureValue.getListElementType().get());
@@ -193,7 +206,14 @@ public class FeatureValueTest {
   public void testInvalidTypeAccess() {
     FeatureValue featureValue =
         new FeatureValue(
-            "0", testName, ValueType.INT64, null, null, Optional.ofNullable(FeatureStatus.PRESENT));
+            "0",
+            testName,
+            ValueType.INT64,
+            null,
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(ValueType.INT64, featureValue.getValueType());
     try {
@@ -222,7 +242,9 @@ public class FeatureValueTest {
             ValueType.STRING,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
     FeatureValue featureValueEquals =
         new FeatureValue(
             "123",
@@ -230,7 +252,9 @@ public class FeatureValueTest {
             ValueType.STRING,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
     FeatureValue featureValueNotEquals =
         new FeatureValue(
             "123",
@@ -238,12 +262,45 @@ public class FeatureValueTest {
             ValueType.INT64,
             Optional.empty(),
             null,
-            Optional.ofNullable(FeatureStatus.PRESENT));
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
 
     Assert.assertEquals(featureValue, featureValueEquals);
     Assert.assertEquals(featureValue.hashCode(), featureValueEquals.hashCode());
 
     Assert.assertNotEquals(featureValue, featureValueNotEquals);
     Assert.assertNotEquals(featureValue.hashCode(), featureValueNotEquals.hashCode());
+  }
+
+  @Test
+  public void testFeatureDescriptionAndTags() {
+    Map<String, String> tags = new HashMap<>();
+    tags.put("tag", "value");
+    FeatureValue featureValueHasDescriptionAndTags =
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.STRING,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            "a description",
+            tags);
+    FeatureValue featureValueDoesNotHaveDescriptionOrTags =
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.INT64,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
+    Assert.assertEquals(featureValueHasDescriptionAndTags.getFeatureDescription(), "a description");
+    Assert.assertEquals(featureValueHasDescriptionAndTags.getFeatureTags(), tags);
+
+    Assert.assertNull(featureValueDoesNotHaveDescriptionOrTags.getFeatureDescription());
+    Assert.assertNull(featureValueDoesNotHaveDescriptionOrTags.getFeatureTags());
   }
 }

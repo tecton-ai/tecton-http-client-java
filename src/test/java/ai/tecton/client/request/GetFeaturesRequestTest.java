@@ -174,7 +174,7 @@ public class GetFeaturesRequestTest {
             TEST_FEATURESERVICE_NAME,
             defaultFeatureRequestData,
             RequestConstants.ALL_METADATA_OPTIONS);
-    Assert.assertEquals(5, getFeaturesRequest.getMetadataOptions().size());
+    Assert.assertEquals(7, getFeaturesRequest.getMetadataOptions().size());
     Set<MetadataOption> metadataOptionSet = getFeaturesRequest.getMetadataOptions();
     Set<MetadataOption> expectedSet =
         new HashSet<>(
@@ -183,7 +183,9 @@ public class GetFeaturesRequestTest {
                 MetadataOption.DATA_TYPE,
                 MetadataOption.EFFECTIVE_TIME,
                 MetadataOption.SLO_INFO,
-                MetadataOption.FEATURE_STATUS));
+                MetadataOption.FEATURE_STATUS,
+                MetadataOption.FEATURE_DESCRIPTION,
+                MetadataOption.FEATURE_TAGS));
     Assert.assertTrue(metadataOptionSet.containsAll(expectedSet));
   }
 
@@ -242,7 +244,7 @@ public class GetFeaturesRequestTest {
             defaultFeatureRequestData,
             RequestConstants.ALL_METADATA_OPTIONS);
 
-    Assert.assertEquals(5, getFeaturesRequest.getMetadataOptions().size());
+    Assert.assertEquals(7, getFeaturesRequest.getMetadataOptions().size());
 
     String expected_json =
         "{\"params\":{"
@@ -251,6 +253,8 @@ public class GetFeaturesRequestTest {
             + "\"testKey\":\"testValue\""
             + "},"
             + "\"metadata_options\":{"
+            + "\"include_feature_descriptions\":true,"
+            + "\"include_feature_tags\":true,"
             + "\"include_slo_info\":true,"
             + "\"include_effective_times\":true,"
             + "\"include_names\":true,"
