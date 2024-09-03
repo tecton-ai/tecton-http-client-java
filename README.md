@@ -35,7 +35,8 @@ The `tecton-http-client-java` project can be built using Gradle as follows:
 In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the
 jar that you generate from this repo using `./gradlew clean build`.
 
-Change the dependencies target to this and point the files attribute to your java client jar:
+1. Change the dependencies target to this and point the files attribute to your java client jar.
+2. Add all dependencies from `tecton-http-client-java` except `testImplementation` to `build.gradle` in the demo client repository.
 
 ```
 dependencies {
