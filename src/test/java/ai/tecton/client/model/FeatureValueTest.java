@@ -4,9 +4,7 @@ import static org.junit.Assert.fail;
 
 import ai.tecton.client.exceptions.TectonClientException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
-
 import java.util.*;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -276,29 +274,29 @@ public class FeatureValueTest {
   }
 
   @Test
-  public void testFeatureDescriptionAndTags () {
+  public void testFeatureDescriptionAndTags() {
     Map<String, String> tags = new HashMap<>();
     tags.put("tag", "value");
     FeatureValue featureValueHasDescriptionAndTags =
-            new FeatureValue(
-                    "123",
-                    testName,
-                    ValueType.STRING,
-                    Optional.empty(),
-                    null,
-                    Optional.ofNullable(FeatureStatus.PRESENT),
-                    "a description",
-                    tags);
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.STRING,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            "a description",
+            tags);
     FeatureValue featureValueDoesNotHaveDescriptionOrTags =
-            new FeatureValue(
-                    "123",
-                    testName,
-                    ValueType.INT64,
-                    Optional.empty(),
-                    null,
-                    Optional.ofNullable(FeatureStatus.PRESENT),
-                    null,
-                    null);
+        new FeatureValue(
+            "123",
+            testName,
+            ValueType.INT64,
+            Optional.empty(),
+            null,
+            Optional.ofNullable(FeatureStatus.PRESENT),
+            null,
+            null);
     Assert.assertEquals(featureValueHasDescriptionAndTags.getFeatureDescription(), "a description");
     Assert.assertEquals(featureValueHasDescriptionAndTags.getFeatureTags(), tags);
 
