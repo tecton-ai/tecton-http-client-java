@@ -1,17 +1,17 @@
 package ai.tecton.client.request;
 
 import static org.junit.Assert.fail;
+
 import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.*;
-
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

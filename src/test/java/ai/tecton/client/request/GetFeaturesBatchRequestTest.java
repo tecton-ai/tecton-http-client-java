@@ -10,14 +10,13 @@ import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.request.GetFeaturesBatchRequest.GetFeaturesMicroBatchRequest;
 import ai.tecton.client.transport.TectonHttpClient;
 import ai.tecton.client.utils.TestUtils;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
-import com.squareup.moshi.Types;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
