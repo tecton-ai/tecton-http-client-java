@@ -10,7 +10,11 @@ import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.request.GetFeaturesBatchRequest.GetFeaturesMicroBatchRequest;
 import ai.tecton.client.transport.TectonHttpClient;
 import ai.tecton.client.utils.TestUtils;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -308,7 +312,15 @@ public class GetFeaturesBatchRequestTest {
 
     GetFeaturesMicroBatchRequest microBatchRequest =
         (GetFeaturesMicroBatchRequest) getFeaturesBatchRequest.getRequestList().get(0);
-    Assert.assertEquals(expected_json, microBatchRequest.requestToJson());
+
+    Moshi moshi = new Moshi.Builder().build();
+    Type type = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(type);
+
+    Map<String, Object> expectedMap = adapter.fromJson(expected_json);
+    Map<String, Object> actualMap = adapter.fromJson(microBatchRequest.requestToJson());
+
+    Assert.assertEquals(expectedMap, actualMap);
   }
 
   @Test
