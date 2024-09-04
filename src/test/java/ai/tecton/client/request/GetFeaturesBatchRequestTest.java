@@ -11,8 +11,13 @@ import ai.tecton.client.request.GetFeaturesBatchRequest.GetFeaturesMicroBatchReq
 import ai.tecton.client.transport.TectonHttpClient;
 import ai.tecton.client.utils.TestUtils;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -302,13 +307,21 @@ public class GetFeaturesBatchRequestTest {
             .microBatchSize(5)
             .build();
 
-    String expected_json =
-        "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\",\"metadata_options\":{\"include_feature_descriptions\":true,\"include_feature_tags\":true,\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true,\"include_serving_status\":true},\"request_data\":[{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Cummerata-Jones\"},\"request_context_map\":{\"amt\":61.06}},{\"join_key_map\":{\"user_id\":\"user_394495759023\",\"merchant\":\"fraud_Marks Inc\"},\"request_context_map\":{\"amt\":106.43}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Grimes LLC\"},\"request_context_map\":{\"amt\":24.95}},{\"join_key_map\":{\"user_id\":\"user_499975010057\",\"merchant\":\"fraud_Thiel Ltd\"},\"request_context_map\":{\"amt\":2.12}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Bins-Rice\"},\"request_context_map\":{\"amt\":68.31}}],\"workspace_name\":\"prod\"}}";
     Assert.assertEquals(1, getFeaturesBatchRequest.getRequestList().size());
 
     GetFeaturesMicroBatchRequest microBatchRequest =
         (GetFeaturesMicroBatchRequest) getFeaturesBatchRequest.getRequestList().get(0);
-    Assert.assertEquals(expected_json, microBatchRequest.requestToJson());
+
+    Moshi moshi = new Moshi.Builder().build();
+    Type type = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(type);
+
+    String expected_json =
+            "{\"params\":{\"feature_service_name\":\"fraud_detection_feature_service\",\"metadata_options\":{\"include_feature_descriptions\":true,\"include_feature_tags\":true,\"include_slo_info\":true,\"include_effective_times\":true,\"include_names\":true,\"include_data_types\":true,\"include_serving_status\":true},\"request_data\":[{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Cummerata-Jones\"},\"request_context_map\":{\"amt\":61.06}},{\"join_key_map\":{\"user_id\":\"user_394495759023\",\"merchant\":\"fraud_Marks Inc\"},\"request_context_map\":{\"amt\":106.43}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Grimes LLC\"},\"request_context_map\":{\"amt\":24.95}},{\"join_key_map\":{\"user_id\":\"user_499975010057\",\"merchant\":\"fraud_Thiel Ltd\"},\"request_context_map\":{\"amt\":2.12}},{\"join_key_map\":{\"user_id\":\"user_656020174537\",\"merchant\":\"fraud_Bins-Rice\"},\"request_context_map\":{\"amt\":68.31}}],\"workspace_name\":\"prod\"}}";
+    Map<String, Object> expectedMap = adapter.fromJson(expected_json);
+    Map<String, Object> actualMap = adapter.fromJson(microBatchRequest.requestToJson());
+
+    Assert.assertEquals(expectedMap, actualMap);
   }
 
   @Test

@@ -1,13 +1,17 @@
 package ai.tecton.client.request;
 
 import static org.junit.Assert.fail;
-
 import ai.tecton.client.exceptions.InvalidRequestParameterException;
 import ai.tecton.client.exceptions.TectonErrorMessage;
 import ai.tecton.client.model.MetadataOption;
 import ai.tecton.client.transport.TectonHttpClient;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
+
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -235,7 +239,7 @@ public class GetFeaturesRequestTest {
   }
 
   @Test
-  public void testJsonWithAllMetadataOptions() {
+  public void testJsonWithAllMetadataOptions() throws IOException {
     defaultFeatureRequestData.addRequestContext("testKey", "testValue");
     getFeaturesRequest =
         new GetFeaturesRequest(
@@ -266,8 +270,15 @@ public class GetFeaturesRequestTest {
             + "},"
             + "\"workspace_name\":\"testWorkspaceName\""
             + "}}";
+
     String actual_json = getFeaturesRequest.requestToJson();
-    Assert.assertEquals(expected_json, actual_json);
+    Moshi moshi = new Moshi.Builder().build();
+    Type type = Types.newParameterizedType(Map.class, String.class, Object.class);
+    JsonAdapter<Map<String, Object>> adapter = moshi.adapter(type);
+
+    Map<String, Object> expectedMap = adapter.fromJson(expected_json);
+    Map<String, Object> actualMap = adapter.fromJson(actual_json);
+    Assert.assertEquals(expectedMap, actualMap);
   }
 
   @Test
