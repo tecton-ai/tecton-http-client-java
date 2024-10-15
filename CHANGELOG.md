@@ -1,3 +1,8 @@
+## [0.9.1] - 2024-08-16
+
+### Fixed
+- Properly specified okhttp3 as an api dependency.
+
 ## [0.9.0] - 2024-08-13
 
 ### Added
