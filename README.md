@@ -48,6 +48,12 @@ dependencies {
     // StringUtils and Validation checks
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
     testImplementation 'junit:junit:4.13.2'
+
+    // Other dependencies which you may need to add
+    implementation 'com.google.code.gson:gson:2.2.4'
+    implementation group: 'com.squareup.moshi', name: 'moshi', version: '1.13.0'
+    implementation group: 'com.squareup.moshi', name: 'moshi-adapters', version: '1.13.0'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
 }
 ```
 
