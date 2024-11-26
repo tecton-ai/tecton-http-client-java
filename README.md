@@ -9,6 +9,103 @@ A simple Java client for the Feature Server HTTP API that helps customers integr
 * [Tecton Java Client API Reference](https://www.javadoc.io/doc/ai.tecton/java-client/latest/index.html)
 * [Tecton Java Client Example Code](https://github.com/tecton-ai/TectonClientDemo/tree/main/src/main/java)
 
+## Usage Example
+
+### Gradle Dependencies
+
+In your `build.gradle` file for your project, make sure you're using the central Maven repository:
+
+```
+repositories {
+      mavenCentral()
+      // ...
+}
+```
+
+And then you can depend on the Tecton client library:
+
+```
+dependencies {
+      implementation "ai.tecton:java-client:$client_version"
+      // ...
+}
+```
+
+### Client Usage
+
+Necessary imports:
+
+```java
+import ai.tecton.client.TectonClient;
+import ai.tecton.client.TectonClientOptions;
+import ai.tecton.client.request.GetFeaturesBatchRequest;
+import ai.tecton.client.request.GetFeaturesRequestData;
+import ai.tecton.client.request.RequestConstants;
+import ai.tecton.client.response.GetFeaturesBatchResponse;
+import ai.tecton.client.response.GetFeaturesResponse;
+import ai.tecton.client.model.ValueType;
+```
+
+You can instantiate a `TectonClient` object for querying a particular Tecton cluster as a particular
+service account:
+
+```java
+String apiKey = "apikey1";
+String tectonUrl = "mycluster.tecton.ai";
+
+TectonClient tectonClient = new TectonClient(tectonUrl, apiKey);
+```
+
+You can then make a request for a single (composite) join key:
+
+```java
+String workspaceName = "prod";
+String featureServiceName = "fraud_service";
+String featureName = "user_transaction_counts.feature_name";
+
+GetFeaturesRequestData getFeaturesRequestData =
+     new GetFeaturesRequestData()
+          .addJoinKey("user_id", "user_205125746682")
+          .addJoinKey("merchant", "entertainment")
+          .addRequestContext("amt", 500.00);
+GetFeaturesRequest req =
+     new GetFeaturesRequest(workspaceName, featureServiceName, getFeaturesRequestData);
+
+GetFeaturesResponse resp = tectonClient.getFeatures(req);
+Map<String, FeatureValue> featureValues = resp.getFeatureValuesAsMap();
+// Could also use getFeaturesResponse.getFeatureValues() for a List<FeatureValue>.
+
+FeatureValue sampleFeatureValue = featureValues.get(featureName);
+
+// Will be "user_transaction_counts".
+String fns = sampleFeatureValue.getFeatureNamespace();
+
+// Will be "feature_name".
+String fn = sampleFeatureValue.getFeatureName();
+
+// Will be ValueType.INT64.
+ValueType vt = sampleFeatureValue.getValueType();
+
+// Will be the value of the feature.
+Long v = sampleFeatureValue.int64value();
+
+// Other methods are available for other value types, such as:
+// stringValue(), booleanValue(), float64Value(), float64ArrayValue(),
+// float32ArrayValue(), int64ArrayValue(), and stringArrayValue().
+```
+
+Or you can make a batch request for multiple join keys:
+
+```java
+List<GetFeaturesRequestData> requestDataList = new ArrayList<>();
+requestDataList.add(getFeaturesRequestData);
+GetFeaturesBatchRequest batchRequest = new GetFeaturesBatchRequest(workspaceName, featureServiceName, getFeaturesRequestDataList, RequestConstants.DEFAULT_METADATA_OPTIONS, 5);
+GetFeaturesBatchResponse batchResponse = tectonClient.getFeaturesBatch(batchRequest);
+
+// Same as resp above.
+GetFeaturesResponse sampleResponse = batchResponse.getBatchResponseList().get(0);
+```
+
 ## Troubleshooting
 
 If you have any questions or need help,
