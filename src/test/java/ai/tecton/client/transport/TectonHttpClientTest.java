@@ -122,7 +122,7 @@ public class TectonHttpClientTest {
     List<String> requestList = prepareRequests(100);
     List<HttpResponse> httpResponses =
         httpClient.performParallelRequests(
-            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT, false);
 
     List<String> responseList =
         httpResponses.stream()
@@ -144,7 +144,7 @@ public class TectonHttpClientTest {
     requestList.addAll(Arrays.asList("", "", ""));
     List<HttpResponse> httpResponses =
         httpClient.performParallelRequests(
-            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT);
+            endpoint, method, requestList, RequestConstants.NONE_TIMEOUT, false);
 
     // Verify that first 10 responses are successful and last 3 responses are errors
     httpResponses.subList(0, 100).forEach(response -> Assert.assertTrue(response.isSuccessful()));
@@ -160,7 +160,8 @@ public class TectonHttpClientTest {
             this.baseUrlString, this.apiKey, new TectonClientOptions.Builder().build());
     List<String> requestList = prepareRequests(100);
     List<HttpResponse> httpResponses =
-        httpClient.performParallelRequests(endpoint, method, requestList, Duration.ofMillis(10));
+        httpClient.performParallelRequests(
+            endpoint, method, requestList, Duration.ofMillis(10), false);
     // 100 requests with a default maxParallelRequests is not expected to complete in 10 ms
     long numSuccessfulCalls = httpResponses.stream().filter(Objects::nonNull).count();
     Assert.assertTrue(numSuccessfulCalls < 100);

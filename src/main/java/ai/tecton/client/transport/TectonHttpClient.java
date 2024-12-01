@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.Call;
@@ -27,8 +29,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.internal.http.HttpMethod;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 
 public class TectonHttpClient {
 
@@ -114,18 +118,53 @@ public class TectonHttpClient {
   }
 
   public List<HttpResponse> performParallelRequests(
-      String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
+      String endpoint,
+      HttpMethod method,
+      List<String> requestBodyList,
+      Duration timeout,
+      boolean useExecutorServiceForParallelism)
       throws TectonClientException {
     // Initialize response list
     ParallelCallHandler parallelCallHandler = new ParallelCallHandler(requestBodyList.size());
 
-    // Map request body to OkHttp Request
-    // ordering of requests is maintained
+    // Map request body to OkHttp Request. Ordering of requests is maintained.
     List<Request> requestList = new ArrayList<>();
-    for (int i = 0; i < requestBodyList.size(); i++) {
-      HttpRequest httpRequest =
-          new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBodyList.get(i));
-      requestList.add(buildRequestWithDefaultHeaders(httpRequest, i));
+    if (useExecutorServiceForParallelism) {
+      // Use the executor service to parallelize the request creation.
+      List<Future<Request>> futures = new ArrayList<>();
+
+      for (int i = 0; i < requestBodyList.size(); i++) {
+        int index = i;
+        futures.add(
+            this.client
+                .dispatcher()
+                .executorService()
+                .submit(
+                    () -> {
+                      HttpRequest httpRequest =
+                          new HttpRequest(
+                              url.url().toString(),
+                              endpoint,
+                              method,
+                              apiKey,
+                              requestBodyList.get(index));
+                      return buildRequestWithDefaultHeaders(httpRequest, index);
+                    }));
+      }
+
+      for (Future<Request> future : futures) {
+        try {
+          requestList.add(future.get());
+        } catch (InterruptedException | ExecutionException e) {
+          throw new TectonClientException(e.getMessage());
+        }
+      }
+    } else {
+      for (int i = 0; i < requestBodyList.size(); i++) {
+        HttpRequest httpRequest =
+            new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBodyList.get(i));
+        requestList.add(buildRequestWithDefaultHeaders(httpRequest, i));
+      }
     }
 
     // Initialize a countdown latch for numberOfCalls.
@@ -134,7 +173,7 @@ public class TectonHttpClient {
     Callback callback =
         new Callback() {
           @Override
-          public void onFailure(Call call, IOException e) {
+          public void onFailure(@NotNull Call call, @NotNull IOException e) {
             // On timeout, executor rejects all pending calls. This could lead to an
             // InterruptedIOException for in-flight calls, which is expected.
             // Only log failures for other call failures such as network issues
@@ -144,7 +183,7 @@ public class TectonHttpClient {
           }
 
           @Override
-          public void onResponse(Call call, Response response) {
+          public void onResponse(@NotNull Call call, @NotNull Response response) {
             try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
               parallelCallHandler.set(
@@ -159,11 +198,17 @@ public class TectonHttpClient {
           }
         };
 
-    // Enqueue all calls
-    requestList.forEach(
-        request -> {
-          client.newCall(request).enqueue(callback);
-        });
+    // Enqueue all calls using the OkHttp client's executor service.
+    if (useExecutorServiceForParallelism) {
+      requestList.forEach(
+          request ->
+              client
+                  .dispatcher()
+                  .executorService()
+                  .submit(() -> client.newCall(request).enqueue(callback)));
+    } else {
+      requestList.forEach(request -> client.newCall(request).enqueue(callback));
+    }
 
     // Wait until A) all calls have completed or B) specified timeout has elapsed
     try {
