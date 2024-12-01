@@ -198,8 +198,7 @@ public class GetFeaturesBatchRequest {
       // For batch requests, partition the requestDataList into n sublists of size
       // microBatchSize and create GetFeaturesMicroBatchRequest for each
       this.requestList =
-          ListUtils.partition(requestDataList, microBatchSize)
-              .parallelStream()
+          ListUtils.partition(requestDataList, microBatchSize).stream()
               .map(
                   requestData ->
                       new GetFeaturesMicroBatchRequest(
@@ -212,8 +211,7 @@ public class GetFeaturesBatchRequest {
     } else {
       // For microBatchSize=1, create a List of individual GetFeaturesRequest objects
       this.requestList =
-          requestDataList
-              .parallelStream()
+          requestDataList.stream()
               .map(
                   requestData ->
                       new GetFeaturesRequest(
@@ -400,7 +398,7 @@ public class GetFeaturesBatchRequest {
     if (requestDataList == null || requestDataList.isEmpty()) {
       throw new InvalidRequestParameterException(TectonErrorMessage.INVALID_REQUEST_DATA_LIST);
     }
-    requestDataList.parallelStream().forEach(AbstractGetFeaturesRequest::validateRequestParameters);
+    requestDataList.forEach(AbstractGetFeaturesRequest::validateRequestParameters);
     if (microBatchSize > RequestConstants.MAX_MICRO_BATCH_SIZE || microBatchSize < 1) {
       throw new InvalidRequestParameterException(
           String.format(
