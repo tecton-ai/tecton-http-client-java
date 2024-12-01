@@ -46,6 +46,7 @@ public class GetFeaturesBatchRequest {
   private List<? extends AbstractGetFeaturesRequest> requestList;
   private final int microBatchSize;
   private final Duration timeout;
+  private final boolean useExecutorServiceForParallelism;
   private static final String BATCH_ENDPOINT = "/api/v1/feature-service/get-features-batch";
   private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
       null;
@@ -191,8 +192,58 @@ public class GetFeaturesBatchRequest {
       Set<MetadataOption> metadataOptions,
       int microBatchSize,
       Duration timeout) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        metadataOptions,
+        microBatchSize,
+        timeout,
+        false);
+  }
+
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions metadataOptions A {@link Set} of {@link MetadataOption} for retrieving
+   *     additional metadata about the feature values. Use {@link
+   *     RequestConstants#ALL_METADATA_OPTIONS} to request all metadata and {@link
+   *     RequestConstants#NONE_METADATA_OPTIONS} to request no metadata respectively. By default,
+   *     {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will be added to each request
+   * @param microBatchSize an int value between 1 and {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
+   *     multiple micro batches of this size and executes them parallely. By default, the
+   *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @param timeout The max time in {@link Duration} for which the client waits for the batch
+   *     requests to complete before canceling the operation and returning the partial list of
+   *     results.
+   * @param useExecutorServiceForParallelism If set to true, the client uses the OkHttp dispatcher's
+   *     ExecutorService for pre-processing work, in addition to actual HTTP calls. This can be
+   *     useful when the client is used in a multi-threaded environment and there are many requests
+   *     to pre-process.
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
+   * @throws InvalidRequestParameterException when the microBatchSize is out of bounds of [ 1,
+   *     {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions,
+      int microBatchSize,
+      Duration timeout,
+      boolean useExecutorServiceForParallelism) {
     validateParameters(workspaceName, featureServiceName, requestDataList, microBatchSize);
     this.timeout = timeout;
+    this.useExecutorServiceForParallelism = useExecutorServiceForParallelism;
 
     if (microBatchSize > 1 && requestDataList.size() > 1) {
       // For batch requests, partition the requestDataList into n sublists of size
@@ -243,6 +294,15 @@ public class GetFeaturesBatchRequest {
   }
 
   /**
+   * Getter for useExecutorServiceForParallelism
+   *
+   * @return useExecutorServiceForParallelism
+   */
+  public boolean getUseExecutorServiceForParallelism() {
+    return useExecutorServiceForParallelism;
+  }
+
+  /**
    * Getter for microBatchSize
    *
    * @return microBatchSize ( {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE} if not set
@@ -270,6 +330,7 @@ public class GetFeaturesBatchRequest {
     private Set<MetadataOption> metadataOptionList = RequestConstants.DEFAULT_METADATA_OPTIONS;
     private int microBatchSize = RequestConstants.DEFAULT_MICRO_BATCH_SIZE;
     private Duration timeout = RequestConstants.NONE_TIMEOUT;
+    private boolean useExecutorServiceForParallelism = false;
 
     /** Constructs an empty Builder */
     public Builder() {
@@ -368,6 +429,18 @@ public class GetFeaturesBatchRequest {
     }
 
     /**
+     * @param useExecutorServiceForParallelism If set to true, the client uses the OkHttp
+     *     dispatcher's ExecutorService for pre-processing work, in addition to actual HTTP calls.
+     *     This can be useful when the client is used in a multi-threaded environment and there are
+     *     many requests to pre-process.
+     * @return this Builder
+     */
+    public Builder useExecutorServiceForParallelism(boolean useExecutorServiceForParallelism) {
+      this.useExecutorServiceForParallelism = useExecutorServiceForParallelism;
+      return this;
+    }
+
+    /**
      * Returns an instance of {@link GetFeaturesBatchRequest} created from the fields set on this
      * builder
      *
@@ -384,7 +457,8 @@ public class GetFeaturesBatchRequest {
           requestDataList,
           metadataOptionList,
           microBatchSize,
-          timeout);
+          timeout,
+          useExecutorServiceForParallelism);
     }
   }
 
