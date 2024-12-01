@@ -1,4 +1,9 @@
-## [0.9.1] - 2024-08-16
+## [0.9.2] - 2024-11-29
+
+### Fixed
+- Correctly set maxRequests in okhttp dispatcher based on setMaxRequests TectonClient builder method.
+
+## [0.9.1] - 2024-10-16
 
 ### Fixed
 - Properly specified okhttp3 as an api dependency.
