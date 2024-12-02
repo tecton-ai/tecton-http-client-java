@@ -138,7 +138,8 @@ public class TectonHttpClient {
             try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
               parallelCallHandler.set(
-                  (Integer) call.request().tag(), new HttpResponse(response, responseBody));
+                  Integer.parseInt(call.request().header("request-index")),
+                  new HttpResponse(response, responseBody));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
             } finally {
@@ -183,7 +184,7 @@ public class TectonHttpClient {
     okhttp3.MediaType mediaType = okhttp3.MediaType.parse(MediaType.APPLICATION_JSON.getName());
     RequestBody requestBody = RequestBody.create(httpRequest.getJsonBody(), mediaType);
     requestBuilder.post(requestBody);
-    requestBuilder.tag(index);
+    requestBuilder.header("request-index", String.valueOf(index));
     return requestBuilder.build();
   }
 
