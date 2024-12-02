@@ -49,16 +49,14 @@ public class GetFeaturesBatchResponse {
 
     // Serialize list of HttpResponse into list of GetFeaturesMicroBatchResponse
     List<GetFeaturesMicroBatchResponse> microBatchResponses =
-        httpResponseList
-            .parallelStream()
+        httpResponseList.stream()
             .map(httpResponse -> parseSingleHttpResponse(httpResponse, microBatchSize))
             .collect(Collectors.toList());
 
     // Concatenate list of GetFeaturesResponse objects from each microbatch into a single list
     // Maintain ordering
     this.batchResponseList =
-        microBatchResponses
-            .parallelStream()
+        microBatchResponses.stream()
             .map(microBatch -> microBatch.microBatchResponseList)
             .flatMap(List::stream)
             .collect(Collectors.toList());
