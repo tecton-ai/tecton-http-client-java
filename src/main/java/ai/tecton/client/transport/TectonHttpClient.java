@@ -31,16 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 public class TectonHttpClient {
-
-  // Class to be used as a tag for each request to keep track of the index of the request.
-  static class RequestIndex {
-    final int index;
-
-    RequestIndex(int index) {
-      this.index = index;
-    }
-  }
-
   private HttpUrl url;
   private final String apiKey;
   private final OkHttpClient client;
@@ -148,8 +138,7 @@ public class TectonHttpClient {
             try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
               parallelCallHandler.set(
-                  call.request().tag(RequestIndex.class).index,
-                  new HttpResponse(response, responseBody));
+                  (Integer) call.request().tag(), new HttpResponse(response, responseBody));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
             } finally {
@@ -194,7 +183,7 @@ public class TectonHttpClient {
     okhttp3.MediaType mediaType = okhttp3.MediaType.parse(MediaType.APPLICATION_JSON.getName());
     RequestBody requestBody = RequestBody.create(httpRequest.getJsonBody(), mediaType);
     requestBuilder.post(requestBody);
-    requestBuilder.tag(RequestIndex.class, new RequestIndex(index));
+    requestBuilder.tag(index);
     return requestBuilder.build();
   }
 
