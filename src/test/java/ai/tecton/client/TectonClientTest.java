@@ -327,6 +327,76 @@ public class TectonClientTest {
   }
 
   @Test
+  public void benchmarkParallelGetFeaturesCall() {
+    int ITERATIONS = 50;
+
+    // Enqueue mock responses
+    for (int i = 0; i < ITERATIONS; i++) {
+      sampleResponses.forEach(
+          sampleResponse ->
+              mockWebServer.enqueue(
+                  new MockResponse().setResponseCode(200).setBody(sampleResponse)));
+    }
+
+    // Create request with a large number of request data in the list
+    GetFeaturesBatchRequest.Builder batchRequestBuilder =
+        new GetFeaturesBatchRequest.Builder()
+            .featureServiceName("fraud_detection_feature_service")
+            .workspaceName("prod")
+            .metadataOptions(RequestConstants.ALL_METADATA_OPTIONS);
+
+    for (int i = 0; i < ITERATIONS; i++) {
+      batchRequestBuilder
+          .addRequestData(
+              new GetFeaturesRequestData()
+                  .addJoinKey("user_id", "1_" + i)
+                  .addRequestContext("amount", 55.0))
+          .addRequestData(
+              new GetFeaturesRequestData()
+                  .addJoinKey("user_id", "2_" + i)
+                  .addRequestContext("amount", 155.0))
+          .addRequestData(
+              new GetFeaturesRequestData()
+                  .addJoinKey("user_id", "3" + i)
+                  .addRequestContext("amount", 1000.0));
+    }
+    GetFeaturesBatchRequest batchRequest = batchRequestBuilder.build();
+
+    // Measure start time
+    long startTime = System.nanoTime();
+
+    // Send request and receive response
+    GetFeaturesBatchResponse batchResponse = tectonClient.getFeaturesBatch(batchRequest);
+    List<GetFeaturesResponse> responseList = batchResponse.getBatchResponseList();
+
+    // Measure end time
+    long endTime = System.nanoTime();
+
+    // Calculate elapsed time in milliseconds
+    long elapsedTime = (endTime - startTime) / 1_000_000;
+    System.out.println("Elapsed time: " + elapsedTime + " ms");
+
+    // Verify the responses
+    Assert.assertEquals(3 * ITERATIONS, responseList.size());
+
+    IntStream.range(0, sampleResponses.size())
+        .forEach(
+            i -> {
+              GetFeaturesResponse getFeaturesResponse = responseList.get(i);
+              Assert.assertEquals(14, getFeaturesResponse.getFeatureValues().size());
+              for (FeatureValue value : getFeaturesResponse.getFeatureValues()) {
+                Assert.assertTrue(value.getFeatureStatus().isPresent());
+                Assert.assertTrue(
+                    value.getFeatureStatus().get() == FeatureStatus.PRESENT
+                        || value.getFeatureStatus().get() == FeatureStatus.CACHED_PRESENT);
+              }
+              Assert.assertTrue(getFeaturesResponse.getSloInformation().isPresent());
+            });
+
+    Assert.assertFalse(batchResponse.getBatchSloInformation().isPresent());
+  }
+
+  @Test
   public void testGetFeaturesBatchCall() throws IOException {
     sampleBatchResponses.forEach(
         sampleResponse ->
