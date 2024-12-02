@@ -75,7 +75,7 @@ public class TectonHttpClientTest {
     HttpRequest httpRequest =
         new HttpRequest(url, endpoint, TectonHttpClient.HttpMethod.POST, apiKey, body);
 
-    Request request = httpClient.buildRequestWithDefaultHeaders(httpRequest);
+    Request request = httpClient.buildRequestWithDefaultHeaders(httpRequest, 0);
     Assert.assertNotNull(request);
 
     Assert.assertEquals(POST, request.method());

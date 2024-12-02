@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.ConnectionPool;
@@ -32,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 public class TectonHttpClient {
-
   private HttpUrl url;
   private final String apiKey;
   private final OkHttpClient client;
@@ -96,7 +94,7 @@ public class TectonHttpClient {
   public HttpResponse performRequest(String endpoint, HttpMethod method, String requestBody) {
     HttpRequest httpRequest =
         new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody);
-    Request request = buildRequestWithDefaultHeaders(httpRequest);
+    Request request = buildRequestWithDefaultHeaders(httpRequest, 0);
     Call call = client.newCall(request);
     try (Response response = call.execute()) {
       return new HttpResponse(response);
@@ -113,13 +111,12 @@ public class TectonHttpClient {
 
     // Map request body to OkHttp Request
     // ordering of requests is maintained
-    List<Request> requestList =
-        requestBodyList.stream()
-            .map(
-                requestBody ->
-                    new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody))
-            .map(this::buildRequestWithDefaultHeaders)
-            .collect(Collectors.toList());
+    List<Request> requestList = new ArrayList<>();
+    for (int i = 0; i < requestBodyList.size(); i++) {
+      HttpRequest httpRequest =
+          new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBodyList.get(i));
+      requestList.add(buildRequestWithDefaultHeaders(httpRequest, i));
+    }
 
     // Initialize a countdown latch for numberOfCalls.
     CountDownLatch countDownLatch = new CountDownLatch(requestBodyList.size());
@@ -141,7 +138,7 @@ public class TectonHttpClient {
             try (ResponseBody responseBody = response.body()) {
               // Add response to corresponding index
               parallelCallHandler.set(
-                  requestList.indexOf(call.request()), new HttpResponse(response, responseBody));
+                  (Integer) call.request().tag(), new HttpResponse(response, responseBody));
             } catch (Exception e) {
               throw new TectonServiceException(e.getMessage());
             } finally {
@@ -171,7 +168,7 @@ public class TectonHttpClient {
     }
   }
 
-  public Request buildRequestWithDefaultHeaders(HttpRequest httpRequest) {
+  public Request buildRequestWithDefaultHeaders(HttpRequest httpRequest, int index) {
     // Construct url
     Request.Builder requestBuilder = new Request.Builder().url(httpRequest.getUrl());
 
@@ -183,16 +180,10 @@ public class TectonHttpClient {
     requestBuilder.header(HttpHeader.AUTHORIZATION.getName(), apiKeyHeader);
 
     // Add request body
-    switch (httpRequest.getMethod()) {
-      case POST:
-      default:
-        {
-          okhttp3.MediaType mediaType =
-              okhttp3.MediaType.parse(MediaType.APPLICATION_JSON.getName());
-          RequestBody requestBody = RequestBody.create(httpRequest.getJsonBody(), mediaType);
-          requestBuilder.post(requestBody);
-        }
-    }
+    okhttp3.MediaType mediaType = okhttp3.MediaType.parse(MediaType.APPLICATION_JSON.getName());
+    RequestBody requestBody = RequestBody.create(httpRequest.getJsonBody(), mediaType);
+    requestBuilder.post(requestBody);
+    requestBuilder.tag(index);
     return requestBuilder.build();
   }
 
