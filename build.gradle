@@ -61,6 +61,7 @@ compileJava.dependsOn generateVersionFile
 
 // Run tests during build and output status
 test {
+    jvmArgs '-XX:ActiveProcessorCount=2'
     useJUnit()
     testLogging {
         showStandardStreams = true
