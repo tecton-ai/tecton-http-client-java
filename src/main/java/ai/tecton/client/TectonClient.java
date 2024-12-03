@@ -141,7 +141,10 @@ public class TectonClient {
 
   /**
    * Makes a batch request to retrieve a list of feature vector and metadata for a given workspace
-   * and feature service
+   * and feature service.
+   *
+   * <p>Calls are queued by the constructor-provided OkHttp client's executor service, using the
+   * default one if none was provided.
    *
    * @param batchRequest The {@link GetFeaturesRequest} object with the request parameters
    * @return {@link GetFeaturesBatchResponse} object with the list of feature vector and metadata
@@ -173,7 +176,8 @@ public class TectonClient {
             batchRequest.getEndpoint(),
             batchRequest.getMethod(),
             requestList,
-            batchRequest.getTimeout());
+            batchRequest.getTimeout(),
+            batchRequest.getUseExecutorServiceForParallelism());
     long stop = System.currentTimeMillis();
     Duration totalTime = Duration.ofMillis(stop - start);
 

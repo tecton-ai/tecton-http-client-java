@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.Call;
@@ -105,53 +107,129 @@ public class TectonHttpClient {
   }
 
   public List<HttpResponse> performParallelRequests(
-      String endpoint, HttpMethod method, List<String> requestBodyList, Duration timeout)
+      String endpoint,
+      HttpMethod method,
+      List<String> requestBodyList,
+      Duration timeout,
+      boolean useExecutorServiceForParallelism)
       throws TectonClientException {
     // Initialize response list
     ParallelCallHandler parallelCallHandler = new ParallelCallHandler(requestBodyList.size());
 
-    // Map request body to OkHttp Request
-    // ordering of requests is maintained
+    // Map request body to OkHttp Request. Ordering of requests is maintained.
     List<Request> requestList = new ArrayList<>();
-    for (int i = 0; i < requestBodyList.size(); i++) {
-      HttpRequest httpRequest =
-          new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBodyList.get(i));
-      requestList.add(buildRequestWithDefaultHeaders(httpRequest, i));
+    if (useExecutorServiceForParallelism) {
+      // Use the executor service to parallelize the request creation.
+      List<Future<Request>> futures = new ArrayList<>();
+
+      for (int i = 0; i < requestBodyList.size(); i++) {
+        int index = i;
+        futures.add(
+            this.client
+                .dispatcher()
+                .executorService()
+                .submit(
+                    () -> {
+                      HttpRequest httpRequest =
+                          new HttpRequest(
+                              url.url().toString(),
+                              endpoint,
+                              method,
+                              apiKey,
+                              requestBodyList.get(index));
+                      return buildRequestWithDefaultHeaders(httpRequest, index);
+                    }));
+      }
+
+      for (Future<Request> future : futures) {
+        try {
+          requestList.add(future.get());
+        } catch (InterruptedException | ExecutionException e) {
+          throw new TectonClientException(e.getMessage());
+        }
+      }
+    } else {
+      for (int i = 0; i < requestBodyList.size(); i++) {
+        HttpRequest httpRequest =
+            new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBodyList.get(i));
+        requestList.add(buildRequestWithDefaultHeaders(httpRequest, i));
+      }
     }
 
     // Initialize a countdown latch for numberOfCalls.
     CountDownLatch countDownLatch = new CountDownLatch(requestBodyList.size());
 
     // Enqueue all calls
-    for (int i = 0; i < requestList.size(); i++) {
-      int index = i;
-      client
-          .newCall(requestList.get(index))
-          .enqueue(
-              new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                  // On timeout, executor rejects all pending calls. This could lead to an
-                  // InterruptedIOException for in-flight calls, which is expected.
-                  // Only log failures for other call failures such as network issues
-                  if (!(e instanceof InterruptedIOException)) {
-                    parallelCallHandler.logCallFailure(e.getMessage());
-                  }
-                }
+    if (useExecutorServiceForParallelism) {
+      for (int i = 0; i < requestList.size(); i++) {
+        int index = i;
+        Request req = requestList.get(index);
+        client
+            .dispatcher()
+            .executorService()
+            .submit(
+                () ->
+                    client
+                        .newCall(req)
+                        .enqueue(
+                            new Callback() {
+                              @Override
+                              public void onFailure(Call call, IOException e) {
+                                // On timeout, executor rejects all pending calls. This could lead
+                                // to an
+                                // InterruptedIOException for in-flight calls, which is expected.
+                                // Only log failures for other call failures such as network issues
+                                if (!(e instanceof InterruptedIOException)) {
+                                  parallelCallHandler.logCallFailure(e.getMessage());
+                                }
+                              }
 
-                @Override
-                public void onResponse(Call call, Response response) {
-                  try (ResponseBody responseBody = response.body()) {
-                    // Add response to corresponding index
-                    parallelCallHandler.set(index, new HttpResponse(response, responseBody));
-                  } catch (Exception e) {
-                    throw new TectonServiceException(e.getMessage());
-                  } finally {
-                    Objects.requireNonNull(response.body()).close();
-                    countDownLatch.countDown();
+                              @Override
+                              public void onResponse(Call call, Response response) {
+                                try (ResponseBody responseBody = response.body()) {
+                                  // Add response to corresponding index
+                                  parallelCallHandler.set(
+                                      index, new HttpResponse(response, responseBody));
+                                } catch (Exception e) {
+                                  throw new TectonServiceException(e.getMessage());
+                                } finally {
+                                  Objects.requireNonNull(response.body()).close();
+                                  countDownLatch.countDown();
+                                }
+                              }
+                            }));
+      }
+    } else {
+      for (int i = 0; i < requestList.size(); i++) {
+        int index = i;
+        client
+            .newCall(requestList.get(index))
+            .enqueue(
+                new Callback() {
+                  @Override
+                  public void onFailure(Call call, IOException e) {
+                    // On timeout, executor rejects all pending calls. This could lead to an
+                    // InterruptedIOException for in-flight calls, which is expected.
+                    // Only log failures for other call failures such as network issues
+                    if (!(e instanceof InterruptedIOException)) {
+                      parallelCallHandler.logCallFailure(e.getMessage());
+                    }
                   }
-                }
-              });
+
+                  @Override
+                  public void onResponse(Call call, Response response) {
+                    try (ResponseBody responseBody = response.body()) {
+                      // Add response to corresponding index
+                      parallelCallHandler.set(index, new HttpResponse(response, responseBody));
+                    } catch (Exception e) {
+                      throw new TectonServiceException(e.getMessage());
+                    } finally {
+                      Objects.requireNonNull(response.body()).close();
+                      countDownLatch.countDown();
+                    }
+                  }
+                });
+      }
     }
 
     // Wait until A) all calls have completed or B) specified timeout has elapsed
