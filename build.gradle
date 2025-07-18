@@ -1,10 +1,8 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-
 plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id 'com.gradleup.nmcp' version '1.0.1'
 }
 
 group 'ai.tecton'
@@ -91,24 +89,10 @@ artifacts {
     archives javadocJar
 }
 
-// Publish JAR to Nexus
+// Configure publishing for Central Portal
 publishing {
-    repositories {
-        maven {
-            credentials {
-                username = findProperty('ossrh.username')
-                password = System.getenv('OSSRH_TOKEN')
-            }
-            if (version.endsWith('-SNAPSHOT')) {
-                url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-            } else {
-                url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-            }
-        }
-    }
-
     publications {
-        mavenJava(MavenPublication) {
+        maven(MavenPublication) {
             from components.java
             artifact sourcesJar
             artifact javadocJar
@@ -146,9 +130,17 @@ publishing {
     }
 }
 
+// Configure signing
 signing {
     def signingKey = System.getenv('CLIENT_GPG_KEY')
     def signingPassword = System.getenv('CLIENT_GPG_PASSPHRASE')
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.mavenJava
+    sign publishing.publications.maven
+}
+
+// Configure New Maven Central Publishing (NMCP) plugin for Central Portal
+nmcp {
+    publishingType = "AUTOMATIC"
+    username = findProperty('centralPortal.username') ?: System.getenv('CENTRAL_PORTAL_USERNAME')
+    password = findProperty('centralPortal.password') ?: System.getenv('CENTRAL_PORTAL_PASSWORD')
 }
