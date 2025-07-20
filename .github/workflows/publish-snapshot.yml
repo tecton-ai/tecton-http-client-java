@@ -30,4 +30,6 @@ jobs:
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           CLIENT_GPG_PASSPHRASE: ${{ secrets.CLIENT_GPG_PASSPHRASE }}
           CLIENT_GPG_KEY: ${{ secrets.CLIENT_GPG_KEY }}
+          CENTRAL_PORTAL_USERNAME: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
+          CENTRAL_PORTAL_PASSWORD: ${{ secrets.CENTRAL_PORTAL_PASSWORD }}
         run: ./gradlew publish
