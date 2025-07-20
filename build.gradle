@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'com.gradleup.nmcp' version '1.0.1'
 }
 
 group 'ai.tecton'
@@ -62,11 +61,11 @@ test {
     useJUnit()
     testLogging {
         showStandardStreams = true
-        events = [TestLogEvent.FAILED,
-                  TestLogEvent.PASSED,
-                  TestLogEvent.SKIPPED,
-                  TestLogEvent.STANDARD_OUT]
-        exceptionFormat = TestExceptionFormat.FULL
+        events = [org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                  org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                  org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                  org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT]
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showExceptions = true
         showCauses = true
         showStackTraces = true
@@ -89,8 +88,29 @@ artifacts {
     archives javadocJar
 }
 
-// Configure publishing for Central Portal
+// Configure publishing for Central Portal using maven-publish plugin
 publishing {
+    repositories {
+        maven {
+            name = "CentralPortal"
+            // Use snapshots repository for SNAPSHOT versions, main repository for releases
+            def releasesRepoUrl = "https://central.sonatype.com/api/v1/publisher/upload"
+            def snapshotsRepoUrl = "https://central.sonatype.com/repository/maven-snapshots/"
+            url = version.toString().endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials {
+                username = findProperty('centralPortal.username') ?: System.getenv('CENTRAL_PORTAL_USERNAME')
+                password = findProperty('centralPortal.password') ?: System.getenv('CENTRAL_PORTAL_PASSWORD')
+            }
+        }
+
+        // Local staging repository for testing
+        maven {
+            name = "LocalStaging"
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
+        }
+    }
+
     publications {
         maven(MavenPublication) {
             from components.java
@@ -130,17 +150,16 @@ publishing {
     }
 }
 
-// Configure signing
+// Configure signing (conditional - only when GPG keys are available)
 signing {
     def signingKey = System.getenv('CLIENT_GPG_KEY')
     def signingPassword = System.getenv('CLIENT_GPG_PASSPHRASE')
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign publishing.publications.maven
-}
 
-// Configure New Maven Central Publishing (NMCP) plugin for Central Portal
-nmcp {
-    publishingType = "AUTOMATIC"
-    username = findProperty('centralPortal.username') ?: System.getenv('CENTRAL_PORTAL_USERNAME')
-    password = findProperty('centralPortal.password') ?: System.getenv('CENTRAL_PORTAL_PASSWORD')
+    // Only sign if both key and password are available
+    required { signingKey != null && signingPassword != null }
+
+    if (signingKey != null && signingPassword != null) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.maven
+    }
 }
