@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: ai.tecton.client.response.GetFeaturesBatchResponseTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.205 s -- in ai.tecton.client.response.GetFeaturesBatchResponseTest

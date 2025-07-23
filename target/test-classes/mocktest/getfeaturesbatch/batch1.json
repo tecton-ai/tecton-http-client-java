@@ -1,0 +1,198 @@
+{
+  "result": [
+    {
+      "features": [
+        false,
+        0,
+        0.0010621348911311736,
+        0.001418942887548776,
+        "671",
+        74.25209302325585,
+        78.37321428571428,
+        67.77857283950623,
+        47892.60000000003,
+        2194.45,
+        137251.6100000001,
+        "650",
+        "20443",
+        "61207"
+      ]
+    },
+    {
+      "features": [
+        true,
+        0.017241379310344827,
+        0.01357733175914994,
+        0.015481089555163629,
+        "667",
+        57.09122699386504,
+        31.785000000000004,
+        60.60629139072843,
+        27917.610000000004,
+        635.7,
+        91515.49999999993,
+        "490",
+        "15268",
+        "45917"
+      ]
+    },
+    {
+      "features": [
+        true,
+        0,
+        0,
+        0,
+        "693",
+        60.329274425287316,
+        50.96183333333333,
+        59.53020802741064,
+        83978.34999999995,
+        3057.71,
+        243240.42999999988,
+        "1296",
+        "40244",
+        "121683"
+      ]
+    }
+  ],
+  "metadata": {
+    "features": [
+      {
+        "name": "transaction_amount_is_higher_than_average.transaction_amount_is_higher_than_average",
+        "dataType": {
+          "type": "boolean"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_1d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_30d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_90d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_distinct_merchant_transaction_count_30d.distinct_merchant_transaction_count_30d",
+        "effectiveTime": "2022-08-16T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1d_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1h_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_3d_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1d_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1h_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_3d_10m",
+        "effectiveTime": "2022-08-16T22:10:00Z",
+        "dataType": {
+          "type": "float64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_1d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_30d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_90d_1d",
+        "effectiveTime": "2022-08-15T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        },
+        "status": ["PRESENT", "PRESENT", "PRESENT"]
+      }
+    ],
+    "sloInfo": [
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.033027251,
+        "dynamodbResponseSizeBytes": 32052,
+        "serverTimeSeconds": 0.03392528
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.0211333,
+        "dynamodbResponseSizeBytes": 31944,
+        "serverTimeSeconds": 0.022184401
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.015265108,
+        "dynamodbResponseSizeBytes": 33121,
+        "serverTimeSeconds": 0.016896083
+      }
+    ],
+    "batchSloInfo": {
+      "sloEligible": true,
+      "sloServerTimeSeconds": 0.033027251,
+      "serverTimeSeconds": 0.034359268
+    }
+  }
+}

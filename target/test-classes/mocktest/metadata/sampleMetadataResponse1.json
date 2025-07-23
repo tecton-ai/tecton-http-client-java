@@ -1,0 +1,128 @@
+{
+  "featureServiceType": "DEFAULT",
+  "inputJoinKeys": [
+    {
+      "name": "user_id",
+      "dataType": {
+        "type": "string"
+      },
+      "type": "string"
+    },
+    {
+      "name": "merchant",
+      "dataType": {
+        "type": "string"
+      },
+      "type": "string"
+    }
+  ],
+  "inputRequestContextKeys": [
+    {
+      "name": "amt",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    }
+  ],
+  "featureValues": [
+    {
+      "name": "transaction_amount_is_higher_than_average.transaction_amount_is_higher_than_average",
+      "dataType": {
+        "type": "boolean"
+      },
+      "type": "boolean"
+    },
+    {
+      "name": "merchant_fraud_rate.is_fraud_mean_1d_1d",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "merchant_fraud_rate.is_fraud_mean_30d_1d",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "merchant_fraud_rate.is_fraud_mean_90d_1d",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_distinct_merchant_transaction_count_30d.distinct_merchant_transaction_count_30d",
+      "dataType": {
+        "type": "int64"
+      },
+      "type": "int64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_mean_1d_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_mean_1h_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_mean_3d_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_sum_1d_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_sum_1h_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_amount_metrics.amt_sum_3d_10m",
+      "dataType": {
+        "type": "float64"
+      },
+      "type": "float64"
+    },
+    {
+      "name": "user_transaction_counts.transaction_count_1d_1d",
+      "dataType": {
+        "type": "int64"
+      },
+      "type": "int64"
+    },
+    {
+      "name": "user_transaction_counts.transaction_count_30d_1d",
+      "dataType": {
+        "type": "int64"
+      },
+      "type": "int64"
+    },
+    {
+      "name": "user_transaction_counts.transaction_count_90d_1d",
+      "dataType": {
+        "type": "int64"
+      },
+      "type": "int64"
+    }
+  ]
+}

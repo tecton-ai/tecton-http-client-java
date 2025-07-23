@@ -1,0 +1,73 @@
+@options
+@packages
+-classpath
+'/Users/zack/.m2/repository/com/squareup/okhttp3/okhttp/4.10.0/okhttp-4.10.0.jar:/Users/zack/.m2/repository/com/squareup/okio/okio-jvm/3.0.0/okio-jvm-3.0.0.jar:/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-common/1.5.31/kotlin-stdlib-common-1.5.31.jar:/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/1.6.20/kotlin-stdlib-1.6.20.jar:/Users/zack/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar:/Users/zack/.m2/repository/com/squareup/moshi/moshi/1.13.0/moshi-1.13.0.jar:/Users/zack/.m2/repository/com/squareup/okio/okio/2.10.0/okio-2.10.0.jar:/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.6.0/kotlin-stdlib-jdk8-1.6.0.jar:/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.6.0/kotlin-stdlib-jdk7-1.6.0.jar:/Users/zack/.m2/repository/com/squareup/moshi/moshi-adapters/1.13.0/moshi-adapters-1.13.0.jar:/Users/zack/.m2/repository/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar:/Users/zack/.m2/repository/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar'
+-encoding
+'UTF-8'
+-protected
+-source
+'8'
+-sourcepath
+'/Users/zack/tecton-http-client-java1/src/main/java:/Users/zack/tecton-http-client-java1/target/generated-sources/java-templates:/Users/zack/tecton-http-client-java1/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2025. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/Users/zack/tecton-http-client-java1/target/apidocs'
+-docencoding
+'UTF-8'
+-Xdoclint:none
+-doctitle
+'Tecton Java Client 0.9.4-SNAPSHOT API'
+-linkoffline
+'https://docs.oracle.com/javase/8/docs/api' '/Users/zack/tecton-http-client-java1/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Tecton Java Client 0.9.4-SNAPSHOT API'
+ai.tecton.client.transport
+ai.tecton.client.response
+ai.tecton.client.exceptions
+ai.tecton.client
+ai.tecton.client.model
+ai.tecton.client.request
+ai.tecton.client.version
+/Users/zack/.m2/repository/com/squareup/okhttp3/okhttp/4.10.0/okhttp-4.10.0.jar = 1655042638000
+/Users/zack/.m2/repository/com/squareup/okio/okio-jvm/3.0.0/okio-jvm-3.0.0.jar = 1635459849000
+/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-common/1.5.31/kotlin-stdlib-common-1.5.31.jar = 1631980259000
+/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib/1.6.20/kotlin-stdlib-1.6.20.jar = 1648814412000
+/Users/zack/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar = 1719255261852
+/Users/zack/.m2/repository/com/squareup/moshi/moshi/1.13.0/moshi-1.13.0.jar = 1639018430000
+/Users/zack/.m2/repository/com/squareup/okio/okio/2.10.0/okio-2.10.0.jar = 1610057714000
+/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.6.0/kotlin-stdlib-jdk8-1.6.0.jar = 1636793870000
+/Users/zack/.m2/repository/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.6.0/kotlin-stdlib-jdk7-1.6.0.jar = 1636793867000
+/Users/zack/.m2/repository/com/squareup/moshi/moshi-adapters/1.13.0/moshi-adapters-1.13.0.jar = 1639018413000
+/Users/zack/.m2/repository/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar = 1614372051000
+/Users/zack/.m2/repository/org/apache/commons/commons-collections4/4.4/commons-collections4-4.4.jar = 1562350217000
+/Users/zack/tecton-http-client-java1/src/main/java = 1721931688881
+/Users/zack/tecton-http-client-java1/target/generated-sources/java-templates = 1753298321474
+/Users/zack/tecton-http-client-java1/target/generated-sources/annotations = 1753298321570
+/Users/zack/tecton-http-client-java1/target/apidocs/constant-values.html = 1753298325540
+/Users/zack/tecton-http-client-java1/target/apidocs/member-search-index.zip = 1753298325615
+/Users/zack/tecton-http-client-java1/target/apidocs/overview-tree.html = 1753298325598
+/Users/zack/tecton-http-client-java1/target/apidocs/index.html = 1753298325628
+/Users/zack/tecton-http-client-java1/target/apidocs/package-search-index.js = 1753298325612
+/Users/zack/tecton-http-client-java1/target/apidocs/jquery-ui.overrides.css = 1753298325640
+/Users/zack/tecton-http-client-java1/target/apidocs/package-search-index.zip = 1753298325614
+/Users/zack/tecton-http-client-java1/target/apidocs/type-search-index.zip = 1753298325614
+/Users/zack/tecton-http-client-java1/target/apidocs/serialized-form.html = 1753298325544
+/Users/zack/tecton-http-client-java1/target/apidocs/index-all.html = 1753298325619
+/Users/zack/tecton-http-client-java1/target/apidocs/allpackages-index.html = 1753298325623
+/Users/zack/tecton-http-client-java1/target/apidocs/deprecated-list.html = 1753298325624
+/Users/zack/tecton-http-client-java1/target/apidocs/member-search-index.js = 1753298325615
+/Users/zack/tecton-http-client-java1/target/apidocs/allclasses.html = 1753298325625
+/Users/zack/tecton-http-client-java1/target/apidocs/script.js = 1753298325630
+/Users/zack/tecton-http-client-java1/target/apidocs/stylesheet.css = 1753298325630
+/Users/zack/tecton-http-client-java1/target/apidocs/overview-summary.html = 1753298325628
+/Users/zack/tecton-http-client-java1/target/apidocs/help-doc.html = 1753298325629
+/Users/zack/tecton-http-client-java1/target/apidocs/element-list = 1753298325523
+/Users/zack/tecton-http-client-java1/target/apidocs/allclasses-index.html = 1753298325622
+/Users/zack/tecton-http-client-java1/target/apidocs/type-search-index.js = 1753298325614
+/Users/zack/tecton-http-client-java1/target/apidocs/search.js = 1753298325631

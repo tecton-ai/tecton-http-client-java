@@ -1,0 +1,289 @@
+{
+  "result": [
+    {
+      "features": [
+        false,
+        0.01818181818181818,
+        0.0015965939329430547,
+        0.0016059957173447537,
+        "672",
+        63.27903409090909,
+        96.72319999999999,
+        62.30119104335397,
+        44548.44,
+        2418.08,
+        130770.19999999998,
+        "682",
+        "20522",
+        "61328"
+      ]
+    },
+    {
+      "features": [
+        true,
+        0,
+        0.01410105757931845,
+        0.01611963488055933,
+        "668",
+        54.19960377358488,
+        48.155,
+        58.52166878980895,
+        28725.789999999986,
+        866.79,
+        91879.02000000005,
+        "512",
+        "15355",
+        "45987"
+      ]
+    },
+    {
+      "features": [
+        true,
+        0,
+        0,
+        0,
+        "697",
+        68.6643213499633,
+        42.13561403508772,
+        63.56664792176038,
+        93589.46999999997,
+        2401.73,
+        259987.58999999994,
+        "1300",
+        "40626",
+        "121947"
+      ]
+    },
+    {
+      "features": [
+        false,
+        0,
+        0.0030410542321338066,
+        0.0036076275554028517,
+        "690",
+        51.22098890942699,
+        33.63320754716981,
+        56.38687715991207,
+        55421.11000000001,
+        1782.56,
+        179479.4300000001,
+        "1030",
+        "30385",
+        "91675"
+      ]
+    },
+    {
+      "features": [
+        true,
+        0,
+        0,
+        0,
+        "688",
+        71.65225285171101,
+        43.10842105263158,
+        68.77729103404191,
+        150756.33999999997,
+        3276.24,
+        430339.5100000002,
+        "2028",
+        "60634",
+        "182805"
+      ]
+    },
+    {
+      "features": [
+        false,
+        0,
+        0,
+        0,
+        "685",
+        67.6827083333333,
+        53.572978723404255,
+        68.38951367781152,
+        87716.78999999995,
+        2517.93,
+        270001.7999999999,
+        "1245",
+        "38824",
+        "116290"
+      ]
+    },
+    {
+      "features": [
+        false,
+        0,
+        0.007851934941110488,
+        0.0066630650099045565,
+        "676",
+        82.75716713881016,
+        60.33,
+        89.99427063339739,
+        29213.279999999988,
+        844.62,
+        93774.03000000009,
+        "339",
+        "10279",
+        "30528"
+      ]
+    }
+  ],
+  "metadata": {
+    "features": [
+      {
+        "name": "transaction_amount_is_higher_than_average.transaction_amount_is_higher_than_average",
+        "dataType": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_1d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_30d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "merchant_fraud_rate.is_fraud_mean_90d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_distinct_merchant_transaction_count_30d.distinct_merchant_transaction_count_30d",
+        "effectiveTime": "2022-08-11T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1d_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_1h_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_mean_3d_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1d_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_1h_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_amount_metrics.amt_sum_3d_10m",
+        "effectiveTime": "2022-08-11T00:10:00Z",
+        "dataType": {
+          "type": "float64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_1d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_30d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      },
+      {
+        "name": "user_transaction_counts.transaction_count_90d_1d",
+        "effectiveTime": "2022-08-10T00:00:00Z",
+        "dataType": {
+          "type": "int64"
+        }
+      }
+    ],
+    "sloInfo": [
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.055513756,
+        "dynamodbResponseSizeBytes": 32224,
+        "serverTimeSeconds": 0.056368353
+      },
+      {
+        "sloEligible": false,
+        "sloServerTimeSeconds": 0.040463867,
+        "dynamodbResponseSizeBytes": 32286,
+        "serverTimeSeconds": 0.042321568,
+        "sloIneligibilityReasons": [
+          "DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED"
+        ]
+      },
+      {
+        "sloEligible": false,
+        "sloServerTimeSeconds": 0.050458802,
+        "dynamodbResponseSizeBytes": 33121,
+        "serverTimeSeconds": 0.051495564,
+        "sloIneligibilityReasons": [
+          "DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED"
+        ]
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.045276051,
+        "dynamodbResponseSizeBytes": 33785,
+        "serverTimeSeconds": 0.046910974
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.045263464,
+        "dynamodbResponseSizeBytes": 32944,
+        "serverTimeSeconds": 0.047331692
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.053445315,
+        "dynamodbResponseSizeBytes": 32944,
+        "serverTimeSeconds": 0.054399951
+      },
+      {
+        "sloEligible": true,
+        "sloServerTimeSeconds": 0.048510255,
+        "dynamodbResponseSizeBytes": 31379,
+        "serverTimeSeconds": 0.049608717
+      }
+    ],
+    "batchSloInfo": {
+      "sloEligible": false,
+      "sloServerTimeSeconds": 0.077513756,
+      "serverTimeSeconds": 0.057755123,
+      "sloIneligibilityReasons": [
+        "DYNAMODB_RESPONSE_SIZE_LIMIT_EXCEEDED"
+      ]
+    }
+  }
+}
