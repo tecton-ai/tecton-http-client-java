@@ -2,4 +2,3 @@ bin/
 .gradle/
 gradle/
 build/
-.DS_Store
