@@ -46,6 +46,7 @@ public class GetFeaturesBatchRequest {
   private List<? extends AbstractGetFeaturesRequest> requestList;
   private final int microBatchSize;
   private final Duration timeout;
+  private final RequestOptions requestOptions;
   private static final String BATCH_ENDPOINT = "/api/v1/feature-service/get-features-batch";
   private static JsonAdapter<GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson> jsonAdapter =
       null;
@@ -82,7 +83,8 @@ public class GetFeaturesBatchRequest {
         requestDataList,
         RequestConstants.DEFAULT_METADATA_OPTIONS,
         RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
-        RequestConstants.NONE_TIMEOUT);
+        RequestConstants.NONE_TIMEOUT,
+        null);
   }
 
   /**
@@ -116,7 +118,8 @@ public class GetFeaturesBatchRequest {
         requestDataList,
         metadataOptions,
         RequestConstants.DEFAULT_MICRO_BATCH_SIZE,
-        RequestConstants.NONE_TIMEOUT);
+        RequestConstants.NONE_TIMEOUT,
+        null);
   }
 
   /**
@@ -154,7 +157,8 @@ public class GetFeaturesBatchRequest {
         requestDataList,
         metadataOptions,
         microBatchSize,
-        RequestConstants.NONE_TIMEOUT);
+        RequestConstants.NONE_TIMEOUT,
+        null);
   }
 
   /**
@@ -191,8 +195,60 @@ public class GetFeaturesBatchRequest {
       Set<MetadataOption> metadataOptions,
       int microBatchSize,
       Duration timeout) {
+    this(
+        workspaceName,
+        featureServiceName,
+        requestDataList,
+        metadataOptions,
+        microBatchSize,
+        timeout,
+        null);
+  }
+
+  /**
+   * Constructor that creates a new GetFeaturesBatchRequest with the specified parameters including
+   * requestOptions
+   *
+   * @param workspaceName Name of the workspace in which the Feature Service is defined
+   * @param featureServiceName Name of the Feature Service for which the feature vectors are being
+   *     requested
+   * @param requestDataList a {@link List} of {@link GetFeaturesRequestData} object with joinKeyMap
+   *     and/or requestContextMap
+   * @param metadataOptions metadataOptions A {@link Set} of {@link MetadataOption} for retrieving
+   *     additional metadata about the feature values. Use {@link
+   *     RequestConstants#ALL_METADATA_OPTIONS} to request all metadata and {@link
+   *     RequestConstants#NONE_METADATA_OPTIONS} to request no metadata respectively. By default,
+   *     {@link RequestConstants#DEFAULT_METADATA_OPTIONS} will be added to each request
+   * @param microBatchSize an int value between 1 and {@value
+   *     RequestConstants#MAX_MICRO_BATCH_SIZE}. The client splits the GetFeaturesBatchRequest into
+   *     multiple micro batches of this size and executes them parallely. By default, the
+   *     microBatchSize is set to {@value RequestConstants#DEFAULT_MICRO_BATCH_SIZE}
+   * @param timeout The max time in {@link Duration} for which the client waits for the batch
+   *     requests to complete before canceling the operation and returning the partial list of
+   *     results.
+   * @param requestOptions {@link RequestOptions} object with request-level options to control
+   *     feature server behavior
+   * @throws InvalidRequestParameterException when workspaceName or featureServiceName is empty or
+   *     null
+   * @throws InvalidRequestParameterException when requestDataList is invalid (null/empty or
+   *     contains null/empty elements)
+   * @throws InvalidRequestParameterException when the microBatchSize is out of bounds of [ 1,
+   *     {@value RequestConstants#MAX_MICRO_BATCH_SIZE} ]
+   */
+  public GetFeaturesBatchRequest(
+      String workspaceName,
+      String featureServiceName,
+      List<GetFeaturesRequestData> requestDataList,
+      Set<MetadataOption> metadataOptions,
+      int microBatchSize,
+      Duration timeout,
+      RequestOptions requestOptions) {
     validateParameters(workspaceName, featureServiceName, requestDataList, microBatchSize);
     this.timeout = timeout;
+    this.requestOptions = requestOptions;
+
+    // Create final variable for use in lambda expressions
+    final RequestOptions finalRequestOptions = requestOptions;
 
     if (microBatchSize > 1 && requestDataList.size() > 1) {
       // For batch requests, partition the requestDataList into n sublists of size
@@ -203,7 +259,11 @@ public class GetFeaturesBatchRequest {
               .map(
                   requestData ->
                       new GetFeaturesMicroBatchRequest(
-                          workspaceName, featureServiceName, requestData, metadataOptions))
+                          workspaceName,
+                          featureServiceName,
+                          requestData,
+                          metadataOptions,
+                          finalRequestOptions))
               .collect(Collectors.toList());
       this.microBatchSize = microBatchSize;
       jsonAdapter = moshi.adapter(GetFeaturesMicroBatchRequest.GetFeaturesRequestBatchJson.class);
@@ -217,7 +277,11 @@ public class GetFeaturesBatchRequest {
               .map(
                   requestData ->
                       new GetFeaturesRequest(
-                          workspaceName, featureServiceName, requestData, metadataOptions))
+                          workspaceName,
+                          featureServiceName,
+                          requestData,
+                          metadataOptions,
+                          finalRequestOptions))
               .collect(Collectors.toList());
       this.microBatchSize = microBatchSize;
       this.endpoint = GetFeaturesRequest.ENDPOINT;
@@ -272,6 +336,7 @@ public class GetFeaturesBatchRequest {
     private Set<MetadataOption> metadataOptionList = RequestConstants.DEFAULT_METADATA_OPTIONS;
     private int microBatchSize = RequestConstants.DEFAULT_MICRO_BATCH_SIZE;
     private Duration timeout = RequestConstants.NONE_TIMEOUT;
+    private RequestOptions requestOptions;
 
     /** Constructs an empty Builder */
     public Builder() {
@@ -370,6 +435,18 @@ public class GetFeaturesBatchRequest {
     }
 
     /**
+     * Setter for {@link RequestOptions}
+     *
+     * @param requestOptions {@link RequestOptions} object with request-level options to control
+     *     feature server behavior
+     * @return this Builder
+     */
+    public Builder requestOptions(RequestOptions requestOptions) {
+      this.requestOptions = requestOptions;
+      return this;
+    }
+
+    /**
      * Returns an instance of {@link GetFeaturesBatchRequest} created from the fields set on this
      * builder
      *
@@ -386,7 +463,8 @@ public class GetFeaturesBatchRequest {
           requestDataList,
           metadataOptionList,
           microBatchSize,
-          timeout);
+          timeout,
+          requestOptions);
     }
   }
 
@@ -414,6 +492,7 @@ public class GetFeaturesBatchRequest {
   static class GetFeaturesMicroBatchRequest extends AbstractGetFeaturesRequest {
 
     private final List<GetFeaturesRequestData> requestDataList;
+    private final RequestOptions requestOptions;
 
     GetFeaturesMicroBatchRequest(
         String workspaceName,
@@ -422,6 +501,18 @@ public class GetFeaturesBatchRequest {
         Set<MetadataOption> metadataOptions) {
       super(workspaceName, featureServiceName, BATCH_ENDPOINT, metadataOptions);
       this.requestDataList = requestDataList;
+      this.requestOptions = null;
+    }
+
+    GetFeaturesMicroBatchRequest(
+        String workspaceName,
+        String featureServiceName,
+        List<GetFeaturesRequestData> requestDataList,
+        Set<MetadataOption> metadataOptions,
+        RequestOptions requestOptions) {
+      super(workspaceName, featureServiceName, BATCH_ENDPOINT, metadataOptions);
+      this.requestDataList = requestDataList;
+      this.requestOptions = requestOptions;
     }
 
     // Moshi JSON classes
@@ -438,6 +529,7 @@ public class GetFeaturesBatchRequest {
       String workspace_name;
       List<RequestDataField> request_data;
       Map<String, Boolean> metadata_options;
+      Map<String, Object> request_options;
     }
 
     static class RequestDataField {
@@ -471,6 +563,9 @@ public class GetFeaturesBatchRequest {
         getFeaturesFields.metadata_options =
             metadataOptions.stream()
                 .collect(Collectors.toMap(MetadataOption::getJsonName, (a) -> Boolean.TRUE));
+      }
+      if (requestOptions != null && !requestOptions.isEmpty()) {
+        getFeaturesFields.request_options = requestOptions.getOptions();
       }
       GetFeaturesRequestBatchJson getFeaturesRequestJson =
           new GetFeaturesRequestBatchJson(getFeaturesFields);
