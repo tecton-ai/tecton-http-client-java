@@ -118,19 +118,19 @@ The Tecton Java client is open source and we welcome any contributions from our 
 ### Prerequisites
 
 * Java 8 or higher
-* Gradle
+* Maven
 * [Google Java Format](https://github.com/google/google-java-format) formatter (can also use as a plugin in your IDE)
 
 ### Build the Project
 
-The `tecton-http-client-java` project can be built using Gradle as follows:
+The `tecton-http-client-java` project can be built using Maven as follows:
 
-`./gradlew clean build`
+`./mvnw clean package`
 
 ## Basic end to end testing
 
 In the demo client [repository](https://github.com/tecton-ai/TectonClientDemo) update the `build.gradle` file with the
-jar that you generate from this repo using `./gradlew clean build`.
+jar that you generate from this repo using `./mvnw clean package`.
 
 1. Change the dependencies target to this and point the files attribute to your java client jar.
 2. Add the okhttp3 dependency from `tecton-http-client-java` to `build.gradle` in the demo client repository. This is
@@ -159,7 +159,7 @@ Update `tecton.properties` with your cluster url and run the Demo file to query 
 ## Before Opening a PR
 
 * Please run pre-commit on your staged files to ensure that the changes are correctly formatted.
-* Please run `./gradlew clean build` to ensure that your changes pass the build
+* Please run `./mvnw clean package` to ensure that your changes pass the build
 * Please add unit tests if possible to test the new code changes
 
 ## License

@@ -1,8 +1,8 @@
-- command: ./gradlew clean build
+- command: ./mvnw clean package
   label: 'Build Java Client'
   key: "build"
 - wait
-- command: ./gradlew publish -i
+- command: ./mvnw deploy -i
   label: ':rocket: Publish Snapshot Jar'
   key: "deploy"
   depends_on: "build"

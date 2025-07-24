@@ -45,28 +45,6 @@ public class RequestOptions {
   }
 
   /**
-   * Gets a specific option value by key as an Integer.
-   *
-   * @param key the option key
-   * @return the option value as Integer, or null if not set or not an Integer
-   */
-  public Integer getIntegerOption(String key) {
-    Object value = this.options.get(key);
-    return value instanceof Integer ? (Integer) value : null;
-  }
-
-  /**
-   * Gets a specific option value by key as a Boolean.
-   *
-   * @param key the option key
-   * @return the option value as Boolean, or null if not set or not a Boolean
-   */
-  public Boolean getBooleanOption(String key) {
-    Object value = this.options.get(key);
-    return value instanceof Boolean ? (Boolean) value : null;
-  }
-
-  /**
    * Gets all options as an unmodifiable map.
    *
    * @return Map containing all request options
