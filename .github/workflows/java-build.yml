@@ -8,7 +8,7 @@ on:
       - main
       - release
 jobs:
-  java-maven-build:
+  java-gradle-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
