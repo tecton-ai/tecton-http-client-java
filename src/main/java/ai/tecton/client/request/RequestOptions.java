@@ -27,10 +27,8 @@ public class RequestOptions {
    * @throws IllegalArgumentException if value is not Integer or Boolean
    */
   public RequestOptions setOption(String key, Object value) {
-    if (value != null && !(value instanceof Integer) && !(value instanceof Boolean)) {
-      throw new IllegalArgumentException(
-          "Option value must be either Integer or Boolean, got: "
-              + value.getClass().getSimpleName());
+    if (value != null) {
+      throw new IllegalArgumentException("Option value must not be null: " + key);
     }
     this.options.put(key, value);
     return this;
@@ -44,28 +42,6 @@ public class RequestOptions {
    */
   public Object getOption(String key) {
     return this.options.get(key);
-  }
-
-  /**
-   * Gets a specific option value by key as an Integer.
-   *
-   * @param key the option key
-   * @return the option value as Integer, or null if not set or not an Integer
-   */
-  public Integer getIntegerOption(String key) {
-    Object value = this.options.get(key);
-    return value instanceof Integer ? (Integer) value : null;
-  }
-
-  /**
-   * Gets a specific option value by key as a Boolean.
-   *
-   * @param key the option key
-   * @return the option value as Boolean, or null if not set or not a Boolean
-   */
-  public Boolean getBooleanOption(String key) {
-    Object value = this.options.get(key);
-    return value instanceof Boolean ? (Boolean) value : null;
   }
 
   /**
