@@ -265,7 +265,8 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
      */
     public GetFeaturesRequest build() {
       if (this.requestOptions != null) {
-        // If requestOptions is set, use the constructor that accepts it
+        // If requestOptions is set and metadataOptions is or is not set (using a default if not
+        // set).
         Set<MetadataOption> options =
             this.metadataOptions.isEmpty()
                 ? RequestConstants.DEFAULT_METADATA_OPTIONS
@@ -273,8 +274,12 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
         return new GetFeaturesRequest(
             workspaceName, featureServiceName, getFeaturesRequestData, options, requestOptions);
       } else if (this.metadataOptions.isEmpty()) {
+        // If requestOptions is not set and metadataOptions is empty, use the constructor that does
+        // not take metadataOptions.
         return new GetFeaturesRequest(workspaceName, featureServiceName, getFeaturesRequestData);
       } else {
+        // If requestOptions is not set and metadataOptions is not empty, use the constructor that
+        // takes metadataOptions.
         return new GetFeaturesRequest(
             workspaceName, featureServiceName, getFeaturesRequestData, metadataOptions);
       }
