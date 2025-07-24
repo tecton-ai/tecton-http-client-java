@@ -44,6 +44,7 @@ public class RequestOptions {
     return this.options.get(key);
   }
 
+  /**
    * Gets all options as an unmodifiable map.
    *
    * @return Map containing all request options
