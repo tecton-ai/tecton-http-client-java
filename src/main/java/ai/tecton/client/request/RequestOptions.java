@@ -27,10 +27,8 @@ public class RequestOptions {
    * @throws IllegalArgumentException if value is not Integer or Boolean
    */
   public RequestOptions setOption(String key, Object value) {
-    if (value != null && !(value instanceof Integer) && !(value instanceof Boolean)) {
-      throw new IllegalArgumentException(
-          "Option value must be either Integer or Boolean, got: "
-              + value.getClass().getSimpleName());
+    if (value == null) {
+      throw new IllegalArgumentException("Option value must not be null: " + key);
     }
     this.options.put(key, value);
     return this;
