@@ -278,9 +278,7 @@ public class GetFeaturesRequest extends AbstractGetFeaturesRequest {
         return new GetFeaturesRequest(workspaceName, featureServiceName, getFeaturesRequestData);
       } else {
         // Handle the case where metadataOptions is set and requestOptions is not set.
-        return new GetFeaturesRequest(
-            workspaceName, featureServiceName, getFeaturesRequestData, metadataOptions);
-      }
+        return new GetFeaturesRequest(workspaceName, featureServiceName, getFeaturesRequestData);
     }
   }
 }
