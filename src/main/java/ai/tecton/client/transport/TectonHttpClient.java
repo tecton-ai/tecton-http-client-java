@@ -114,8 +114,7 @@ public class TectonHttpClient {
     // Map request body to OkHttp Request
     // ordering of requests is maintained
     List<Request> requestList =
-        requestBodyList
-            .parallelStream()
+        requestBodyList.stream()
             .map(
                 requestBody ->
                     new HttpRequest(url.url().toString(), endpoint, method, apiKey, requestBody))
@@ -153,12 +152,10 @@ public class TectonHttpClient {
         };
 
     // Enqueue all calls
-    requestList
-        .parallelStream()
-        .forEach(
-            request -> {
-              client.newCall(request).enqueue(callback);
-            });
+    requestList.forEach(
+        request -> {
+          client.newCall(request).enqueue(callback);
+        });
 
     // Wait until A) all calls have completed or B) specified timeout has elapsed
     try {
