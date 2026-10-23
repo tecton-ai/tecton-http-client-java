@@ -85,7 +85,7 @@ public class SloInformation {
   }
 
   /**
-   * The server time minus any time spent waiting on line transforms to finish after all table
+   * The server time minus any time spent waiting on online transforms to finish after all table
    * transforms have finished.
    *
    * @return Optional&lt;Double&gt; if present, Optional.empty() otherwise

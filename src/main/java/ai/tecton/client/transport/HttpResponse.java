@@ -36,7 +36,7 @@ public class HttpResponse {
     this.isSuccessful = response.isSuccessful();
     this.body = responseBody.string();
 
-    // If a Tecton error message (e.g. "invalid) 'Tecton-key' authorization header" ) isn't present
+    // If a Tecton error message (e.g. "invalid 'Tecton-key' authorization header" ) isn't present
     // in the response, (e.g. when the request times out), the client uses the HTTP error status (
     // e.g.Forbidden, Not Found) while throwing an Exception
     if (!this.isSuccessful) {
