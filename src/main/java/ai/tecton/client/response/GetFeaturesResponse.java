@@ -70,7 +70,7 @@ public class GetFeaturesResponse extends AbstractTectonResponse {
   }
 
   /**
-   * Returns an {@link SloInformation} objected wrapped in {@link java.util.Optional} if present in
+   * Returns an {@link SloInformation} object wrapped in {@link java.util.Optional} if present in
    * the response received from the HTTP API, Optional.empty() otherwise
    */
   public Optional<SloInformation> getSloInformation() {
